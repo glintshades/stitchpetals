@@ -1,3 +1,6 @@
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -134,9 +137,6 @@
     box-shadow: 0 20px 40px rgba(142, 0, 56, 0.15);
   }
 }
-
-/* Font imports */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 .font-playfair {
   font-family: 'Playfair Display', serif;
