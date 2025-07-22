@@ -1,4 +1,6 @@
 import { users, products, cartItems, contactSubmissions, type User, type InsertUser, type Product, type InsertProduct, type CartItem, type InsertCartItem, type ContactSubmission, type InsertContactSubmission } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -19,31 +21,14 @@ export interface IStorage {
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private products: Map<number, Product>;
-  private cartItems: Map<number, CartItem>;
-  private contactSubmissions: Map<number, ContactSubmission>;
-  private currentUserId: number;
-  private currentProductId: number;
-  private currentCartItemId: number;
-  private currentContactId: number;
+export class DatabaseStorage implements IStorage {
+  async initializeProducts() {
+    // Check if products already exist
+    const existingProducts = await db.select().from(products);
+    if (existingProducts.length > 0) return;
 
-  constructor() {
-    this.users = new Map();
-    this.products = new Map();
-    this.cartItems = new Map();
-    this.contactSubmissions = new Map();
-    this.currentUserId = 1;
-    this.currentProductId = 1;
-    this.currentCartItemId = 1;
-    this.currentContactId = 1;
-    
-    this.initializeProducts();
-  }
-
-  private initializeProducts() {
-    const sampleProducts: (Omit<Product, 'id'> & { id?: number })[] = [
+    // Insert sample products
+    const sampleProducts: InsertProduct[] = [
       {
         name: "Crochet Sunflower Bouquet Mixed With Daisy&Tulip",
         description: "Bouquet Style 1 / Soft Cotton",
@@ -166,112 +151,119 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    sampleProducts.forEach(product => {
-      const id = this.currentProductId++;
-      this.products.set(id, { ...product, id } as Product);
-    });
+    await db.insert(products).values(sampleProducts);
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
+    await this.initializeProducts(); // Ensure products are initialized
+    return await db.select().from(products);
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
-    return Array.from(this.products.values()).filter(product => product.category === category);
+    return await db.select().from(products).where(eq(products.category, category));
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = this.currentProductId++;
-    const product: Product = { ...insertProduct, id };
-    this.products.set(id, product);
+    const [product] = await db.insert(products).values(insertProduct).returning();
     return product;
   }
 
   async getCartItems(sessionId: string): Promise<(CartItem & { product: Product })[]> {
-    const items = Array.from(this.cartItems.values()).filter(item => item.sessionId === sessionId);
-    return items.map(item => {
-      const product = this.products.get(item.productId);
-      if (!product) throw new Error(`Product not found: ${item.productId}`);
-      return { ...item, product };
-    });
+    const items = await db.select({
+      id: cartItems.id,
+      sessionId: cartItems.sessionId,
+      productId: cartItems.productId,
+      quantity: cartItems.quantity,
+      selectedColor: cartItems.selectedColor,
+      product: products
+    })
+    .from(cartItems)
+    .leftJoin(products, eq(cartItems.productId, products.id))
+    .where(eq(cartItems.sessionId, sessionId));
+
+    return items.map(item => ({
+      id: item.id,
+      sessionId: item.sessionId,
+      productId: item.productId,
+      quantity: item.quantity,
+      selectedColor: item.selectedColor,
+      product: item.product!
+    }));
   }
 
   async addToCart(insertItem: InsertCartItem): Promise<CartItem> {
     // Check if item already exists in cart
-    const existingItem = Array.from(this.cartItems.values()).find(
-      item => item.sessionId === insertItem.sessionId && 
-              item.productId === insertItem.productId &&
-              item.selectedColor === insertItem.selectedColor
+    const existingItems = await db.select().from(cartItems).where(
+      eq(cartItems.sessionId, insertItem.sessionId)
+    );
+    
+    const existingItem = existingItems.find(item => 
+      item.productId === insertItem.productId &&
+      item.selectedColor === insertItem.selectedColor
     );
 
     if (existingItem) {
-      const updatedItem = { ...existingItem, quantity: existingItem.quantity + insertItem.quantity };
-      this.cartItems.set(existingItem.id, updatedItem);
+      const [updatedItem] = await db.update(cartItems)
+        .set({ quantity: existingItem.quantity + (insertItem.quantity || 1) })
+        .where(eq(cartItems.id, existingItem.id))
+        .returning();
       return updatedItem;
     }
 
-    const id = this.currentCartItemId++;
-    const item: CartItem = { ...insertItem, id };
-    this.cartItems.set(id, item);
+    const [item] = await db.insert(cartItems).values(insertItem).returning();
     return item;
   }
 
   async updateCartItem(id: number, quantity: number): Promise<CartItem | undefined> {
-    const item = this.cartItems.get(id);
-    if (!item) return undefined;
-    
     if (quantity <= 0) {
-      this.cartItems.delete(id);
+      await db.delete(cartItems).where(eq(cartItems.id, id));
       return undefined;
     }
 
-    const updatedItem = { ...item, quantity };
-    this.cartItems.set(id, updatedItem);
-    return updatedItem;
+    const [updatedItem] = await db.update(cartItems)
+      .set({ quantity })
+      .where(eq(cartItems.id, id))
+      .returning();
+    return updatedItem || undefined;
   }
 
   async removeFromCart(id: number): Promise<boolean> {
-    return this.cartItems.delete(id);
+    const result = await db.delete(cartItems).where(eq(cartItems.id, id));
+    return true;
   }
 
   async clearCart(sessionId: string): Promise<boolean> {
-    const itemsToDelete = Array.from(this.cartItems.entries())
-      .filter(([_, item]) => item.sessionId === sessionId)
-      .map(([id, _]) => id);
-    
-    itemsToDelete.forEach(id => this.cartItems.delete(id));
+    await db.delete(cartItems).where(eq(cartItems.sessionId, sessionId));
     return true;
   }
 
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
-    const id = this.currentContactId++;
-    const submission: ContactSubmission = { 
-      ...insertSubmission, 
-      id, 
-      createdAt: new Date().toISOString() 
-    };
-    this.contactSubmissions.set(id, submission);
+    const [submission] = await db.insert(contactSubmissions).values({
+      ...insertSubmission,
+      createdAt: new Date().toISOString()
+    }).returning();
     return submission;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
