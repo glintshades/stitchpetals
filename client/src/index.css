@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(342, 100%, 27%);
+  --muted: hsl(330, 100%, 97%);
+  --muted-foreground: hsl(342, 20%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(342, 100%, 27%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(342, 100%, 27%);
+  --border: hsl(342, 25%, 90%);
+  --input: hsl(342, 25%, 90%);
+  --primary: hsl(342, 100%, 27%);
+  --primary-foreground: hsl(345, 100%, 98%);
+  --secondary: hsl(330, 100%, 97%);
+  --secondary-foreground: hsl(342, 50%, 15%);
+  --accent: hsl(342, 60%, 80%);
+  --accent-foreground: hsl(342, 50%, 15%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(60, 9%, 98%);
+  --ring: hsl(342, 100%, 27%);
+  --radius: 0.5rem;
+  
+  /* Custom colors for crochet theme */
+  --wine: hsl(342, 100%, 27%);
+  --dark-pink: hsl(336, 69%, 44%);
+  --soft-pink: hsl(340, 89%, 86%);
+  --blush: hsl(330, 100%, 97%);
+  --ivory: hsl(60, 100%, 99%);
+  --warm-gray: hsl(60, 4%, 96%);
+  --deep-rose: hsl(325, 84%, 35%);
+  --gold: hsl(51, 71%, 52%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 4%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 4%, 16%);
+  --muted-foreground: hsl(240, 5%, 65%);
+  --popover: hsl(240, 10%, 4%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 4%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 4%, 16%);
+  --input: hsl(240, 4%, 16%);
+  --primary: hsl(342, 100%, 27%);
+  --primary-foreground: hsl(345, 100%, 98%);
+  --secondary: hsl(240, 4%, 16%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 4%, 16%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 63%, 31%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 5%, 84%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .wine {
+    color: var(--wine);
+  }
+  
+  .bg-wine {
+    background-color: var(--wine);
+  }
+  
+  .dark-pink {
+    color: var(--dark-pink);
+  }
+  
+  .bg-dark-pink {
+    background-color: var(--dark-pink);
+  }
+  
+  .soft-pink {
+    color: var(--soft-pink);
+  }
+  
+  .bg-soft-pink {
+    background-color: var(--soft-pink);
+  }
+  
+  .blush {
+    color: var(--blush);
+  }
+  
+  .bg-blush {
+    background-color: var(--blush);
+  }
+  
+  .ivory {
+    color: var(--ivory);
+  }
+  
+  .bg-ivory {
+    background-color: var(--ivory);
+  }
+  
+  .warm-gray {
+    color: var(--warm-gray);
+  }
+  
+  .bg-warm-gray {
+    background-color: var(--warm-gray);
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--blush) 0%, var(--ivory) 50%, var(--soft-pink) 100%);
+  }
+  
+  .wine-gradient {
+    background: linear-gradient(135deg, var(--wine) 0%, var(--dark-pink) 100%);
+  }
+  
+  .product-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .product-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(142, 0, 56, 0.15);
+  }
+}
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
