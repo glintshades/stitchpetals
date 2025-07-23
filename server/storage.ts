@@ -130,6 +130,16 @@ export class DatabaseStorage implements IStorage {
         inStock: true,
       },
       {
+        name: "Premium Crochet Sunflower Pot Set (2 flowers)",
+        description: "Experience the beauty of handcrafted excellence with this Premium Crochet Sunflower Pot Set. Featuring two stunning sunflowers with intricate petal details and realistic brown centers, each positioned in beautifully textured crocheted pots. The professional craftsmanship showcases premium soft cotton yarn worked into lifelike flowers that capture the essence of real sunflowers.\n\nSpecifications:\n• Material: Premium soft cotton yarn with superior texture and durability\n• Height: 7.5 inches (17cm~18cm) per pot\n• Features: Detailed petal work, realistic brown centers, textured pot design\n• Handcrafted Excellence: Each flower individually shaped for natural variation\n\nPerfect for:\n• Premium home decor and interior styling\n• Professional office environments\n• High-quality gifts for special occasions\n• Photography props and display pieces\n\n🌻 This premium set represents the finest in crochet flower artistry, combining traditional techniques with contemporary design for lasting beauty that never fades.",
+        price: "64.99",
+        category: "potted",
+        imageUrl: "/attached_assets/WechatIMG1746_1753288163170.webp",
+        colors: ["Yellow", "Brown", "Green"],
+        stemCount: 2,
+        inStock: true,
+      },
+      {
         name: "Crochet Rose Stems",
         description: "In Special Morandi Colors - Pink, Red, Orange",
         price: "24.99",
