@@ -458,7 +458,7 @@ export default function ProductPage() {
                 <p className="text-gray-600">More beautiful crochet flowers from the same collection</p>
               </div>
               
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 -m-2.5">
                 {relatedProducts.map((relatedProduct) => (
                   <ProductCard key={relatedProduct.id} product={relatedProduct} />
                 ))}

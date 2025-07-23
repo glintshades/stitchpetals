@@ -44,57 +44,61 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
   const colors = Array.isArray(product.colors) ? product.colors : [];
 
   return (
-    <Link href={`/product/${product.id}`}>
-      <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover cursor-pointer transition-transform hover:scale-105 ${className}`}>
-        <div>
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full h-48 object-cover"
-          />
-        </div>
-        <CardContent className="p-6">
-          <h4 className="font-playfair text-lg font-semibold wine mb-2 hover:text-dark-pink transition-colors">
-            {product.name}
-          </h4>
-          <p className="text-gray-600 text-sm mb-4">{product.description}</p>
-          
-          {product.stemCount && (
-            <Badge variant="secondary" className="mb-3">
-              {product.stemCount} {product.stemCount === 1 ? "Stem" : "Stems"}
-            </Badge>
-          )}
-          
-          {colors.length > 1 && (
-            <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-              <label className="text-sm font-medium wine mb-2 block">Color:</label>
-              <Select value={selectedColor} onValueChange={handleSelectChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select color" />
-                </SelectTrigger>
-                <SelectContent>
-                  {colors.map((color) => (
-                    <SelectItem key={color} value={color}>
-                      {color}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          
-          <div className="flex justify-between items-center">
-            <span className="text-2xl font-bold dark-pink">${product.price}</span>
-            <Button 
-              onClick={handleAddToCart}
-              className="bg-wine text-white hover:bg-dark-pink transition-colors"
-              disabled={!product.inStock}
-            >
-              {product.inStock ? "Add to Cart" : "Out of Stock"}
-            </Button>
+    <div className="p-2.5"> {/* 10px padding around each card */}
+      <Link href={`/product/${product.id}`}>
+        <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover cursor-pointer transition-transform hover:scale-105 h-full flex flex-col ${className}`}>
+          <div className="relative">
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className="w-full h-48 sm:h-52 md:h-56 object-cover"
+            />
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+          <CardContent className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
+            <div className="flex-1">
+              <h4 className="font-playfair text-lg font-semibold wine mb-2 hover:text-dark-pink transition-colors line-clamp-2">
+                {product.name}
+              </h4>
+              <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+              
+              {product.stemCount && (
+                <Badge variant="secondary" className="mb-3">
+                  {product.stemCount} {product.stemCount === 1 ? "Stem" : "Stems"}
+                </Badge>
+              )}
+              
+              {colors.length > 1 && (
+                <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+                  <label className="text-sm font-medium wine mb-2 block">Color:</label>
+                  <Select value={selectedColor} onValueChange={handleSelectChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colors.map((color) => (
+                        <SelectItem key={color} value={color}>
+                          {color}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-auto">
+              <span className="text-xl sm:text-2xl font-bold dark-pink">${product.price}</span>
+              <Button 
+                onClick={handleAddToCart}
+                className="bg-wine text-white hover:bg-dark-pink transition-colors w-full sm:w-auto text-sm px-4 py-2"
+                disabled={!product.inStock}
+              >
+                {product.inStock ? "Add to Cart" : "Out of Stock"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    </div>
   );
 }
