@@ -30,11 +30,11 @@ export class DatabaseStorage implements IStorage {
     // Insert sample products
     const sampleProducts: InsertProduct[] = [
       {
-        name: "Crochet Sunflower Bouquet Mixed With Daisy&Tulip",
-        description: "Bouquet Style 1 / Soft Cotton",
-        price: "49.99",
+        name: "Crochet Sunflower Bouquet Mixed With Daisy&Tulip - Bouquet Style 1 / Soft Cotton",
+        description: "\"Whoever receives this crochet flower bouquet will surely be granted lots of blessing.\"\n\nElevate your space with our enchanting Crochet Sunflower Bouquet, a delightful fusion of radiant sunflowers, delicate daisies, and graceful tulips that exude timeless beauty and charm. Each handcrafted blossom captures the essence of adoration, freshness, elegance, and renewal, adding a splendid touch to your surroundings.\n\nFlower Language for the Entire Bouquet:\nAdoration & Renewal: The sunflowers, daisies, and tulips symbolize adoration, freshness, elegance, and renewal, creating an ambiance of joyful appreciation, sophistication, and a fresh start.\n\nPerfect for Any Occasion:\n• Home Decor: Customize your living space with a bouquet that radiates sentiments of adoration, elegance, and renewal, revitalizing your surroundings\n• Gifts: Share the warmth of adoration, sophistication, and the promise of a new beginning with your loved ones for birthdays, anniversaries, celebrations, or as a heartfelt gesture\n\nProduct Specifications:\n• Materials: Premium Soft Cotton\n• Height: 17\"~18\"\n• Best-Seller on Etsy\n• Fast & Free Shipping Over $9.99\n• 30-Day Free Return & Refund\n\nEnduring Beauty with a Graceful Flourish: Unlike fresh flowers, our Crochet bouquets maintain their beauty forever, requiring no water or maintenance while bringing lasting joy to any space.",
+        price: "29.99",
         category: "bouquets",
-        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "/attached_assets/il_1588xN.4851706578_21g4_1753287720446.webp",
         colors: ["Yellow", "Orange", "White"],
         stemCount: 8,
         inStock: true,
