@@ -120,6 +120,16 @@ export class DatabaseStorage implements IStorage {
         inStock: true,
       },
       {
+        name: "Crochet Sunflower in Pot(2 flowers)",
+        description: "Brighten any space with this handmade Crochet Sunflower Pot, featuring two vibrant sunflowers crafted with care and detail. Each bloom is made with soft, high-quality yarn and securely fixed in a beautifully crocheted pot, making it a charming decor piece for desks, shelves, or gift tables. Unlike real flowers, these sunflowers stay fresh forever — no watering needed!\n\nPerfect for:\n• Home or office decor\n• Gifting for birthdays, thank-yous, or just because\n• Adding a handmade touch to your space",
+        price: "54.99",
+        category: "potted",
+        imageUrl: "/attached_assets/WechatIMG1746_1753286974076.webp",
+        colors: ["Yellow", "Green"],
+        stemCount: 2,
+        inStock: true,
+      },
+      {
         name: "Crochet Rose Stems",
         description: "In Special Morandi Colors - Pink, Red, Orange",
         price: "24.99",
