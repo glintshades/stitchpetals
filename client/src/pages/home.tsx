@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { type Product } from "@shared/schema";
 import { Star, Heart, Clock, Award } from "lucide-react";
+import bannerImage from "@assets/il_1588xN.4851706578_21g4_1753286611661.webp";
 
 export default function Home() {
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -44,8 +45,8 @@ export default function Home() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
-                  alt="Handmade crochet flower bouquet arrangement" 
+                  src={bannerImage} 
+                  alt="Handmade crochet sunflower bouquet with daisies wrapped in cream paper" 
                   className="w-full h-auto object-cover" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-wine/20 to-transparent"></div>
