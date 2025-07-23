@@ -8,6 +8,14 @@ Stitched Petals is a full-stack e-commerce web application specializing in handc
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (January 2025)
+
+### January 23, 2025
+- **Database Integration Completed**: Migrated from in-memory storage to PostgreSQL with full persistence
+- **Product Card Enhancement**: Made entire product cards clickable for better user experience
+- **Buy Now Feature**: Added "Buy Now" button alongside "Add to Cart" on product detail pages for immediate purchase intent
+- **Single Product Pages**: Enhanced product detail pages with dual purchase options and improved interactivity
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -43,7 +51,8 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Components
 - **Layout System**: Header with navigation, footer with newsletter signup
-- **Product Display**: Product cards with image galleries and color selection
+- **Product Display**: Product cards with image galleries and color selection, fully clickable navigation
+- **Product Detail Pages**: Comprehensive single product pages with image galleries, specifications, and dual purchase options
 - **Shopping Cart**: Slide-out sidebar with quantity management
 - **Forms**: Contact forms with validation and submission handling
 - **UI Components**: Comprehensive set of accessible components (buttons, dialogs, sheets, etc.)

@@ -73,6 +73,33 @@ export default function ProductPage() {
     });
   };
 
+  const handleBuyNow = () => {
+    if (!product) return;
+    
+    const colors = Array.isArray(product.colors) ? product.colors : [];
+    if (colors.length > 1 && !selectedColor) {
+      toast({
+        title: "Please select a color",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add to cart first
+    addToCart({
+      productId: product.id,
+      quantity,
+      selectedColor: selectedColor || undefined,
+    });
+
+    // Show checkout message (since we don't have a full checkout system)
+    toast({
+      title: "Ready for Checkout!",
+      description: "Item added to cart. Check your cart to proceed with purchase.",
+      duration: 3000,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="bg-ivory min-h-screen">
@@ -291,15 +318,26 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Add to Cart */}
+            {/* Purchase Buttons */}
             <div className="space-y-4">
-              <Button
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-                className="w-full wine-gradient text-white py-4 text-lg font-semibold hover:opacity-90 transition-opacity"
-              >
-                {product.inStock ? "Add to Cart" : "Out of Stock"}
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={!product.inStock}
+                  variant="outline"
+                  className="w-full py-4 text-lg font-semibold border-wine text-wine hover:bg-wine hover:text-white transition-colors"
+                >
+                  {product.inStock ? "Add to Cart" : "Out of Stock"}
+                </Button>
+                
+                <Button
+                  onClick={handleBuyNow}
+                  disabled={!product.inStock}
+                  className="w-full wine-gradient text-white py-4 text-lg font-semibold hover:opacity-90 transition-opacity"
+                >
+                  {product.inStock ? "Buy Now" : "Out of Stock"}
+                </Button>
+              </div>
               
               {product.inStock && (
                 <div className="text-center">
