@@ -24,7 +24,9 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
   );
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     addToCart({
       productId: product.id,
       quantity: 1,
@@ -32,62 +34,67 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
     });
   };
 
+  const handleSelectChange = (value: string, e?: Event) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setSelectedColor(value);
+  };
+
   const colors = Array.isArray(product.colors) ? product.colors : [];
 
   return (
-    <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover ${className}`}>
-      <Link href={`/product/${product.id}`}>
-        <div className="cursor-pointer">
+    <Link href={`/product/${product.id}`}>
+      <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover cursor-pointer transition-transform hover:scale-105 ${className}`}>
+        <div>
           <img
             src={product.imageUrl}
             alt={product.name}
             className="w-full h-48 object-cover"
           />
         </div>
-      </Link>
-      <CardContent className="p-6">
-        <Link href={`/product/${product.id}`}>
-          <h4 className="font-playfair text-lg font-semibold wine mb-2 cursor-pointer hover:text-dark-pink transition-colors">
+        <CardContent className="p-6">
+          <h4 className="font-playfair text-lg font-semibold wine mb-2 hover:text-dark-pink transition-colors">
             {product.name}
           </h4>
-        </Link>
-        <p className="text-gray-600 text-sm mb-4">{product.description}</p>
-        
-        {product.stemCount && (
-          <Badge variant="secondary" className="mb-3">
-            {product.stemCount} {product.stemCount === 1 ? "Stem" : "Stems"}
-          </Badge>
-        )}
-        
-        {colors.length > 1 && (
-          <div className="mb-4">
-            <label className="text-sm font-medium wine mb-2 block">Color:</label>
-            <Select value={selectedColor} onValueChange={setSelectedColor}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select color" />
-              </SelectTrigger>
-              <SelectContent>
-                {colors.map((color) => (
-                  <SelectItem key={color} value={color}>
-                    {color}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <p className="text-gray-600 text-sm mb-4">{product.description}</p>
+          
+          {product.stemCount && (
+            <Badge variant="secondary" className="mb-3">
+              {product.stemCount} {product.stemCount === 1 ? "Stem" : "Stems"}
+            </Badge>
+          )}
+          
+          {colors.length > 1 && (
+            <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+              <label className="text-sm font-medium wine mb-2 block">Color:</label>
+              <Select value={selectedColor} onValueChange={handleSelectChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select color" />
+                </SelectTrigger>
+                <SelectContent>
+                  {colors.map((color) => (
+                    <SelectItem key={color} value={color}>
+                      {color}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center">
+            <span className="text-2xl font-bold dark-pink">${product.price}</span>
+            <Button 
+              onClick={handleAddToCart}
+              className="bg-wine text-white hover:bg-dark-pink transition-colors"
+              disabled={!product.inStock}
+            >
+              {product.inStock ? "Add to Cart" : "Out of Stock"}
+            </Button>
           </div>
-        )}
-        
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold dark-pink">${product.price}</span>
-          <Button 
-            onClick={handleAddToCart}
-            className="bg-wine text-white hover:bg-dark-pink transition-colors"
-            disabled={!product.inStock}
-          >
-            {product.inStock ? "Add to Cart" : "Out of Stock"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
