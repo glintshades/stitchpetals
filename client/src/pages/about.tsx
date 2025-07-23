@@ -26,8 +26,8 @@ export default function About() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <img 
-                src="https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" 
-                alt="Artisan hands carefully crafting colorful crochet flowers" 
+                src="/attached_assets/WechatIMG1746_1753288338342.webp" 
+                alt="Beautiful handcrafted crochet sunflowers in pots showcasing premium craftsmanship" 
                 className="rounded-xl shadow-lg" 
               />
             </div>
