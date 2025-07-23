@@ -13,6 +13,7 @@ import Bouquets from "@/pages/bouquets";
 import Shop from "@/pages/shop";
 import Contact from "@/pages/contact";
 import Product from "@/pages/product";
+import Cart from "@/pages/cart";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/shop" component={Shop} />
       <Route path="/contact" component={Contact} />
       <Route path="/product/:id" component={Product} />
+      <Route path="/cart" component={Cart} />
       <Route component={NotFound} />
     </Switch>
   );
