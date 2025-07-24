@@ -44,11 +44,11 @@ function CategoriesSection() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         <Link href="/shop?category=bouquets" className="group">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
-            <div className="h-72 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
+            <div className="h-72 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">💐</span>
             </div>
-            <div className="p-8">
+            <div className="p-8 flex-1 flex flex-col justify-center">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">Bouquets</h3>
               <p className="text-gray-600">Beautiful arrangements for any occasion</p>
             </div>
@@ -56,11 +56,11 @@ function CategoriesSection() {
         </Link>
         
         <Link href="/shop?category=potted" className="group">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
-            <div className="h-72 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
+            <div className="h-72 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">🪴</span>
             </div>
-            <div className="p-8">
+            <div className="p-8 flex-1 flex flex-col justify-center">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">Potted Plants</h3>
               <p className="text-gray-600">Charming potted crochet flowers</p>
             </div>
@@ -74,8 +74,8 @@ function CategoriesSection() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
       {activeCategories.map((category) => (
         <Link key={category.id} href={`/shop?category=${category.slug}`} className="group">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
-            <div className="h-72 relative overflow-hidden">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
+            <div className="h-72 relative overflow-hidden flex-shrink-0">
               {category.imageUrl ? (
                 <img 
                   src={category.imageUrl} 
@@ -88,7 +88,7 @@ function CategoriesSection() {
                 </div>
               )}
             </div>
-            <div className="p-8">
+            <div className="p-8 flex-1 flex flex-col justify-center">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">{category.name}</h3>
               <p className="text-gray-600 text-lg">{category.description || "Explore our collection"}</p>
             </div>
