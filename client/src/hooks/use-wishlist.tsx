@@ -25,10 +25,7 @@ export function useWishlist() {
   // Add to wishlist mutation
   const addToWishlistMutation = useMutation({
     mutationFn: async (productId: number) => {
-      return await apiRequest("/api/wishlist", {
-        method: "POST",
-        body: { productId },
-      });
+      return await apiRequest("POST", "/api/wishlist", { productId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/wishlist"] });
@@ -49,9 +46,7 @@ export function useWishlist() {
   // Remove from wishlist mutation
   const removeFromWishlistMutation = useMutation({
     mutationFn: async (productId: number) => {
-      return await apiRequest(`/api/wishlist/${productId}`, {
-        method: "DELETE",
-      });
+      return await apiRequest("DELETE", `/api/wishlist/${productId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/wishlist"] });
