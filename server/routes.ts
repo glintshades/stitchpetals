@@ -4,7 +4,6 @@ import session from "express-session";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertCartItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema } from "@shared/schema";
 
 // Configure multer for image uploads
@@ -33,20 +32,16 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+  // Setup session middleware
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+      secure: false, // Set to true for HTTPS in production
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
-  });
-
+  }));
   // Products API
   app.get("/api/products", async (req, res) => {
     try {

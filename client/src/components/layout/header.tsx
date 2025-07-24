@@ -1,8 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, Search, Menu, LogIn, LogOut, User } from "lucide-react";
+import { ShoppingBag, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
-import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -12,18 +11,9 @@ interface HeaderProps {
 export default function Header({ onCartClick }: HeaderProps) {
   const [location] = useLocation();
   const { cartItems } = useCart();
-  const { user, isAuthenticated, isLoading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleLogin = () => {
-    window.location.href = "/api/login";
-  };
-
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
-  };
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -62,67 +52,23 @@ export default function Header({ onCartClick }: HeaderProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            {isAuthenticated && (
-              <>
-                <Button variant="ghost" size="icon" className="wine hover:text-dark-pink">
-                  <Search className="h-5 w-5" />
-                </Button>
-                <Link href="/cart">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="wine hover:text-dark-pink relative"
-                  >
-                    <ShoppingBag className="h-5 w-5" />
-                    {totalItems > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-dark-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {totalItems}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-              </>
-            )}
-            
-            {!isLoading && (
-              <>
-                {isAuthenticated ? (
-                  <div className="flex items-center space-x-3">
-                    {user?.profileImageUrl ? (
-                      <img
-                        src={user.profileImageUrl}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full object-cover border-2 border-wine/20"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-wine/10 flex items-center justify-center">
-                        <User className="w-4 h-4 text-wine" />
-                      </div>
-                    )}
-                    <span className="hidden sm:inline text-sm text-wine font-medium">
-                      {user?.firstName || user?.email?.split('@')[0] || 'User'}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLogout}
-                      className="border-wine text-wine hover:bg-wine hover:text-white"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    onClick={handleLogin}
-                    className="bg-wine hover:bg-wine/90 text-white"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
-                  </Button>
+            <Button variant="ghost" size="icon" className="wine hover:text-dark-pink">
+              <Search className="h-5 w-5" />
+            </Button>
+            <Link href="/cart">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="wine hover:text-dark-pink relative"
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-dark-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
                 )}
-              </>
-            )}
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="icon"
