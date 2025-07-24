@@ -19,6 +19,7 @@ import {
 
 import type { Order, Product, ContactSubmission } from "@shared/schema";
 import AdminProducts from "./products";
+import AdminOrders from "./orders";
 
 // Contact submissions component
 function ContactsList() {
@@ -74,8 +75,6 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["/api/admin/orders"],
     queryFn: async () => {
@@ -101,48 +100,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       return response.json();
     },
   });
-
-  const updateOrderStatus = async (orderId: number, status: string) => {
-    try {
-      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
-        method: "PATCH",
-        headers: { 
-          Authorization: "Bearer admin-token",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update order status');
-      }
-      // Refresh orders
-      window.location.reload();
-    } catch (error) {
-      console.error("Failed to update order status:", error);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "processing": return "bg-blue-100 text-blue-800";
-      case "shipped": return "bg-purple-100 text-purple-800";
-      case "delivered": return "bg-green-100 text-green-800";
-      case "cancelled": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending": return <Clock className="h-4 w-4" />;
-      case "processing": return <TrendingUp className="h-4 w-4" />;
-      case "shipped": return <Package className="h-4 w-4" />;
-      case "delivered": return <CheckCircle className="h-4 w-4" />;
-      case "cancelled": return <XCircle className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
 
   // Calculate dashboard stats
   const totalOrders = orders.length;
@@ -221,84 +178,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           {/* Orders Tab */}
           <TabsContent value="orders" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Management</CardTitle>
-                <CardDescription>
-                  View and manage customer orders
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {ordersLoading ? (
-                  <div className="text-center py-8">Loading orders...</div>
-                ) : orders.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No orders found. Orders will appear here when customers place them.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders.map((order: Order) => (
-                      <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold">Order #{order.id}</h3>
-                            <p className="text-sm text-gray-600">{order.customerName} - {order.customerEmail}</p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className={getStatusColor(order.status)}>
-                              {getStatusIcon(order.status)}
-                              <span className="ml-1">{order.status}</span>
-                            </Badge>
-                            <span className="font-semibold">${order.totalAmount}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2 mt-3">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelectedOrder(order)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
-                          {order.status === "pending" && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.id, "processing")}
-                              className="bg-blue-600 hover:bg-blue-700"
-                            >
-                              Mark Processing
-                            </Button>
-                          )}
-                          {order.status === "processing" && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.id, "shipped")}
-                              className="bg-purple-600 hover:bg-purple-700"
-                            >
-                              Mark Shipped
-                            </Button>
-                          )}
-                          {order.status === "shipped" && (
-                            <Button
-                              size="sm"
-                              onClick={() => updateOrderStatus(order.id, "delivered")}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              Mark Delivered
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <AdminOrders />
           </TabsContent>
 
           {/* Products Tab */}
@@ -322,59 +202,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </TabsContent>
         </Tabs>
 
-        {/* Order Details Modal */}
-        {selectedOrder && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-              <CardHeader>
-                <CardTitle>Order Details #{selectedOrder.id}</CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedOrder(null)}
-                  className="absolute top-4 right-4"
-                >
-                  Close
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Customer Information</h4>
-                  <p><strong>Name:</strong> {selectedOrder.customerName}</p>
-                  <p><strong>Email:</strong> {selectedOrder.customerEmail}</p>
-                  {selectedOrder.customerPhone && (
-                    <p><strong>Phone:</strong> {selectedOrder.customerPhone}</p>
-                  )}
-                  <p><strong>Shipping Address:</strong> {selectedOrder.shippingAddress}</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-2">Order Items</h4>
-                  {Array.isArray(selectedOrder.orderItems) && selectedOrder.orderItems.map((item: any, index: number) => (
-                    <div key={index} className="border border-gray-200 rounded p-3 mb-2">
-                      <p><strong>Product:</strong> {item.productName}</p>
-                      <p><strong>Quantity:</strong> {item.quantity}</p>
-                      <p><strong>Color:</strong> {item.selectedColor}</p>
-                      <p><strong>Price:</strong> ${item.price}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-2">Order Summary</h4>
-                  <p><strong>Status:</strong> 
-                    <Badge className={`ml-2 ${getStatusColor(selectedOrder.status)}`}>
-                      {selectedOrder.status}
-                    </Badge>
-                  </p>
-                  <p><strong>Total Amount:</strong> ${selectedOrder.totalAmount}</p>
-                  <p><strong>Order Date:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-                  <p><strong>Last Updated:</strong> {new Date(selectedOrder.updatedAt).toLocaleString()}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+
       </div>
     </div>
   );
