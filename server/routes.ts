@@ -357,6 +357,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - User Management API
+  app.get("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const { username, email, password, role } = req.body;
+      
+      const user = await storage.createUser({
+        username,
+        email,
+        password,
+        role: role || "user",
+        isActive: true,
+      });
+      
+      // Remove password from response
+      const { password: _, ...userResponse } = user;
+      res.json(userResponse);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const updatedUser = await storage.updateUser(userId, updates);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Remove password from response
+      const { password: _, ...userResponse } = updatedUser;
+      res.json(userResponse);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const deleted = await storage.deleteUser(userId);
+      if (!deleted) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
+  // Admin - Category Management API
+  app.get("/api/admin/categories", requireAdmin, async (req, res) => {
+    try {
+      const categories = await storage.getAllCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/admin/categories", requireAdmin, async (req, res) => {
+    try {
+      const category = await storage.createCategory(req.body);
+      res.json(category);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create category" });
+    }
+  });
+
+  app.patch("/api/admin/categories/:id", requireAdmin, async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+      const updatedCategory = await storage.updateCategory(categoryId, req.body);
+      if (!updatedCategory) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      res.json(updatedCategory);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update category" });
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", requireAdmin, async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+      const deleted = await storage.deleteCategory(categoryId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      res.json({ message: "Category deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete category" });
+    }
+  });
+
   // Admin - Products management
   app.get("/api/admin/products", requireAdmin, async (req, res) => {
     try {

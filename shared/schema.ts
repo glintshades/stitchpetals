@@ -7,6 +7,19 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email"),
+  role: text("role").notNull().default("user"), // "user" or "admin"
+  isActive: boolean("is_active").notNull().default(true),
+  lastLogin: text("last_login"),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+
+// Product categories table
+export const productCategories = pgTable("product_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  slug: text("slug").notNull().unique(),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
@@ -15,7 +28,8 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  category: text("category").notNull(), // 'bouquets', 'potted', 'stems'
+  categoryId: integer("category_id").references(() => productCategories.id),
+  category: text("category").notNull(), // Keep for backward compatibility
   imageUrl: text("image_url").notNull(),
   colors: jsonb("colors").default([]).notNull(), // array of available colors
   stemCount: integer("stem_count"), // number of stems/flowers
@@ -110,6 +124,8 @@ export const insertAdminUserSchema = createInsertSchema(adminUsers).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type ProductCategory = typeof productCategories.$inferSelect;
+export type InsertProductCategory = typeof productCategories.$inferInsert;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type CartItem = typeof cartItems.$inferSelect;

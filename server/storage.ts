@@ -1,6 +1,7 @@
 import { 
   users, 
   products, 
+  productCategories,
   cartItems, 
   contactSubmissions, 
   orders,
@@ -9,6 +10,8 @@ import {
   type InsertUser, 
   type Product, 
   type InsertProduct, 
+  type ProductCategory,
+  type InsertProductCategory,
   type CartItem, 
   type InsertCartItem, 
   type ContactSubmission, 
@@ -272,6 +275,52 @@ export class DatabaseStorage implements IStorage {
     
     // Return orders that match the user's username (assuming customerName matches username)
     return await db.select().from(orders).where(eq(orders.customerName, user.username));
+  }
+
+  // Category management methods
+  async getAllCategories(): Promise<ProductCategory[]> {
+    return await db.select().from(productCategories);
+  }
+
+  async getCategory(id: number): Promise<ProductCategory | undefined> {
+    const [category] = await db.select().from(productCategories).where(eq(productCategories.id, id));
+    return category || undefined;
+  }
+
+  async createCategory(insertCategory: InsertProductCategory): Promise<ProductCategory> {
+    const [category] = await db.insert(productCategories).values(insertCategory).returning();
+    return category;
+  }
+
+  async updateCategory(id: number, updates: Partial<InsertProductCategory>): Promise<ProductCategory | undefined> {
+    const [category] = await db.update(productCategories)
+      .set(updates)
+      .where(eq(productCategories.id, id))
+      .returning();
+    return category || undefined;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    const result = await db.delete(productCategories).where(eq(productCategories.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Enhanced user management methods
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
+    const [user] = await db.update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async getAllProducts(): Promise<Product[]> {
