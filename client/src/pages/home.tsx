@@ -300,6 +300,195 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Newsletter Subscription */}
+      <section className="py-16 bg-gradient-to-r from-wine to-pink-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-playfair text-4xl font-bold text-white mb-4">
+            Stay in the Loop ♡
+          </h2>
+          <p className="text-pink-100 text-lg mb-8 max-w-2xl mx-auto">
+            Be the first to know about new collections, special offers, and crochet care tips. 
+            Join our community of flower lovers!
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-300 focus:outline-none"
+            />
+            <Button className="bg-white text-wine hover:bg-pink-50 px-8 py-3 font-semibold">
+              Subscribe
+            </Button>
+          </div>
+          
+          <p className="text-pink-200 text-sm mt-4">
+            We respect your privacy. Unsubscribe at any time.
+          </p>
+        </div>
+      </section>
+
+      {/* Gift Guide */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Perfect for Every Occasion</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Find the ideal crochet flower arrangement for life's special moments
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center group cursor-pointer">
+              <div className="w-24 h-24 bg-gradient-to-br from-pink-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-4xl">💕</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Weddings</h3>
+              <p className="text-gray-600">Elegant bouquets and centerpieces that last forever</p>
+            </div>
+
+            <div className="text-center group cursor-pointer">
+              <div className="w-24 h-24 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-4xl">🎂</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Birthdays</h3>
+              <p className="text-gray-600">Cheerful arrangements to celebrate another year</p>
+            </div>
+
+            <div className="text-center group cursor-pointer">
+              <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-4xl">❤️</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Anniversaries</h3>
+              <p className="text-gray-600">Romantic gestures that never fade</p>
+            </div>
+
+            <div className="text-center group cursor-pointer">
+              <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-4xl">🏡</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Home Decor</h3>
+              <p className="text-gray-600">Beautiful accents to brighten any space</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Process Section */}
+      <section className="py-16 bg-gradient-to-b from-pink-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">From Heart to Home</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              See how we create your beautiful crochet flowers with love and care
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="relative">
+                <div className="w-16 h-16 bg-wine rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl font-bold">1</span>
+                </div>
+                <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gray-300"></div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Design</h3>
+              <p className="text-gray-600">Each flower is carefully designed with attention to natural beauty and proportions</p>
+            </div>
+
+            <div className="text-center">
+              <div className="relative">
+                <div className="w-16 h-16 bg-wine rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl font-bold">2</span>
+                </div>
+                <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gray-300"></div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Craft</h3>
+              <p className="text-gray-600">Skilled artisans hand-crochet each petal using premium soft cotton materials</p>
+            </div>
+
+            <div className="text-center">
+              <div className="relative">
+                <div className="w-16 h-16 bg-wine rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl font-bold">3</span>
+                </div>
+                <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gray-300"></div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Arrange</h3>
+              <p className="text-gray-600">Flowers are thoughtfully arranged and secured for lasting beauty</p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-wine rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl font-bold">4</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Deliver</h3>
+              <p className="text-gray-600">Carefully packaged and shipped to bring joy to your doorstep</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Frequently Asked Questions</h2>
+            <p className="text-gray-600 text-lg">
+              Everything you need to know about our crochet flowers
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">How long do crochet flowers last?</h3>
+              <p className="text-gray-600">With proper care, our crochet flowers will maintain their beauty for years. Unlike fresh flowers, they never wilt or fade when kept away from direct sunlight and moisture.</p>
+            </div>
+
+            <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Are your flowers safe for people with allergies?</h3>
+              <p className="text-gray-600">Yes! Our crochet flowers are perfect for those with pollen allergies or sensitivities to fresh flowers. They provide all the beauty without any allergens.</p>
+            </div>
+
+            <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">How do I clean my crochet flowers?</h3>
+              <p className="text-gray-600">Simply use a soft brush or compressed air to gently remove dust. For deeper cleaning, use a slightly damp cloth and allow to air dry completely.</p>
+            </div>
+
+            <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg p-6 shadow-sm border">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Do you offer custom arrangements?</h3>
+              <p className="text-gray-600">We'd love to create something special for you! Contact us with your ideas, preferred colors, and occasion details for a personalized quote.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-16 bg-gradient-to-r from-wine/10 to-pink-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-playfair text-4xl font-bold wine mb-4">
+            Ready to Brighten Your Space?
+          </h2>
+          <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+            Discover the perfect crochet flower arrangement for your home or as a thoughtful gift. 
+            Each piece is lovingly handcrafted just for you.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/shop">
+              <Button className="wine-gradient text-white px-8 py-4 text-lg font-semibold hover:opacity-90 transition-opacity">
+                Shop Collection
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button variant="outline" className="border-2 border-wine text-wine px-8 py-4 text-lg font-semibold hover:bg-wine hover:text-white transition-colors">
+                Get Custom Quote
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
