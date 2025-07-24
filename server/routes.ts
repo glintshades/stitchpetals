@@ -4,7 +4,7 @@ import session from "express-session";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema } from "@shared/schema";
 
 // Configure multer for image uploads
 const storage_config = multer.diskStorage({
@@ -142,6 +142,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Cart clear error:", error);
       res.status(500).json({ message: "Failed to clear cart" });
+    }
+  });
+
+  // Wishlist API
+  app.get("/api/wishlist", async (req, res) => {
+    try {
+      const sessionId = (req as any).sessionID || 'default-session';
+      const items = await storage.getWishlistItems(sessionId);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch wishlist items" });
+    }
+  });
+
+  app.post("/api/wishlist", async (req, res) => {
+    try {
+      const sessionId = (req as any).sessionID || 'default-session';
+      const result = insertWishlistItemSchema.safeParse({
+        sessionId: sessionId,
+        productId: req.body.productId,
+      });
+
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: "Invalid wishlist item data",
+          errors: result.error.issues 
+        });
+      }
+
+      const wishlistItem = await storage.addToWishlist(result.data);
+      res.status(201).json(wishlistItem);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to add item to wishlist" });
+    }
+  });
+
+  app.delete("/api/wishlist/:productId", async (req, res) => {
+    try {
+      const sessionId = (req as any).sessionID || 'default-session';
+      const productId = parseInt(req.params.productId);
+      if (isNaN(productId)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const success = await storage.removeFromWishlist(sessionId, productId);
+      if (success) {
+        res.json({ message: "Item removed from wishlist" });
+      } else {
+        res.status(404).json({ message: "Item not found in wishlist" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove item from wishlist" });
     }
   });
 

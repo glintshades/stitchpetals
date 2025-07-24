@@ -3,6 +3,7 @@ import {
   products, 
   productCategories,
   cartItems, 
+  wishlistItems,
   contactSubmissions, 
   orders,
   adminUsers,
@@ -13,7 +14,9 @@ import {
   type ProductCategory,
   type InsertProductCategory,
   type CartItem, 
-  type InsertCartItem, 
+  type InsertCartItem,
+  type WishlistItem,
+  type InsertWishlistItem,
   type ContactSubmission, 
   type InsertContactSubmission,
   type Order,
@@ -22,7 +25,7 @@ import {
   type InsertAdminUser
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, ne } from "drizzle-orm";
+import { eq, ne, and } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -41,6 +44,11 @@ export interface IStorage {
   updateCartItem(id: number, quantity: number): Promise<CartItem | undefined>;
   removeFromCart(id: number): Promise<boolean>;
   clearCart(sessionId: string): Promise<boolean>;
+  
+  // Wishlist management
+  getWishlistItems(sessionId: string): Promise<(WishlistItem & { product: Product })[]>;
+  addToWishlist(item: InsertWishlistItem): Promise<WishlistItem>;
+  removeFromWishlist(sessionId: string, productId: number): Promise<boolean>;
   
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
   
@@ -423,6 +431,51 @@ export class DatabaseStorage implements IStorage {
   async clearCart(sessionId: string): Promise<boolean> {
     await db.delete(cartItems).where(eq(cartItems.sessionId, sessionId));
     return true;
+  }
+
+  // Wishlist management
+  async getWishlistItems(sessionId: string): Promise<(WishlistItem & { product: Product })[]> {
+    const items = await db
+      .select({
+        id: wishlistItems.id,
+        sessionId: wishlistItems.sessionId,
+        productId: wishlistItems.productId,
+        createdAt: wishlistItems.createdAt,
+        product: products,
+      })
+      .from(wishlistItems)
+      .innerJoin(products, eq(wishlistItems.productId, products.id))
+      .where(eq(wishlistItems.sessionId, sessionId));
+    
+    return items;
+  }
+
+  async addToWishlist(item: InsertWishlistItem): Promise<WishlistItem> {
+    // Check if item already exists
+    const existing = await db
+      .select()
+      .from(wishlistItems)
+      .where(and(
+        eq(wishlistItems.sessionId, item.sessionId),
+        eq(wishlistItems.productId, item.productId)
+      ));
+    
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    const [wishlistItem] = await db.insert(wishlistItems).values(item).returning();
+    return wishlistItem;
+  }
+
+  async removeFromWishlist(sessionId: string, productId: number): Promise<boolean> {
+    const result = await db
+      .delete(wishlistItems)
+      .where(and(
+        eq(wishlistItems.sessionId, sessionId),
+        eq(wishlistItems.productId, productId)
+      ));
+    return (result.rowCount || 0) > 0;
   }
 
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {

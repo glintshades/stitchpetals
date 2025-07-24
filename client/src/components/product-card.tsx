@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { type Product } from "@shared/schema";
 import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { useState } from "react";
+import { Heart } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,6 +22,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, className = "" }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
   );
@@ -41,6 +44,12 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
     setSelectedColor(value);
   };
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product.id);
+  };
+
   const colors = Array.isArray(product.colors) ? product.colors : [];
 
   return (
@@ -53,6 +62,19 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
               alt={product.name}
               className="w-full h-48 sm:h-52 md:h-56 object-cover"
             />
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`absolute top-3 right-3 w-10 h-10 rounded-full bg-white/80 hover:bg-white ${
+                isInWishlist(product.id) ? 'text-red-500' : 'text-gray-400'
+              } hover:text-red-500 transition-colors shadow-sm`}
+              onClick={handleWishlistToggle}
+              disabled={isAddingToWishlist || isRemovingFromWishlist}
+            >
+              <Heart 
+                className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} 
+              />
+            </Button>
           </div>
           <CardContent className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
             <div className="flex-1">

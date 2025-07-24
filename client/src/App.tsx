@@ -20,6 +20,7 @@ import Checkout from "@/pages/checkout";
 import MyOrders from "@/pages/my-orders";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
+import WishlistPage from "@/pages/wishlist";
 
 function Router() {
   return (
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/product/:id" component={Product} />
       <Route path="/cart" component={Cart} />
+      <Route path="/wishlist" component={WishlistPage} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/my-orders" component={MyOrders} />
       <Route path="/settings" component={Settings} />

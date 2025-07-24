@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, Search, Menu } from "lucide-react";
+import { ShoppingBag, Search, Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { AuthButtons } from "@/components/auth/auth-buttons";
@@ -59,6 +59,15 @@ export default function Header({ onCartClick }: HeaderProps) {
             </Button>
             <div className="flex items-center space-x-1">
               <span className="text-pink-500 text-lg">🤍</span>
+              <Link href="/wishlist">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="wine hover:text-dark-pink"
+                >
+                  <Heart className="h-5 w-5" />
+                </Button>
+              </Link>
               <Link href="/cart">
                 <Button
                   variant="ghost"

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, jsonb, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -44,6 +44,16 @@ export const cartItems = pgTable("cart_items", {
   quantity: integer("quantity").notNull().default(1),
   selectedColor: text("selected_color"),
 });
+
+export const wishlistItems = pgTable("wishlist_items", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+}, (table) => ({
+  // Unique constraint to prevent duplicate wishlist items for same session
+  sessionProductUnique: uniqueIndex("session_product_unique").on(table.sessionId, table.productId),
+}));
 
 export const contactSubmissions = pgTable("contact_submissions", {
   id: serial("id").primaryKey(),
@@ -99,6 +109,11 @@ export const insertCartItemSchema = createInsertSchema(cartItems).pick({
   selectedColor: true,
 });
 
+export const insertWishlistItemSchema = createInsertSchema(wishlistItems).pick({
+  sessionId: true,
+  productId: true,
+});
+
 export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions).pick({
   name: true,
   email: true,
@@ -131,6 +146,8 @@ export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
+export type WishlistItem = typeof wishlistItems.$inferSelect;
+export type InsertWishlistItem = z.infer<typeof insertWishlistItemSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type Order = typeof orders.$inferSelect;

@@ -35,6 +35,7 @@ export default function ProductPage() {
   const params = useParams();
   const productId = parseInt(params.id || "0");
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
   const { toast } = useToast();
   
   const [selectedColor, setSelectedColor] = useState<string>("");
@@ -238,8 +239,16 @@ export default function ProductPage() {
                   </h1>
                 </div>
                 <div className="flex space-x-2">
-                  <Button variant="ghost" size="icon" className="wine hover:bg-soft-pink">
-                    <Heart className="h-5 w-5" />
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`${
+                      isInWishlist(product.id) ? 'text-red-500' : 'wine'
+                    } hover:bg-soft-pink`}
+                    onClick={() => toggleWishlist(product.id)}
+                    disabled={isAddingToWishlist || isRemovingFromWishlist}
+                  >
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                   </Button>
                   <Button variant="ghost" size="icon" className="wine hover:bg-soft-pink">
                     <Share2 className="h-5 w-5" />
