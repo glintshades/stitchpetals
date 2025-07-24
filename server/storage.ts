@@ -1,4 +1,23 @@
-import { users, products, cartItems, contactSubmissions, type User, type InsertUser, type Product, type InsertProduct, type CartItem, type InsertCartItem, type ContactSubmission, type InsertContactSubmission } from "@shared/schema";
+import { 
+  users, 
+  products, 
+  cartItems, 
+  contactSubmissions, 
+  orders,
+  adminUsers,
+  type User, 
+  type InsertUser, 
+  type Product, 
+  type InsertProduct, 
+  type CartItem, 
+  type InsertCartItem, 
+  type ContactSubmission, 
+  type InsertContactSubmission,
+  type Order,
+  type InsertOrder,
+  type AdminUser,
+  type InsertAdminUser
+} from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -19,6 +38,19 @@ export interface IStorage {
   clearCart(sessionId: string): Promise<boolean>;
   
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  
+  // Order management
+  getAllOrders(): Promise<Order[]>;
+  getOrder(id: number): Promise<Order | undefined>;
+  createOrder(order: InsertOrder): Promise<Order>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  
+  // Admin management
+  getAdminByUsername(username: string): Promise<AdminUser | undefined>;
+  createAdmin(admin: InsertAdminUser): Promise<AdminUser>;
+  
+  // Contact submissions
+  getAllContactSubmissions(): Promise<ContactSubmission[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -283,6 +315,45 @@ export class DatabaseStorage implements IStorage {
       createdAt: new Date().toISOString()
     }).returning();
     return submission;
+  }
+
+  // Order management methods
+  async getAllOrders(): Promise<Order[]> {
+    return await db.select().from(orders);
+  }
+
+  async getOrder(id: number): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order || undefined;
+  }
+
+  async createOrder(order: InsertOrder): Promise<Order> {
+    const [newOrder] = await db.insert(orders).values(order).returning();
+    return newOrder;
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ status, updatedAt: new Date().toISOString() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder || undefined;
+  }
+
+  // Admin management methods
+  async getAdminByUsername(username: string): Promise<AdminUser | undefined> {
+    const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.username, username));
+    return admin || undefined;
+  }
+
+  async createAdmin(admin: InsertAdminUser): Promise<AdminUser> {
+    const [newAdmin] = await db.insert(adminUsers).values(admin).returning();
+    return newAdmin;
+  }
+
+  async getAllContactSubmissions(): Promise<ContactSubmission[]> {
+    return await db.select().from(contactSubmissions);
   }
 }
 

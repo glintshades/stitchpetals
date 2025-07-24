@@ -232,10 +232,12 @@ export default function CartPage() {
                   )}
 
                   <div className="mt-6 space-y-3">
-                    <Button className="w-full bg-wine hover:bg-dark-pink text-white py-3">
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Proceed to Checkout
-                    </Button>
+                    <Link href="/checkout">
+                      <Button className="w-full bg-wine hover:bg-dark-pink text-white py-3">
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Proceed to Checkout
+                      </Button>
+                    </Link>
                     <Button variant="outline" className="w-full border-wine text-wine hover:bg-wine hover:text-white">
                       <Heart className="h-4 w-4 mr-2" />
                       Save for Later
