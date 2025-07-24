@@ -26,10 +26,10 @@ function CategoriesSection() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {[1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {[1, 2].map((i) => (
           <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-            <div className="h-64 bg-gray-200"></div>
+            <div className="h-72 bg-gray-200"></div>
             <div className="p-6">
               <div className="h-6 bg-gray-200 rounded mb-2"></div>
               <div className="h-4 bg-gray-200 rounded"></div>
@@ -42,39 +42,27 @@ function CategoriesSection() {
 
   if (activeCategories.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         <Link href="/shop?category=bouquets" className="group">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
-            <div className="h-64 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
-              <span className="text-6xl">💐</span>
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+            <div className="h-72 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
+              <span className="text-7xl">💐</span>
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Bouquets</h3>
+            <div className="p-8">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-3">Bouquets</h3>
               <p className="text-gray-600">Beautiful arrangements for any occasion</p>
             </div>
           </div>
         </Link>
         
         <Link href="/shop?category=potted" className="group">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
-            <div className="h-64 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-              <span className="text-6xl">🪴</span>
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+            <div className="h-72 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+              <span className="text-7xl">🪴</span>
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Potted Plants</h3>
+            <div className="p-8">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-3">Potted Plants</h3>
               <p className="text-gray-600">Charming potted crochet flowers</p>
-            </div>
-          </div>
-        </Link>
-        
-        <Link href="/shop?category=stems" className="group">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
-            <div className="h-64 bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center">
-              <span className="text-6xl">🌸</span>
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Individual Stems</h3>
-              <p className="text-gray-600">Single flowers for custom arrangements</p>
             </div>
           </div>
         </Link>
@@ -83,11 +71,11 @@ function CategoriesSection() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
       {activeCategories.map((category) => (
         <Link key={category.id} href={`/shop?category=${category.slug}`} className="group">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
-            <div className="h-64 relative overflow-hidden">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+            <div className="h-72 relative overflow-hidden">
               {category.imageUrl ? (
                 <img 
                   src={category.imageUrl} 
@@ -96,13 +84,13 @@ function CategoriesSection() {
                 />
               ) : (
                 <div className="h-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
-                  <Package className="w-16 h-16 text-pink-600" />
+                  <Package className="w-20 h-20 text-pink-600" />
                 </div>
               )}
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">{category.name}</h3>
-              <p className="text-gray-600">{category.description || "Explore our collection"}</p>
+            <div className="p-8">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-3">{category.name}</h3>
+              <p className="text-gray-600 text-lg">{category.description || "Explore our collection"}</p>
             </div>
           </div>
         </Link>
