@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { ShoppingBag, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
+import { AuthButtons } from "@/components/auth/auth-buttons";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -69,6 +70,9 @@ export default function Header({ onCartClick }: HeaderProps) {
                 )}
               </Button>
             </Link>
+            <div className="hidden md:block">
+              <AuthButtons />
+            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -96,6 +100,9 @@ export default function Header({ onCartClick }: HeaderProps) {
                   </span>
                 </Link>
               ))}
+              <div className="pt-3 border-t border-soft-pink">
+                <AuthButtons />
+              </div>
             </div>
           </div>
         )}

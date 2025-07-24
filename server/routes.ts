@@ -146,6 +146,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Authentication routes
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      // Create new user
+      const newUser = await storage.createUser({ username, password });
+      
+      // Set session
+      (req as any).session.userId = newUser.id;
+      (req as any).session.user = newUser;
+      
+      res.json({ id: newUser.id, username: newUser.username });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Failed to create account" });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+
+      // Find user
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.password !== password) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+
+      // Set session
+      (req as any).session.userId = user.id;
+      (req as any).session.user = user;
+      
+      res.json({ id: user.id, username: user.username });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to log in" });
+    }
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    (req as any).session.destroy((err: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Failed to log out" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  app.get('/api/auth/user', (req, res) => {
+    if ((req as any).session?.user) {
+      const user = (req as any).session.user;
+      res.json({ id: user.id, username: user.username });
+    } else {
+      res.status(401).json({ message: "Not authenticated" });
+    }
+  });
+
   // Admin middleware for authentication (simplified for demo)
   const requireAdmin = (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
