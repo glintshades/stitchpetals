@@ -5,8 +5,111 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { type Product } from "@shared/schema";
-import { Star, Heart, Clock, Award } from "lucide-react";
+import { Star, Heart, Clock, Award, Package } from "lucide-react";
 const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
+
+type ProductCategory = {
+  id: number;
+  name: string;
+  description?: string;
+  slug: string;
+  imageUrl?: string;
+  isActive: boolean;
+};
+
+function CategoriesSection() {
+  const { data: categories = [], isLoading } = useQuery<ProductCategory[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  const activeCategories = categories.filter(cat => cat.isActive);
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+            <div className="h-64 bg-gray-200"></div>
+            <div className="p-6">
+              <div className="h-6 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (activeCategories.length === 0) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <Link href="/shop?category=bouquets" className="group">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
+            <div className="h-64 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
+              <span className="text-6xl">💐</span>
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Bouquets</h3>
+              <p className="text-gray-600">Beautiful arrangements for any occasion</p>
+            </div>
+          </div>
+        </Link>
+        
+        <Link href="/shop?category=potted" className="group">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
+            <div className="h-64 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+              <span className="text-6xl">🪴</span>
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Potted Plants</h3>
+              <p className="text-gray-600">Charming potted crochet flowers</p>
+            </div>
+          </div>
+        </Link>
+        
+        <Link href="/shop?category=stems" className="group">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
+            <div className="h-64 bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center">
+              <span className="text-6xl">🌸</span>
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Individual Stems</h3>
+              <p className="text-gray-600">Single flowers for custom arrangements</p>
+            </div>
+          </div>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      {activeCategories.map((category) => (
+        <Link key={category.id} href={`/shop?category=${category.slug}`} className="group">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform group-hover:scale-105">
+            <div className="h-64 relative overflow-hidden">
+              {category.imageUrl ? (
+                <img 
+                  src={category.imageUrl} 
+                  alt={category.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
+              ) : (
+                <div className="h-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
+                  <Package className="w-16 h-16 text-pink-600" />
+                </div>
+              )}
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">{category.name}</h3>
+              <p className="text-gray-600">{category.description || "Explore our collection"}</p>
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -74,45 +177,8 @@ export default function Home() {
               From elegant bouquets to charming potted arrangements, discover the perfect crochet flowers for every occasion
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Bouquets",
-                description: "Mixed flower arrangements",
-                image: "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                href: "/bouquets"
-              },
-              {
-                title: "Potted Flowers",
-                description: "Decorative arrangements",
-                image: "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                href: "/shop?category=potted"
-              },
-              {
-                title: "Single Stems",
-                description: "Individual flowers",
-                image: "https://pixabay.com/get/gf903151dd1f2de135ef6b603105babc6b62b3a44144950fbf04210ddda4dc94aabbdc7fd73e42bce1dee555fcecfaf4dcdd76dc7f685bdb5bb60fcecc52ff94f_1280.jpg",
-                href: "/shop?category=stems"
-              }
-            ].map((category, index) => (
-              <Link key={index} href={category.href}>
-                <div className="group cursor-pointer">
-                  <div className="relative overflow-hidden rounded-xl">
-                    <img 
-                      src={category.image} 
-                      alt={category.title}
-                      className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <h4 className="font-playfair text-2xl font-bold text-white mb-2">{category.title}</h4>
-                      <p className="text-white/90">{category.description}</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          
+          <CategoriesSection />
         </div>
       </section>
 

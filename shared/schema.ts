@@ -19,6 +19,7 @@ export const productCategories = pgTable("product_categories", {
   name: text("name").notNull().unique(),
   description: text("description"),
   slug: text("slug").notNull().unique(),
+  imageUrl: text("image_url"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });

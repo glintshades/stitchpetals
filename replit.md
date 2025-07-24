@@ -37,6 +37,9 @@ Preferred communication style: Simple, everyday language.
 - **User Management System**: Complete admin user management interface with create, edit, delete, and role management capabilities for system administrators
 - **Product Category System**: Full category management system with create, edit, delete functionality and URL slug generation for better product organization
 - **Enhanced Admin Panel**: Added Users and Categories tabs to admin dashboard with comprehensive CRUD operations and filtering capabilities
+- **Category Image Upload**: Added drag-and-drop image upload functionality to category management with file validation and preview
+- **Homepage Category Integration**: Dynamic category display on homepage "Explore Our Collection" section using admin-created categories
+- **Contact Form Admin Display**: All contact form submissions now appear in admin panel contact section for better customer inquiry management
 
 ## System Architecture
 

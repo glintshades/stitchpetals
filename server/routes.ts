@@ -71,6 +71,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public Categories API
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getAllCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
   // Cart API
   app.get("/api/cart", async (req, res) => {
     try {

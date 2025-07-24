@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
-import { Package, Plus, Edit, Trash2, Calendar, CheckCircle, XCircle } from "lucide-react";
+import { Package, Plus, Edit, Trash2, Calendar, CheckCircle, XCircle, Upload, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type ProductCategory = {
@@ -18,6 +18,7 @@ type ProductCategory = {
   name: string;
   description?: string;
   slug: string;
+  imageUrl?: string;
   isActive: boolean;
   createdAt: string;
 };
@@ -26,6 +27,11 @@ export default function AdminCategories() {
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const { data: categories, isLoading } = useQuery<ProductCategory[]>({
@@ -41,8 +47,29 @@ export default function AdminCategories() {
     },
   });
 
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer admin-token'
+        },
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      return response.json();
+    },
+  });
+
   const createCategoryMutation = useMutation({
-    mutationFn: async (categoryData: { name: string; description: string; slug: string }) => {
+    mutationFn: async (categoryData: { name: string; description: string; slug: string; imageUrl?: string }) => {
       const response = await fetch("/api/admin/categories", {
         method: "POST",
         headers: {
@@ -59,6 +86,7 @@ export default function AdminCategories() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       setShowCreateDialog(false);
+      setImagePreview(null);
       toast({
         title: "Success",
         description: "Category created successfully",
@@ -92,6 +120,7 @@ export default function AdminCategories() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
       setShowEditDialog(false);
       setSelectedCategory(null);
+      setEditImagePreview(null);
       toast({
         title: "Success",
         description: "Category updated successfully",
@@ -140,6 +169,37 @@ export default function AdminCategories() {
       .replace(/(^-|-$)/g, '');
   };
 
+  const handleImageUpload = async (file: File, isEdit = false) => {
+    setUploadingImage(true);
+    try {
+      const result = await uploadImageMutation.mutateAsync(file);
+      if (isEdit) {
+        setEditImagePreview(result.imageUrl);
+      } else {
+        setImagePreview(result.imageUrl);
+      }
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageUpload(file, isEdit);
+    }
+  };
+
   const handleCreateCategory = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -148,6 +208,7 @@ export default function AdminCategories() {
       name,
       description: formData.get("description") as string,
       slug: formData.get("slug") as string || generateSlug(name),
+      imageUrl: imagePreview || undefined,
     };
     createCategoryMutation.mutate(categoryData);
   };
@@ -162,6 +223,7 @@ export default function AdminCategories() {
       description: formData.get("description") as string,
       slug: formData.get("slug") as string,
       isActive: formData.get("isActive") === "true",
+      imageUrl: editImagePreview || selectedCategory.imageUrl,
     };
     updateCategoryMutation.mutate({ categoryId: selectedCategory.id, updates });
   };
@@ -235,6 +297,50 @@ export default function AdminCategories() {
                   placeholder="auto-generated"
                 />
               </div>
+              
+              {/* Image Upload */}
+              <div>
+                <Label>Category Image</Label>
+                <div className="mt-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, false)}
+                    className="hidden"
+                  />
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img 
+                        src={imagePreview} 
+                        alt="Category preview" 
+                        className="w-32 h-32 object-cover rounded border"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingImage}
+                      >
+                        {uploadingImage ? "Uploading..." : "Change Image"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingImage}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {uploadingImage ? "Uploading..." : "Upload Image"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
               <Button type="submit" disabled={createCategoryMutation.isPending}>
                 {createCategoryMutation.isPending ? "Creating..." : "Create Category"}
               </Button>
@@ -258,15 +364,24 @@ export default function AdminCategories() {
             >
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <Package className="h-4 w-4" />
-                      {category.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{category.slug}</p>
-                    {category.description && (
-                      <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+                  <div className="flex gap-3">
+                    {category.imageUrl && (
+                      <img 
+                        src={category.imageUrl} 
+                        alt={category.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
                     )}
+                    <div>
+                      <h3 className="font-semibold flex items-center gap-2">
+                        <Package className="h-4 w-4" />
+                        {category.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">{category.slug}</p>
+                      {category.description && (
+                        <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+                      )}
+                    </div>
                   </div>
                   <Badge className={`${getStatusColor(category.isActive)} text-white`}>
                     {category.isActive ? (
@@ -345,6 +460,50 @@ export default function AdminCategories() {
                               required
                             />
                           </div>
+                          
+                          {/* Image Upload */}
+                          <div>
+                            <Label>Category Image</Label>
+                            <div className="mt-2">
+                              <input
+                                ref={editFileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileChange(e, true)}
+                                className="hidden"
+                              />
+                              {(editImagePreview || selectedCategory.imageUrl) ? (
+                                <div className="relative">
+                                  <img 
+                                    src={editImagePreview || selectedCategory.imageUrl} 
+                                    alt="Category preview" 
+                                    className="w-32 h-32 object-cover rounded border"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-2"
+                                    onClick={() => editFileInputRef.current?.click()}
+                                    disabled={uploadingImage}
+                                  >
+                                    {uploadingImage ? "Uploading..." : "Change Image"}
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => editFileInputRef.current?.click()}
+                                  disabled={uploadingImage}
+                                >
+                                  <Upload className="h-4 w-4 mr-2" />
+                                  {uploadingImage ? "Uploading..." : "Upload Image"}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                          
                           <div>
                             <Label htmlFor="edit-status">Status</Label>
                             <Select name="isActive" defaultValue={selectedCategory.isActive.toString()}>
