@@ -48,7 +48,7 @@ function CategoriesSection() {
             <div className="h-72 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">💐</span>
             </div>
-            <div className="p-8 flex-1 flex flex-col justify-center">
+            <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">Bouquets</h3>
               <p className="text-gray-600">Beautiful arrangements for any occasion</p>
             </div>
@@ -60,7 +60,7 @@ function CategoriesSection() {
             <div className="h-72 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">🪴</span>
             </div>
-            <div className="p-8 flex-1 flex flex-col justify-center">
+            <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">Potted Plants</h3>
               <p className="text-gray-600">Charming potted crochet flowers</p>
             </div>
@@ -88,9 +88,9 @@ function CategoriesSection() {
                 </div>
               )}
             </div>
-            <div className="p-8 flex-1 flex flex-col justify-center">
+            <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">{category.name}</h3>
-              <p className="text-gray-600 text-lg pt-[0px] pb-[0px] text-justify">{category.description || "Explore our collection"}</p>
+              <p className="text-gray-600 text-lg">{category.description || "Explore our collection"}</p>
             </div>
           </div>
         </Link>
