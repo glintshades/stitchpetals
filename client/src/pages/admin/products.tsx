@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus, Package } from "lucide-react";
+import { ImageUpload } from "@/components/ui/image-upload";
 import type { Product } from "@shared/schema";
 
 const productSchema = z.object({
@@ -20,7 +21,7 @@ const productSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.string().min(1, "Price is required"),
   category: z.enum(["bouquets", "potted", "stems"]),
-  imageUrl: z.string().url("Must be a valid URL"),
+  imageUrl: z.string().min(1, "Image is required"),
   colors: z.string().min(1, "At least one color is required"),
   stemCount: z.number().min(1, "Stem count must be at least 1"),
   inStock: z.boolean(),
@@ -151,11 +152,13 @@ export default function AdminProducts() {
       description: product.description,
       price: product.price,
       category: product.category as "bouquets" | "potted" | "stems",
-      imageUrl: product.imageUrl,
-      colors: Array.isArray(product.colors) ? product.colors.join(", ") : product.colors,
-      stemCount: product.stemCount,
+      imageUrl: product.imageUrl || "",
+      colors: Array.isArray(product.colors) ? product.colors.join(", ") : (product.colors || ""),
+      stemCount: product.stemCount || 1,
       inStock: product.inStock,
     });
+    // Set the category in the select component
+    form.setValue("category", product.category as "bouquets" | "potted" | "stems");
     setIsDialogOpen(true);
   };
 
@@ -235,7 +238,10 @@ export default function AdminProducts() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select onValueChange={(value) => form.setValue("category", value as "bouquets" | "potted" | "stems")}>
+                  <Select 
+                    value={form.watch("category")} 
+                    onValueChange={(value) => form.setValue("category", value as "bouquets" | "potted" | "stems")}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -264,8 +270,11 @@ export default function AdminProducts() {
               </div>
 
               <div>
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <Input id="imageUrl" {...form.register("imageUrl")} placeholder="https://..." />
+                <ImageUpload
+                  onImageUpload={(imageUrl) => form.setValue("imageUrl", imageUrl)}
+                  currentImageUrl={form.watch("imageUrl")}
+                  label="Product Image"
+                />
                 {form.formState.errors.imageUrl && (
                   <p className="text-red-600 text-sm mt-1">{form.formState.errors.imageUrl.message}</p>
                 )}
@@ -283,7 +292,8 @@ export default function AdminProducts() {
                 <input
                   type="checkbox"
                   id="inStock"
-                  {...form.register("inStock")}
+                  checked={form.watch("inStock")}
+                  onChange={(e) => form.setValue("inStock", e.target.checked)}
                   className="rounded border-gray-300"
                 />
                 <Label htmlFor="inStock">In Stock</Label>
