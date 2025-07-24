@@ -16,11 +16,18 @@ import { Pencil, Trash2, Plus, Package } from "lucide-react";
 import { ImageUpload } from "@/components/ui/image-upload";
 import type { Product } from "@shared/schema";
 
+type ProductCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  isActive: boolean;
+};
+
 const productSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.string().min(1, "Price is required"),
-  category: z.enum(["bouquets", "potted", "stems"]),
+  category: z.string().min(1, "Category is required"),
   imageUrl: z.string().min(1, "Image is required"),
   colors: z.string().min(1, "At least one color is required"),
   stemCount: z.number().min(1, "Stem count must be at least 1"),
@@ -46,13 +53,24 @@ export default function AdminProducts() {
     },
   });
 
+  const { data: categories = [] } = useQuery<ProductCategory[]>({
+    queryKey: ["/api/admin/categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/categories", {
+        headers: { Authorization: "Bearer admin-token" }
+      });
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+  });
+
   const form = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
       description: "",
       price: "",
-      category: "bouquets",
+      category: "",
       imageUrl: "",
       colors: "",
       stemCount: 1,
@@ -151,14 +169,12 @@ export default function AdminProducts() {
       name: product.name,
       description: product.description,
       price: product.price,
-      category: product.category as "bouquets" | "potted" | "stems",
+      category: product.category,
       imageUrl: product.imageUrl || "",
       colors: Array.isArray(product.colors) ? product.colors.join(", ") : (product.colors || ""),
       stemCount: product.stemCount || 1,
       inStock: product.inStock,
     });
-    // Set the category in the select component
-    form.setValue("category", product.category as "bouquets" | "potted" | "stems");
     setIsDialogOpen(true);
   };
 
@@ -238,17 +254,19 @@ export default function AdminProducts() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select 
-                    value={form.watch("category")} 
-                    onValueChange={(value) => form.setValue("category", value as "bouquets" | "potted" | "stems")}
-                  >
+                  <Select value={form.watch("category")} onValueChange={(value) => form.setValue("category", value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="bouquets">Bouquets</SelectItem>
-                      <SelectItem value="potted">Potted</SelectItem>
-                      <SelectItem value="stems">Stems</SelectItem>
+                      {categories.filter(cat => cat.isActive).map((category) => (
+                        <SelectItem key={category.id} value={category.slug}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                      {categories.filter(cat => cat.isActive).length === 0 && (
+                        <SelectItem value="" disabled>No active categories available</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   {form.formState.errors.category && (

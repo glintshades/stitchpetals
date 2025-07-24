@@ -41,13 +41,25 @@ export default function Shop() {
       }
     });
 
+  // Fetch categories from database
+  const { data: dbCategories = [] } = useQuery({
+    queryKey: ["/api/categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/categories");
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+  });
+
   const categories = [
     { value: "all", label: "All Products", count: allProducts.length },
-    ...Object.entries(productCategories).map(([key, label]) => ({
-      value: key,
-      label,
-      count: allProducts.filter(p => p.category === key).length
-    }))
+    ...dbCategories
+      .filter((cat: any) => cat.isActive)
+      .map((cat: any) => ({
+        value: cat.slug,
+        label: cat.name,
+        count: allProducts.filter(p => p.category === cat.slug).length
+      }))
   ];
 
   return (
