@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { type Product } from "@shared/schema";
 import { Star, Heart, Clock, Award } from "lucide-react";
-import bannerImage from "@assets/il_1588xN.4851706578_21g4_1753286611661.webp";
+const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
 
 export default function Home() {
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -85,7 +85,7 @@ export default function Home() {
               {
                 title: "Potted Flowers",
                 description: "Decorative arrangements",
-                image: "https://pixabay.com/get/g48b661a150c38e5acc30a8007516d6ec48a1128a09c59dbc2a96db4cb74efff4f4cead1152dbcc8d48000e3737c29bea90066a5010a4ad1dc7126ba5da2dd8da_1280.jpg",
+                image: "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
                 href: "/shop?category=potted"
               },
               {
