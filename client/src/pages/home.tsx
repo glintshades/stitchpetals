@@ -302,8 +302,16 @@ export default function Home() {
       </section>
 
       {/* Newsletter Subscription */}
-      <section className="py-16 bg-gradient-to-r from-wine to-pink-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section 
+        className="py-16 relative overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(rgba(144, 12, 63, 0.85), rgba(219, 39, 119, 0.85)), url('/attached_assets/WechatIMG1746_1753288338342.webp')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="font-playfair text-4xl font-bold text-white mb-4">
             Stay in the Loop ♡
           </h2>
@@ -316,9 +324,9 @@ export default function Home() {
             <input
               type="email"
               placeholder="Enter your email address"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-300 focus:outline-none"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-300 focus:outline-none shadow-lg"
             />
-            <Button className="bg-white text-wine hover:bg-pink-50 px-8 py-3 font-semibold">
+            <Button className="bg-white text-wine hover:bg-pink-50 px-8 py-3 font-semibold shadow-lg">
               Subscribe
             </Button>
           </div>
