@@ -19,7 +19,7 @@ import {
   type InsertAdminUser
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -57,11 +57,29 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async initializeProducts() {
-    // Check if products already exist
+    // Only run initialization once when setting up the database for the first time
+    // Check if this is the first time setup by looking for a specific product name
+    const checkProduct = await db.select().from(products).where(eq(products.name, "INITIAL_SETUP_CHECK"));
+    if (checkProduct.length > 0) return; // Already initialized
+    
+    // Check if products already exist (user has added products)
     const existingProducts = await db.select().from(products);
-    if (existingProducts.length > 0) return;
+    if (existingProducts.length > 0) {
+      // Mark as initialized to prevent future auto-population
+      await db.insert(products).values({
+        name: "INITIAL_SETUP_CHECK",
+        description: "System marker - do not delete",
+        price: "0.00",
+        category: "stems",
+        imageUrl: "/system/marker",
+        colors: ["system"],
+        stemCount: 1,
+        inStock: false,
+      });
+      return;
+    }
 
-    // Insert sample products
+    // Insert sample products only on first setup
     const sampleProducts: InsertProduct[] = [
       {
         name: "Crochet Sunflower Bouquet Mixed With Daisy&Tulip - Bouquet Style 1 / Soft Cotton",
@@ -206,6 +224,18 @@ export class DatabaseStorage implements IStorage {
     ];
 
     await db.insert(products).values(sampleProducts);
+    
+    // Mark as initialized
+    await db.insert(products).values({
+      name: "INITIAL_SETUP_CHECK",
+      description: "System marker - do not delete",
+      price: "0.00",
+      category: "stems",
+      imageUrl: "/system/marker",
+      colors: ["system"],
+      stemCount: 1,
+      inStock: false,
+    });
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -225,7 +255,8 @@ export class DatabaseStorage implements IStorage {
 
   async getAllProducts(): Promise<Product[]> {
     await this.initializeProducts(); // Ensure products are initialized
-    return await db.select().from(products);
+    // Filter out the system marker product
+    return await db.select().from(products).where(ne(products.name, "INITIAL_SETUP_CHECK"));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
