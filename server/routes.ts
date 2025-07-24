@@ -222,6 +222,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User orders route
+  app.get('/api/user/orders', async (req, res) => {
+    if (!(req as any).session?.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req as any).session.user.id;
+      const orders = await storage.getUserOrders(userId);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  // Update user password
+  app.post('/api/auth/update-password', async (req, res) => {
+    if (!(req as any).session?.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = (req as any).session.user.id;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Both current and new passwords are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters long" });
+      }
+
+      // Verify current password
+      const user = await storage.getUser(userId);
+      if (!user || user.password !== currentPassword) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      // Update password
+      await storage.updateUserPassword(userId, newPassword);
+      
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
+  // Update user email
+  app.post('/api/auth/update-email', async (req, res) => {
+    if (!(req as any).session?.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { email } = req.body;
+      const userId = (req as any).session.user.id;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+
+      // Update email
+      await storage.updateUserEmail(userId, email);
+      
+      res.json({ message: "Email updated successfully" });
+    } catch (error) {
+      console.error("Error updating email:", error);
+      res.status(500).json({ message: "Failed to update email" });
+    }
+  });
+
   // Admin middleware for authentication (simplified for demo)
   const requireAdmin = (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;

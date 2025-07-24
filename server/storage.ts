@@ -253,6 +253,27 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async updateUserPassword(userId: number, newPassword: string): Promise<void> {
+    await db.update(users)
+      .set({ password: newPassword })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserEmail(userId: number, email: string): Promise<void> {
+    await db.update(users)
+      .set({ email } as any)
+      .where(eq(users.id, userId));
+  }
+
+  async getUserOrders(userId: number): Promise<Order[]> {
+    // Get user first to match orders by name
+    const user = await this.getUser(userId);
+    if (!user) return [];
+    
+    // Return orders that match the user's username (assuming customerName matches username)
+    return await db.select().from(orders).where(eq(orders.customerName, user.username));
+  }
+
   async getAllProducts(): Promise<Product[]> {
     await this.initializeProducts(); // Ensure products are initialized
     // Filter out the system marker product

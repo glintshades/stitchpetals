@@ -16,6 +16,8 @@ import Product from "@/pages/product";
 import Cart from "@/pages/cart";
 import AdminPanel from "@/pages/admin";
 import Checkout from "@/pages/checkout";
+import MyOrders from "@/pages/my-orders";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -29,6 +31,8 @@ function Router() {
       <Route path="/product/:id" component={Product} />
       <Route path="/cart" component={Cart} />
       <Route path="/checkout" component={Checkout} />
+      <Route path="/my-orders" component={MyOrders} />
+      <Route path="/settings" component={Settings} />
       <Route path="/admin" component={AdminPanel} />
       <Route component={NotFound} />
     </Switch>
