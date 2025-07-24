@@ -40,6 +40,10 @@ Preferred communication style: Simple, everyday language.
 - **Category Image Upload**: Added drag-and-drop image upload functionality to category management with file validation and preview
 - **Homepage Category Integration**: Dynamic category display on homepage "Explore Our Collection" section using admin-created categories
 - **Contact Form Admin Display**: All contact form submissions now appear in admin panel contact section for better customer inquiry management
+- **Product Management Dynamic Categories**: Updated product create/edit forms to use database categories instead of hardcoded options
+- **Shop Page Category Integration**: Shop filtering now uses dynamic categories from admin panel with product counts
+- **Offers/Sale Page Creation**: New dedicated offers page with promotional deals, discount codes, and featured sale items
+- **Navigation Update**: Updated header navigation to Home, About, Shop, Offers, Contact with Little Heart emoji near cart icon
 
 ## System Architecture
 

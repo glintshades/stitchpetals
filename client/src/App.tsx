@@ -11,6 +11,7 @@ import Home from "@/pages/home";
 import About from "@/pages/about";
 import Bouquets from "@/pages/bouquets";
 import Shop from "@/pages/shop";
+import Offers from "@/pages/offers";
 import Contact from "@/pages/contact";
 import Product from "@/pages/product";
 import Cart from "@/pages/cart";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/bouquets" component={Bouquets} />
       <Route path="/shop" component={Shop} />
+      <Route path="/offers" component={Offers} />
       <Route path="/contact" component={Contact} />
       <Route path="/product/:id" component={Product} />
       <Route path="/cart" component={Cart} />

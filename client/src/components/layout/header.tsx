@@ -19,8 +19,8 @@ export default function Header({ onCartClick }: HeaderProps) {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
-    { href: "/bouquets", label: "Crochet Bouquets" },
     { href: "/shop", label: "Shop" },
+    { href: "/offers", label: "Offers" },
     { href: "/contact", label: "Contact" },
   ];
 
@@ -29,12 +29,13 @@ export default function Header({ onCartClick }: HeaderProps) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex items-center space-x-2">
               <Link href="/">
                 <h1 className="font-playfair text-2xl font-bold wine cursor-pointer">
                   Stitched Petals
                 </h1>
               </Link>
+              <span className="text-pink-500 text-xl">🤍</span>
             </div>
             <div className="hidden md:block">
               <div className="flex items-center space-x-6">
@@ -56,20 +57,24 @@ export default function Header({ onCartClick }: HeaderProps) {
             <Button variant="ghost" size="icon" className="wine hover:text-dark-pink">
               <Search className="h-5 w-5" />
             </Button>
-            <Link href="/cart">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="wine hover:text-dark-pink relative"
-              >
-                <ShoppingBag className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-dark-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-1">
+              <span className="text-pink-500 text-lg">🤍</span>
+              <Link href="/cart">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="wine hover:text-dark-pink relative"
+                  onClick={onCartClick}
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-dark-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
             <div className="hidden md:block">
               <AuthButtons />
             </div>
