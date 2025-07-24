@@ -90,7 +90,7 @@ function CategoriesSection() {
             </div>
             <div className="p-8 flex-1 flex flex-col justify-center">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">{category.name}</h3>
-              <p className="text-gray-600 text-lg">{category.description || "Explore our collection"}</p>
+              <p className="text-gray-600 text-lg pt-[0px] pb-[0px] text-justify">{category.description || "Explore our collection"}</p>
             </div>
           </div>
         </Link>
