@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import type { Order, Product, ContactSubmission } from "@shared/schema";
+import AdminProducts from "./products";
 
 // Contact submissions component
 function ContactsList() {
@@ -302,39 +303,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           {/* Products Tab */}
           <TabsContent value="products" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Management</CardTitle>
-                <CardDescription>
-                  View and manage your product catalog
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {productsLoading ? (
-                  <div className="text-center py-8">Loading products...</div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {products.map((product: Product) => (
-                      <div key={product.id} className="border border-gray-200 rounded-lg p-4">
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-32 object-cover rounded-lg mb-3"
-                        />
-                        <h3 className="font-semibold mb-1">{product.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold wine">${product.price}</span>
-                          <Badge variant={product.inStock ? "default" : "secondary"}>
-                            {product.inStock ? "In Stock" : "Out of Stock"}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <AdminProducts />
           </TabsContent>
 
           {/* Contacts Tab */}
