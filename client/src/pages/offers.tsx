@@ -3,50 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
-import { type Product } from "@shared/schema";
+import { type Product, type Offer } from "@shared/schema";
 import { Star, Clock, Percent, Gift } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Offers() {
-  const { data: products = [], isLoading } = useQuery<Product[]>({
+  const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
 
-  // Mock sale data - in real app this would come from database
-  const saleOffers = [
-    {
-      id: 1,
-      title: "Flash Sale",
-      description: "25% off all bouquets",
-      discount: "25%",
-      validUntil: "Limited Time",
-      code: "FLASH25",
-      gradient: "from-red-500 to-pink-500"
-    },
-    {
-      id: 2,
-      title: "Bundle Deal",
-      description: "Buy 2 Get 1 Free on potted arrangements",
-      discount: "33%",
-      validUntil: "This Week Only",
-      code: "BUNDLE3",
-      gradient: "from-purple-500 to-indigo-500"
-    },
-    {
-      id: 3,
-      title: "First Time Buyer",
-      description: "15% off your first order",
-      discount: "15%",
-      validUntil: "New Customers",
-      code: "WELCOME15",
-      gradient: "from-green-500 to-teal-500"
-    }
-  ];
+  const { data: offers = [], isLoading: offersLoading } = useQuery<Offer[]>({
+    queryKey: ["/api/offers"],
+  });
+
+
 
   // Featured sale products (first 6 products)
   const featuredProducts = products.slice(0, 6);
 
-  if (isLoading) {
+  if (productsLoading || offersLoading) {
     return (
       <div className="bg-ivory min-h-screen">
         <div className="flex items-center justify-center py-20">
@@ -101,40 +76,61 @@ export default function Offers() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {saleOffers.map((offer) => (
-              <Card key={offer.id} className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-shadow">
-                <div className={`absolute inset-0 bg-gradient-to-br ${offer.gradient} opacity-10`}></div>
-                <CardContent className="p-8 relative">
-                  <div className="text-center">
-                    <Badge className={`bg-gradient-to-r ${offer.gradient} text-white text-lg px-4 py-2 mb-4`}>
-                      {offer.discount} OFF
-                    </Badge>
-                    <h3 className="font-playfair text-2xl font-bold wine mb-3">
-                      {offer.title}
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      {offer.description}
-                    </p>
-                    <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                      <p className="text-sm text-gray-500 mb-1">Use Code:</p>
-                      <p className="font-bold text-xl wine font-mono">
-                        {offer.code}
+          {offers.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-8">
+              {offers.map((offer: Offer) => (
+                <Card key={offer.id} className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="absolute inset-0 bg-gradient-to-br from-wine to-pink-500 opacity-10"></div>
+                  <CardContent className="p-8 relative">
+                    <div className="text-center">
+                      <Badge className="bg-gradient-to-r from-wine to-pink-500 text-white text-lg px-4 py-2 mb-4">
+                        {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
+                      </Badge>
+                      <h3 className="font-playfair text-2xl font-bold wine mb-3">
+                        {offer.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        {offer.description}
                       </p>
+                      {offer.code && (
+                        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                          <p className="text-sm text-gray-500 mb-1">Use Code:</p>
+                          <p className="font-bold text-xl wine font-mono">
+                            {offer.code}
+                          </p>
+                        </div>
+                      )}
+                      <p className="text-sm text-gray-500 mb-6">
+                        Valid until: {new Date(offer.validUntil).toLocaleDateString()}
+                      </p>
+                      <Link href="/shop">
+                        <Button className="w-full wine-gradient text-white hover:opacity-90">
+                          Shop Now
+                        </Button>
+                      </Link>
                     </div>
-                    <p className="text-sm text-gray-500 mb-6">
-                      Valid: {offer.validUntil}
-                    </p>
-                    <Link href="/shop">
-                      <Button className="w-full wine-gradient text-white hover:opacity-90">
-                        Shop Now
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+                <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  No Active Offers
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  Check back soon for amazing deals on our beautiful crochet flowers.
+                </p>
+                <Link href="/shop">
+                  <Button className="wine-gradient text-white">
+                    Browse Full Collection
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

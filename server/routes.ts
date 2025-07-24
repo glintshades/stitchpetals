@@ -4,7 +4,7 @@ import session from "express-session";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema } from "@shared/schema";
 
 // Configure multer for image uploads
 const storage_config = multer.diskStorage({
@@ -593,6 +593,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(contacts);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch contact submissions" });
+    }
+  });
+
+  // Public Offers API (for users to view)
+  app.get("/api/offers", async (req, res) => {
+    try {
+      const offers = await storage.getActiveOffers();
+      res.json(offers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch offers" });
+    }
+  });
+
+  // Admin - Offers management
+  app.get("/api/admin/offers", requireAdmin, async (req, res) => {
+    try {
+      const offers = await storage.getAllOffers();
+      res.json(offers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch offers" });
+    }
+  });
+
+  app.post("/api/admin/offers", requireAdmin, async (req, res) => {
+    try {
+      const offerData = insertOfferSchema.parse(req.body);
+      const offer = await storage.createOffer(offerData);
+      res.status(201).json(offer);
+    } catch (error) {
+      console.error("Create offer error:", error);
+      res.status(400).json({ message: "Invalid offer data" });
+    }
+  });
+
+  app.patch("/api/admin/offers/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+      const offer = await storage.updateOffer(id, updates);
+      if (!offer) {
+        return res.status(404).json({ message: "Offer not found" });
+      }
+      res.json(offer);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update offer" });
+    }
+  });
+
+  app.delete("/api/admin/offers/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteOffer(id);
+      if (!success) {
+        return res.status(404).json({ message: "Offer not found" });
+      }
+      res.json({ message: "Offer deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete offer" });
     }
   });
 

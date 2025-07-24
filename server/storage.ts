@@ -7,6 +7,7 @@ import {
   contactSubmissions, 
   orders,
   adminUsers,
+  offers,
   type User, 
   type InsertUser, 
   type Product, 
@@ -22,7 +23,9 @@ import {
   type Order,
   type InsertOrder,
   type AdminUser,
-  type InsertAdminUser
+  type InsertAdminUser,
+  type Offer,
+  type InsertOffer
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and } from "drizzle-orm";
@@ -64,6 +67,14 @@ export interface IStorage {
   
   // Contact submissions
   getAllContactSubmissions(): Promise<ContactSubmission[]>;
+  
+  // Offers management
+  getAllOffers(): Promise<Offer[]>;
+  getActiveOffers(): Promise<Offer[]>;
+  getOffer(id: number): Promise<Offer | undefined>;
+  createOffer(offer: InsertOffer): Promise<Offer>;
+  updateOffer(id: number, updates: Partial<InsertOffer>): Promise<Offer | undefined>;
+  deleteOffer(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -523,6 +534,51 @@ export class DatabaseStorage implements IStorage {
 
   async getAllContactSubmissions(): Promise<ContactSubmission[]> {
     return await db.select().from(contactSubmissions);
+  }
+
+  // Offers management methods
+  async getAllOffers(): Promise<Offer[]> {
+    return await db.select().from(offers);
+  }
+
+  async getActiveOffers(): Promise<Offer[]> {
+    const now = new Date().toISOString();
+    return await db.select().from(offers).where(
+      and(
+        eq(offers.isActive, true),
+        // Add date filtering logic here if needed
+      )
+    );
+  }
+
+  async getOffer(id: number): Promise<Offer | undefined> {
+    const [offer] = await db.select().from(offers).where(eq(offers.id, id));
+    return offer || undefined;
+  }
+
+  async createOffer(insertOffer: InsertOffer): Promise<Offer> {
+    const [offer] = await db.insert(offers).values({
+      ...insertOffer,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }).returning();
+    return offer;
+  }
+
+  async updateOffer(id: number, updates: Partial<InsertOffer>): Promise<Offer | undefined> {
+    const [offer] = await db.update(offers)
+      .set({
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(offers.id, id))
+      .returning();
+    return offer || undefined;
+  }
+
+  async deleteOffer(id: number): Promise<boolean> {
+    const result = await db.delete(offers).where(eq(offers.id, id));
+    return (result.rowCount || 0) > 0;
   }
 }
 

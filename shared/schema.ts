@@ -86,6 +86,24 @@ export const adminUsers = pgTable("admin_users", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+export const offers = pgTable("offers", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  discountType: text("discount_type").notNull(), // "percentage" or "fixed"
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+  code: text("code").unique(),
+  minOrderValue: decimal("min_order_value", { precision: 10, scale: 2 }),
+  maxDiscount: decimal("max_discount", { precision: 10, scale: 2 }),
+  validFrom: text("valid_from").notNull(),
+  validUntil: text("valid_until").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  applicableProducts: text("applicable_products").array(), // array of product IDs or "all"
+  imageUrl: text("image_url"),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -138,6 +156,21 @@ export const insertAdminUserSchema = createInsertSchema(adminUsers).pick({
   role: true,
 });
 
+export const insertOfferSchema = createInsertSchema(offers).pick({
+  title: true,
+  description: true,
+  discountType: true,
+  discountValue: true,
+  code: true,
+  minOrderValue: true,
+  maxDiscount: true,
+  validFrom: true,
+  validUntil: true,
+  isActive: true,
+  applicableProducts: true,
+  imageUrl: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type ProductCategory = typeof productCategories.$inferSelect;
@@ -154,3 +187,5 @@ export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+export type Offer = typeof offers.$inferSelect;
+export type InsertOffer = z.infer<typeof insertOfferSchema>;
