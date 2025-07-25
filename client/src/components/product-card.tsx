@@ -83,29 +83,32 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
               </h4>
               <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
               
-              {product.stemCount && (
-                <Badge variant="secondary" className="mb-3">
-                  {product.stemCount} {product.stemCount === 1 ? "Stem" : "Stems"}
-                </Badge>
-              )}
-              
-              {colors.length > 1 && (
-                <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-                  <label className="text-sm font-medium wine mb-2 block">Color:</label>
-                  <Select value={selectedColor} onValueChange={handleSelectChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {colors.map((color) => (
-                        <SelectItem key={color} value={color}>
-                          {color}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {product.stemCount && (
+                  <Badge variant="secondary">
+                    {product.stemCount} {product.stemCount === 1 ? "Stem" : "Stems"}
+                  </Badge>
+                )}
+                
+                {colors.length > 0 && (
+                  <>
+                    {colors.map((color) => (
+                      <Badge 
+                        key={color} 
+                        variant="outline" 
+                        className="border-wine text-wine hover:bg-wine hover:text-white transition-colors cursor-pointer text-xs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedColor(color);
+                        }}
+                      >
+                        {color}
+                      </Badge>
+                    ))}
+                  </>
+                )}
+              </div>
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-auto">
