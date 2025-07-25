@@ -42,6 +42,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   }));
+
+  // User authentication middleware
+  const requireAuth = (req: any, res: any, next: any) => {
+    if (!req.session?.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    next();
+  };
+
+  // Admin middleware for authentication (simplified for demo)
+  const requireAdmin = (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || authHeader !== 'Bearer admin-token') {
+      return res.status(401).json({ message: "Unauthorized access" });
+    }
+    next();
+  };
   // Products API
   app.get("/api/products", async (req, res) => {
     try {
@@ -82,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cart API
-  app.get("/api/cart", async (req, res) => {
+  app.get("/api/cart", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItems = await storage.getCartItems(sessionId);
@@ -93,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart", async (req, res) => {
+  app.post("/api/cart", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItemData = { ...req.body, sessionId };
@@ -107,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/cart/:id", async (req, res) => {
+  app.patch("/api/cart/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { quantity } = req.body;
@@ -121,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/:id", async (req, res) => {
+  app.delete("/api/cart/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.removeFromCart(id);
@@ -134,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart", async (req, res) => {
+  app.delete("/api/cart", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       await storage.clearCart(sessionId);
@@ -146,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wishlist API
-  app.get("/api/wishlist", async (req, res) => {
+  app.get("/api/wishlist", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const items = await storage.getWishlistItems(sessionId);
@@ -156,7 +173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wishlist", async (req, res) => {
+  app.post("/api/wishlist", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const result = insertWishlistItemSchema.safeParse({
@@ -178,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wishlist/:productId", async (req, res) => {
+  app.delete("/api/wishlist/:productId", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const productId = parseInt(req.params.productId);
@@ -362,14 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin middleware for authentication (simplified for demo)
-  const requireAdmin = (req: any, res: any, next: any) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== 'Bearer admin-token') {
-      return res.status(401).json({ message: "Unauthorized access" });
-    }
-    next();
-  };
+
 
   // Admin - Orders API
   app.get("/api/admin/orders", requireAdmin, async (req, res) => {
