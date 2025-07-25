@@ -36,29 +36,29 @@ function OffersSlider({ offers }: { offers: Offer[] }) {
                 <div className="absolute inset-0 bg-black/10"></div>
                 <div className="relative px-8 py-12 md:px-16 md:py-16">
                   <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div className="text-white">
-                      <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-6">
-                        <span className="text-3xl font-bold mr-2">
+                    <div className="text-black">
+                      <div className="inline-flex items-center bg-black/20 backdrop-blur-sm rounded-full px-6 py-3 mb-6">
+                        <span className="text-3xl font-bold mr-2 text-white">
                           {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"}
                         </span>
-                        <span className="text-xl font-semibold">OFF</span>
+                        <span className="text-xl font-semibold text-white">OFF</span>
                       </div>
                       <h3 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
                         {offer.title}
                       </h3>
-                      <p className="text-xl md:text-2xl text-white/90 mb-6 leading-relaxed">
+                      <p className="text-xl md:text-2xl text-black/90 mb-6 leading-relaxed">
                         {offer.description}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-4 items-start">
                         {offer.code && (
-                          <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/20">
-                            <p className="text-sm text-white/80 mb-1">Use Code:</p>
-                            <p className="font-bold text-2xl font-mono tracking-wider">
+                          <div className="bg-black/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-black/20">
+                            <p className="text-sm text-black/80 mb-1">Use Code:</p>
+                            <p className="font-bold text-2xl font-mono tracking-wider text-black">
                               {offer.code}
                             </p>
                           </div>
                         )}
-                        <div className="text-white/80 text-sm space-y-1">
+                        <div className="text-black/80 text-sm space-y-1">
                           <p className="flex items-center">
                             <Calendar className="w-4 h-4 mr-2" />
                             Valid until: {new Date(offer.validUntil).toLocaleDateString()}
@@ -68,11 +68,11 @@ function OffersSlider({ offers }: { offers: Offer[] }) {
                     </div>
                     <div className="text-center md:text-right">
                       <Link href="/shop">
-                        <Button className="bg-white text-wine hover:bg-gray-100 text-xl px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                        <Button className="bg-black text-white hover:bg-gray-800 text-xl px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
                           Shop Now
                         </Button>
                       </Link>
-                      <p className="text-white/70 text-sm mt-4">
+                      <p className="text-black/70 text-sm mt-4">
                         *Discount applied automatically at checkout
                       </p>
                     </div>
@@ -88,13 +88,13 @@ function OffersSlider({ offers }: { offers: Offer[] }) {
         <>
           <button 
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors z-10"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/20 backdrop-blur-sm text-black p-2 rounded-full hover:bg-black/30 transition-colors z-10"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button 
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors z-10"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/20 backdrop-blur-sm text-black p-2 rounded-full hover:bg-black/30 transition-colors z-10"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -144,31 +144,8 @@ export default function Offers() {
   return (
     <div className="bg-ivory">
       {/* Offers Slider Section */}
-      <section className="py-16 bg-gradient-to-b from-ivory to-white">
+      <section className="py-8 bg-gradient-to-b from-ivory to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-6">
-              <Percent className="w-12 h-12 text-wine mr-3" />
-              <h1 className="font-playfair text-5xl md:text-6xl font-bold wine">
-                Special Offers
-              </h1>
-            </div>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
-              Don't miss out on our amazing deals! Save big on handcrafted crochet flowers 
-              with exclusive discounts and limited-time offers.
-            </p>
-            <div className="flex items-center justify-center gap-6">
-              <div className="flex items-center text-wine">
-                <Clock className="w-5 h-5 mr-2" />
-                <span className="font-semibold">Limited Time Only</span>
-              </div>
-              <div className="flex items-center text-wine">
-                <Gift className="w-5 h-5 mr-2" />
-                <span className="font-semibold">Free Shipping on Orders $50+</span>
-              </div>
-            </div>
-          </div>
-          
           {offers.length > 0 ? (
             <OffersSlider offers={offers} />
           ) : (
