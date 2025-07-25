@@ -29,13 +29,12 @@ export default function Header({ onCartClick }: HeaderProps) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <div className="flex-shrink-0 flex items-center space-x-2">
+            <div className="flex-shrink-0 flex items-center">
               <Link href="/">
                 <h1 className="font-playfair text-2xl font-bold wine cursor-pointer">
                   Stitched Petals
                 </h1>
               </Link>
-              <span className="text-pink-500 text-xl">🤍</span>
             </div>
             <div className="hidden md:block">
               <div className="flex items-center space-x-6">
@@ -58,7 +57,6 @@ export default function Header({ onCartClick }: HeaderProps) {
               <Search className="h-5 w-5" />
             </Button>
             <div className="flex items-center space-x-1">
-              <span className="text-pink-500 text-lg">🤍</span>
               <Link href="/wishlist">
                 <Button
                   variant="ghost"
