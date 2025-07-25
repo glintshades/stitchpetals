@@ -41,7 +41,11 @@ export function AuthButtons() {
       return response.json();
     },
     onSuccess: () => {
+      // Clear all authentication-related queries
+      queryClient.clear();
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/wishlist"] });
       toast({
         title: "Logged out",
         description: "You have been logged out successfully.",

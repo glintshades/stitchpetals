@@ -37,9 +37,6 @@ export function useCart() {
           description: "Please log in to add items to your cart.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1500);
       } else {
         toast({
           title: "Error",
@@ -68,9 +65,6 @@ export function useCart() {
           description: "Please log in to update your cart.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1500);
       } else {
         toast({
           title: "Error",
@@ -103,9 +97,6 @@ export function useCart() {
           description: "Please log in to modify your cart.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1500);
       } else {
         toast({
           title: "Error",

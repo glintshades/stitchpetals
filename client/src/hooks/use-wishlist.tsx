@@ -46,9 +46,6 @@ export function useWishlist() {
           description: "Please log in to add items to your wishlist.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1500);
       } else {
         toast({
           title: "Error",
@@ -81,9 +78,6 @@ export function useWishlist() {
           description: "Please log in to modify your wishlist.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 1500);
       } else {
         toast({
           title: "Error",

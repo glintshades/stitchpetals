@@ -46,6 +46,13 @@ Preferred communication style: Simple, everyday language.
 - **Navigation Update**: Updated header navigation to Home, About, Shop, Offers, Contact with Little Heart emoji near cart icon
 - **Wishlist System Implementation**: Complete wishlist functionality with database persistence, session-based tracking, heart icon interactions on product cards and detail pages, dedicated wishlist page at /wishlist, and wishlist icon in header navigation
 
+### January 25, 2025
+- **Authentication Requirements for Cart/Wishlist**: Implemented comprehensive authentication system requiring user login for all cart and wishlist operations
+- **Client-Side Authentication Guards**: Added authentication checks in cart and wishlist hooks with user-friendly error messages
+- **Server-Side Authentication Middleware**: Protected all cart and wishlist API endpoints with requireAuth middleware
+- **Enhanced User Experience**: Removed redirect-to-404 issue by showing authentication alerts without page navigation
+- **Logout Query Management**: Fixed logout functionality by properly clearing authentication-related queries to prevent page refresh requirements
+
 ## System Architecture
 
 ### Frontend Architecture
