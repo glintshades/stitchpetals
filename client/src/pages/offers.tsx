@@ -7,10 +7,10 @@ import OfferProductCard from "@/components/offer-product-card";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Clock, Percent, Gift, Package, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Offers Slider Component
-function OffersSlider({ offers }: { offers: Offer[] }) {
+function OffersSlider({ offers, products }: { offers: Offer[], products: Product[] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   
   const nextSlide = () => {
@@ -21,66 +21,89 @@ function OffersSlider({ offers }: { offers: Offer[] }) {
     setCurrentSlide((prev) => (prev - 1 + offers.length) % offers.length);
   };
   
+  // Auto-scroll functionality
+  useEffect(() => {
+    if (offers.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % offers.length);
+      }, 4000); // Change slide every 4 seconds
+      
+      return () => clearInterval(interval);
+    }
+  }, [offers.length]);
+  
   if (offers.length === 0) return null;
   
+  // Get product image for background
+  const getOfferProductImage = (offer: Offer) => {
+    if (offer.applicableProducts && !offer.applicableProducts.includes("all")) {
+      const firstProductId = offer.applicableProducts[0];
+      const product = products.find(p => p.id.toString() === firstProductId);
+      return product?.imageUrl;
+    }
+    // Return first product image as fallback
+    return products[0]?.imageUrl;
+  };
+  
   return (
-    <div className="relative">
-      <div className="overflow-hidden rounded-2xl">
+    <div className="relative w-full">
+      <div className="overflow-hidden">
         <div 
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
-          {offers.map((offer: Offer) => (
-            <div key={offer.id} className="w-full flex-shrink-0">
-              <div className="relative overflow-hidden bg-gradient-to-r from-wine to-pink-500 shadow-2xl">
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className="relative px-8 py-12 md:px-16 md:py-16">
-                  <div className="grid md:grid-cols-2 gap-8 items-center">
-                    <div className="text-black">
-                      <div className="inline-flex items-center bg-black/20 backdrop-blur-sm rounded-full px-6 py-3 mb-6">
-                        <span className="text-3xl font-bold mr-2 text-white">
-                          {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"}
-                        </span>
-                        <span className="text-xl font-semibold text-white">OFF</span>
-                      </div>
-                      <h3 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
-                        {offer.title}
-                      </h3>
-                      <p className="text-xl md:text-2xl text-black/90 mb-6 leading-relaxed">
-                        {offer.description}
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-4 items-start">
-                        {offer.code && (
-                          <div className="bg-black/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-black/20">
-                            <p className="text-sm text-black/80 mb-1">Use Code:</p>
-                            <p className="font-bold text-2xl font-mono tracking-wider text-black">
-                              {offer.code}
-                            </p>
-                          </div>
-                        )}
-                        <div className="text-black/80 text-sm space-y-1">
+          {offers.map((offer: Offer) => {
+            const backgroundImage = getOfferProductImage(offer);
+            return (
+              <div key={offer.id} className="w-full flex-shrink-0">
+                <div 
+                  className="relative overflow-hidden bg-gradient-to-r from-wine to-pink-500 shadow-2xl min-h-[400px] md:min-h-[500px]"
+                  style={{
+                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundBlendMode: 'multiply'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-wine/80 to-pink-500/80"></div>
+                  <div className="relative px-8 py-16 md:px-16 md:py-24">
+                    <div className="grid md:grid-cols-2 gap-8 items-center max-w-7xl mx-auto">
+                      <div className="text-white">
+                        <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4 mb-8">
+                          <span className="text-4xl md:text-5xl font-bold mr-3">
+                            {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"}
+                          </span>
+                          <span className="text-2xl md:text-3xl font-semibold">OFF</span>
+                        </div>
+                        <h3 className="font-playfair text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                          {offer.title}
+                        </h3>
+                        <p className="text-xl md:text-3xl text-white/95 mb-8 leading-relaxed font-light">
+                          {offer.description}
+                        </p>
+                        <div className="text-white/80 text-lg">
                           <p className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-2" />
+                            <Calendar className="w-5 h-5 mr-3" />
                             Valid until: {new Date(offer.validUntil).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-center md:text-right">
-                      <Link href="/shop">
-                        <Button className="bg-black text-white hover:bg-gray-800 text-xl px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                          Shop Now
-                        </Button>
-                      </Link>
-                      <p className="text-black/70 text-sm mt-4">
-                        *Discount applied automatically at checkout
-                      </p>
+                      <div className="text-center md:text-right">
+                        <Link href="/shop">
+                          <Button className="bg-white text-wine hover:bg-gray-100 text-2xl md:text-3xl px-12 py-6 font-bold shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 rounded-full">
+                            Shop Now
+                          </Button>
+                        </Link>
+                        <p className="text-white/80 text-lg mt-6">
+                          *Discount applied automatically at checkout
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       
@@ -88,24 +111,24 @@ function OffersSlider({ offers }: { offers: Offer[] }) {
         <>
           <button 
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/20 backdrop-blur-sm text-black p-2 rounded-full hover:bg-black/30 transition-colors z-10"
+            className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors z-20 shadow-lg"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-8 h-8" />
           </button>
           <button 
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/20 backdrop-blur-sm text-black p-2 rounded-full hover:bg-black/30 transition-colors z-10"
+            className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-colors z-20 shadow-lg"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-8 h-8" />
           </button>
           
-          <div className="flex justify-center mt-6 space-x-2">
+          <div className="flex justify-center mt-8 space-x-3">
             {offers.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
-                  index === currentSlide ? 'bg-wine' : 'bg-gray-300'
+                className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                  index === currentSlide ? 'bg-wine scale-125' : 'bg-gray-400 hover:bg-gray-500'
                 }`}
               />
             ))}
@@ -144,29 +167,27 @@ export default function Offers() {
   return (
     <div className="bg-ivory">
       {/* Offers Slider Section */}
-      <section className="py-8 bg-gradient-to-b from-ivory to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {offers.length > 0 ? (
-            <OffersSlider offers={offers} />
-          ) : (
-            <div className="text-center py-12">
-              <div className="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
-                <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No Active Offers
-                </h3>
-                <p className="text-gray-500 mb-4">
-                  Check back soon for amazing deals on our beautiful crochet flowers.
-                </p>
-                <Link href="/shop">
-                  <Button className="wine-gradient text-white">
-                    Browse Full Collection
-                  </Button>
-                </Link>
-              </div>
+      <section className="w-full">
+        {offers.length > 0 ? (
+          <OffersSlider offers={offers} products={products} />
+        ) : (
+          <div className="text-center py-20 bg-gradient-to-b from-ivory to-white">
+            <div className="max-w-md mx-auto px-4">
+              <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                No Active Offers
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Check back soon for amazing deals on our beautiful crochet flowers.
+              </p>
+              <Link href="/shop">
+                <Button className="wine-gradient text-white">
+                  Browse Full Collection
+                </Button>
+              </Link>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
 

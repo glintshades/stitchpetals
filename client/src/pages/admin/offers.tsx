@@ -19,7 +19,6 @@ interface OfferFormData {
   description: string;
   discountType: "percentage" | "fixed";
   discountValue: string;
-  code: string;
   validFrom: string;
   validUntil: string;
   isActive: boolean;
@@ -31,7 +30,6 @@ const initialFormData: OfferFormData = {
   description: "",
   discountType: "percentage",
   discountValue: "",
-  code: "",
   validFrom: "",
   validUntil: "",
   isActive: true,
@@ -237,26 +235,15 @@ export default function AdminOffers() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="title">Offer Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., Winter Sale 2024"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="code">Discount Code</Label>
-                  <Input
-                    id="code"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                    placeholder="e.g., WINTER20"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="title">Offer Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Winter Sale 2024"
+                  required
+                />
               </div>
 
               <div>

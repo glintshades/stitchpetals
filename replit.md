@@ -58,6 +58,8 @@ Preferred communication style: Simple, everyday language.
 - **Admin Offers Form Simplification**: Removed max discount, min order value, and image URL fields from admin offers form with improved 2-column layout
 - **Client Offers Page Redesign**: Converted offers display from card format to banner format with gradient backgrounds, enhanced typography, and improved call-to-action buttons
 - **Offers Slider Implementation**: Created interactive slider for offer banners with smooth transitions, navigation arrows, dot indicators, and auto-responsive design for better user engagement
+- **Admin Offers Form Update**: Removed discount code field from admin offers management form for simplified offer creation
+- **Full-Width Auto-Scrolling Banners**: Enhanced offers page with full-width banners featuring product background images, auto-scroll functionality (4-second intervals), and improved visual hierarchy with larger typography and enhanced call-to-action buttons
 
 ## System Architecture
 
