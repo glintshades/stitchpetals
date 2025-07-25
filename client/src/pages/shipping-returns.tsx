@@ -1,7 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Truck, RotateCcw, Clock, Shield, Package, CreditCard } from "lucide-react";
+import { useEffect } from "react";
 
 export default function ShippingReturns() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="bg-ivory min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-16">

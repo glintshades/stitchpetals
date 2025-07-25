@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Facebook, Instagram, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Footer() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const [, navigate] = useLocation();
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,11 +95,20 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="/#faq">
-                  <span className="hover:text-white transition-colors cursor-pointer">
-                    FAQ
-                  </span>
-                </a>
+                <span 
+                  className="hover:text-white transition-colors cursor-pointer"
+                  onClick={() => {
+                    navigate('/');
+                    setTimeout(() => {
+                      const faqElement = document.getElementById('faq');
+                      if (faqElement) {
+                        faqElement.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
+                >
+                  FAQ
+                </span>
               </li>
               <li>
                 <Link href="/terms-conditions">
