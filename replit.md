@@ -52,6 +52,7 @@ Preferred communication style: Simple, everyday language.
 - **Server-Side Authentication Middleware**: Protected all cart and wishlist API endpoints with requireAuth middleware
 - **Enhanced User Experience**: Removed redirect-to-404 issue by showing authentication alerts without page navigation
 - **Logout Query Management**: Fixed logout functionality by properly clearing authentication-related queries to prevent page refresh requirements
+- **Product Synchronization Across Pages**: Fixed admin product and category mutations to invalidate both admin and public API queries, ensuring immediate updates on home, shop, and offers pages when changes are made in admin panel
 
 ## System Architecture
 

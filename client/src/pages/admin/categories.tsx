@@ -85,6 +85,7 @@ export default function AdminCategories() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       setShowCreateDialog(false);
       setImagePreview(null);
       toast({
@@ -118,6 +119,7 @@ export default function AdminCategories() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       setShowEditDialog(false);
       setSelectedCategory(null);
       setEditImagePreview(null);
@@ -148,6 +150,7 @@ export default function AdminCategories() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       toast({
         title: "Success",
         description: "Category deleted successfully",

@@ -97,6 +97,7 @@ export default function AdminProducts() {
     onSuccess: () => {
       toast({ title: "Success", description: "Product created successfully" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -128,6 +129,7 @@ export default function AdminProducts() {
     onSuccess: () => {
       toast({ title: "Success", description: "Product updated successfully" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       setIsDialogOpen(false);
       setEditingProduct(null);
       form.reset();
@@ -153,6 +155,7 @@ export default function AdminProducts() {
     onSuccess: () => {
       toast({ title: "Success", description: "Product deleted successfully" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
     },
     onError: (error) => {
       toast({ 
