@@ -55,6 +55,8 @@ Preferred communication style: Simple, everyday language.
 - **Product Synchronization Across Pages**: Fixed admin product and category mutations to invalidate both admin and public API queries, ensuring immediate updates on home, shop, and offers pages when changes are made in admin panel
 - **Offer Integration on Shop Page**: Implemented complete offer application system on shop page, displaying discounted prices, discount badges, and savings calculations for products with active offers
 - **Dynamic Pricing Display**: Enhanced ProductCard component to show both original and discounted prices with visual indicators for active promotions across all product listings (home, shop, offers)
+- **Admin Offers Form Simplification**: Removed max discount, min order value, and image URL fields from admin offers form with improved 2-column layout
+- **Client Offers Page Redesign**: Converted offers display from card format to banner format with gradient backgrounds, enhanced typography, and improved call-to-action buttons
 
 ## System Architecture
 

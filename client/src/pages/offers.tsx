@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import OfferProductCard from "@/components/offer-product-card";
 import { type Product, type Offer } from "@shared/schema";
-import { Star, Clock, Percent, Gift, Package } from "lucide-react";
+import { Star, Clock, Percent, Gift, Package, Calendar } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Offers() {
@@ -78,45 +78,55 @@ export default function Offers() {
           </div>
           
           {offers.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-8">
               {offers.map((offer: Offer) => (
-                <Card key={offer.id} className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="absolute inset-0 bg-gradient-to-br from-wine to-pink-500 opacity-10"></div>
-                  <CardContent className="p-8 relative">
-                    <div className="text-center">
-                      <Badge className="bg-gradient-to-r from-wine to-pink-500 text-white text-lg px-4 py-2 mb-4">
-                        {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
-                      </Badge>
-                      <h3 className="font-playfair text-2xl font-bold wine mb-3">
-                        {offer.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        {offer.description}
-                      </p>
-                      {offer.code && (
-                        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                          <p className="text-sm text-gray-500 mb-1">Use Code:</p>
-                          <p className="font-bold text-xl wine font-mono">
-                            {offer.code}
-                          </p>
+                <div key={offer.id} className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-wine to-pink-500 shadow-2xl">
+                  <div className="absolute inset-0 bg-black/10"></div>
+                  <div className="relative px-8 py-12 md:px-16 md:py-16">
+                    <div className="grid md:grid-cols-2 gap-8 items-center">
+                      <div className="text-white">
+                        <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-6">
+                          <span className="text-3xl font-bold mr-2">
+                            {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"}
+                          </span>
+                          <span className="text-xl font-semibold">OFF</span>
                         </div>
-                      )}
-                      {offer.minOrderValue && (
-                        <p className="text-sm text-gray-500 mb-2">
-                          Min order: ${offer.minOrderValue}
+                        <h3 className="font-playfair text-4xl md:text-5xl font-bold mb-4">
+                          {offer.title}
+                        </h3>
+                        <p className="text-xl md:text-2xl text-white/90 mb-6 leading-relaxed">
+                          {offer.description}
                         </p>
-                      )}
-                      <p className="text-sm text-gray-500 mb-6">
-                        Valid until: {new Date(offer.validUntil).toLocaleDateString()}
-                      </p>
-                      <Link href="/shop">
-                        <Button className="w-full wine-gradient text-white hover:opacity-90">
-                          Shop Now
-                        </Button>
-                      </Link>
+                        <div className="flex flex-col sm:flex-row gap-4 items-start">
+                          {offer.code && (
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/20">
+                              <p className="text-sm text-white/80 mb-1">Use Code:</p>
+                              <p className="font-bold text-2xl font-mono tracking-wider">
+                                {offer.code}
+                              </p>
+                            </div>
+                          )}
+                          <div className="text-white/80 text-sm space-y-1">
+                            <p className="flex items-center">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              Valid until: {new Date(offer.validUntil).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-center md:text-right">
+                        <Link href="/shop">
+                          <Button className="bg-white text-wine hover:bg-gray-100 text-xl px-8 py-4 font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                            Shop Now
+                          </Button>
+                        </Link>
+                        <p className="text-white/70 text-sm mt-4">
+                          *Discount applied automatically at checkout
+                        </p>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (

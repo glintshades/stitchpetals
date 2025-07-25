@@ -20,13 +20,10 @@ interface OfferFormData {
   discountType: "percentage" | "fixed";
   discountValue: string;
   code: string;
-  minOrderValue: string;
-  maxDiscount: string;
   validFrom: string;
   validUntil: string;
   isActive: boolean;
   applicableProducts: string[];
-  imageUrl: string;
 }
 
 const initialFormData: OfferFormData = {
@@ -35,13 +32,10 @@ const initialFormData: OfferFormData = {
   discountType: "percentage",
   discountValue: "",
   code: "",
-  minOrderValue: "",
-  maxDiscount: "",
   validFrom: "",
   validUntil: "",
   isActive: true,
   applicableProducts: ["all"],
-  imageUrl: "",
 };
 
 export default function AdminOffers() {
@@ -80,9 +74,9 @@ export default function AdminOffers() {
       const offerData: InsertOffer = {
         ...data,
         discountValue: data.discountValue,
-        minOrderValue: data.minOrderValue || null,
-        maxDiscount: data.maxDiscount || null,
-        imageUrl: data.imageUrl || null,
+        minOrderValue: null,
+        maxDiscount: null,
+        imageUrl: null,
       };
       const response = await fetch("/api/admin/offers", {
         method: "POST",
@@ -195,13 +189,10 @@ export default function AdminOffers() {
       discountType: offer.discountType as "percentage" | "fixed",
       discountValue: offer.discountValue,
       code: offer.code || "",
-      minOrderValue: offer.minOrderValue || "",
-      maxDiscount: offer.maxDiscount || "",
       validFrom: offer.validFrom,
       validUntil: offer.validUntil,
       isActive: offer.isActive,
       applicableProducts: offer.applicableProducts || ["all"],
-      imageUrl: offer.imageUrl || "",
     });
     setIsDialogOpen(true);
   };
@@ -279,7 +270,7 @@ export default function AdminOffers() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="discountType">Discount Type *</Label>
                   <Select 
@@ -309,31 +300,9 @@ export default function AdminOffers() {
                     required
                   />
                 </div>
-                <div>
-                  <Label htmlFor="maxDiscount">Max Discount ($)</Label>
-                  <Input
-                    id="maxDiscount"
-                    type="number"
-                    step="0.01"
-                    value={formData.maxDiscount}
-                    onChange={(e) => setFormData({ ...formData, maxDiscount: e.target.value })}
-                    placeholder="50.00"
-                  />
-                </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="minOrderValue">Min Order Value ($)</Label>
-                  <Input
-                    id="minOrderValue"
-                    type="number"
-                    step="0.01"
-                    value={formData.minOrderValue}
-                    onChange={(e) => setFormData({ ...formData, minOrderValue: e.target.value })}
-                    placeholder="25.00"
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="validFrom">Valid From *</Label>
                   <Input
@@ -356,15 +325,7 @@ export default function AdminOffers() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <Input
-                  id="imageUrl"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://example.com/offer-banner.jpg"
-                />
-              </div>
+
 
               <div>
                 <Label>Applicable Products</Label>
