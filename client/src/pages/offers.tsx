@@ -57,44 +57,55 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
             return (
               <div key={offer.id} className="w-full flex-shrink-0">
                 <div 
-                  className="relative overflow-hidden bg-gradient-to-r from-wine to-pink-500 shadow-2xl min-h-[400px] md:min-h-[500px]"
+                  className="relative overflow-hidden bg-gradient-to-r from-wine to-pink-500 shadow-2xl min-h-[500px] md:min-h-[600px]"
                   style={{
                     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    backgroundBlendMode: 'multiply'
+                    filter: backgroundImage ? 'blur(1px)' : undefined
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-wine/80 to-pink-500/80"></div>
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-wine/70 to-pink-500/70"></div>
                   <div className="relative px-8 py-16 md:px-16 md:py-24">
-                    <div className="grid md:grid-cols-2 gap-8 items-center max-w-7xl mx-auto">
-                      <div className="text-white">
-                        <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-8 py-4 mb-8">
-                          <span className="text-4xl md:text-5xl font-bold mr-3">
-                            {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"}
-                          </span>
-                          <span className="text-2xl md:text-3xl font-semibold">OFF</span>
-                        </div>
-                        <h3 className="font-playfair text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                          {offer.title}
-                        </h3>
-                        <p className="text-xl md:text-3xl text-white/95 mb-8 leading-relaxed font-light">
-                          {offer.description}
-                        </p>
-                        <div className="text-white/80 text-lg">
-                          <p className="flex items-center">
-                            <Calendar className="w-5 h-5 mr-3" />
-                            Valid until: {new Date(offer.validUntil).toLocaleDateString()}
-                          </p>
-                        </div>
+                    <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
+                      <h1 className="font-playfair text-6xl md:text-8xl font-bold mb-6 leading-tight text-white" 
+                          style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)' }}>
+                        {offer.title}
+                      </h1>
+                      
+                      <div className="inline-flex items-center bg-white/20 backdrop-blur-md rounded-full px-10 py-5 mb-8 border border-white/30">
+                        <span className="text-5xl md:text-6xl font-bold mr-4 text-white" 
+                              style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+                          {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"}
+                        </span>
+                        <span className="text-3xl md:text-4xl font-semibold text-white" 
+                              style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+                          OFF
+                        </span>
                       </div>
-                      <div className="text-center md:text-right">
+                      
+                      <p className="text-xl md:text-2xl text-white/95 mb-8 leading-relaxed font-light max-w-2xl" 
+                         style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
+                        {offer.description}
+                      </p>
+                      
+                      <div className="text-white/90 text-lg mb-8" 
+                           style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
+                        <p className="flex items-center justify-center">
+                          <Calendar className="w-5 h-5 mr-3" />
+                          Valid until: {new Date(offer.validUntil).toLocaleDateString()}
+                        </p>
+                      </div>
+                      
+                      <div className="text-center">
                         <Link href="/shop">
                           <Button className="bg-white text-wine hover:bg-gray-100 text-2xl md:text-3xl px-12 py-6 font-bold shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 rounded-full">
                             Shop Now
                           </Button>
                         </Link>
-                        <p className="text-white/80 text-lg mt-6">
+                        <p className="text-white/80 text-lg mt-6" 
+                           style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
                           *Discount applied automatically at checkout
                         </p>
                       </div>
