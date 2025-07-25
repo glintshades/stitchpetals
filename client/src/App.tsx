@@ -19,6 +19,9 @@ import AdminPanel from "@/pages/admin";
 import Checkout from "@/pages/checkout";
 import MyOrders from "@/pages/my-orders";
 import Settings from "@/pages/settings";
+import ShippingReturns from "@/pages/shipping-returns";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsConditions from "@/pages/terms-conditions";
 import NotFound from "@/pages/not-found";
 import WishlistPage from "@/pages/wishlist";
 
@@ -37,6 +40,9 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/my-orders" component={MyOrders} />
       <Route path="/settings" component={Settings} />
+      <Route path="/shipping-returns" component={ShippingReturns} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-conditions" component={TermsConditions} />
       <Route path="/admin" component={AdminPanel} />
       <Route component={NotFound} />
     </Switch>

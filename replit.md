@@ -62,6 +62,9 @@ Preferred communication style: Simple, everyday language.
 - **Full-Width Auto-Scrolling Banners**: Enhanced offers page with full-width banners featuring product background images, auto-scroll functionality (4-second intervals), and improved visual hierarchy with larger typography and enhanced call-to-action buttons
 - **Banner Visual Enhancement**: Updated banner design with centered headings, bold text styling, offer subheadings, date display, background blur/dark effects, and text shadows for improved readability and visual impact
 - **Banner Slider Optimization**: Slowed auto-scroll to 8 seconds, zoomed out background images to 120%, reduced dark overlay intensity, and removed shop now button and discount auto-applied text for cleaner presentation
+- **Legal Pages Implementation**: Created comprehensive shipping & returns, privacy policy, and terms & conditions pages with professional content and consistent design
+- **FAQ Section Addition**: Added detailed FAQ section to home page with 8 common questions about products, materials, care, and policies
+- **Footer Navigation Update**: Updated footer with links to new policy pages and FAQ section redirect to home page anchor
 
 ## System Architecture
 

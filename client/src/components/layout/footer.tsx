@@ -87,19 +87,32 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <span className="hover:text-white transition-colors cursor-pointer">
-                  Shipping Info
-                </span>
+                <Link href="/shipping-returns">
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Shipping & Returns
+                  </span>
+                </Link>
               </li>
               <li>
-                <span className="hover:text-white transition-colors cursor-pointer">
-                  Returns
-                </span>
+                <a href="/#faq">
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    FAQ
+                  </span>
+                </a>
               </li>
               <li>
-                <span className="hover:text-white transition-colors cursor-pointer">
-                  Care Instructions
-                </span>
+                <Link href="/terms-conditions">
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Terms & Conditions
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy-policy">
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Privacy Policy
+                  </span>
+                </Link>
               </li>
             </ul>
           </div>

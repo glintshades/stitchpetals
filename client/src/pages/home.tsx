@@ -475,6 +475,96 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
+      <section id="faq" className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Frequently Asked Questions</h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Find answers to common questions about our handcrafted crochet flowers
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">How long do crochet flowers last?</h3>
+              <p className="text-gray-600">
+                Our handcrafted crochet flowers are designed to last for years with proper care. Unlike fresh flowers, 
+                they won't wilt or fade, making them perfect for permanent displays, weddings, and special occasions.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">What materials do you use?</h3>
+              <p className="text-gray-600">
+                We use premium soft cotton yarns in vibrant, fade-resistant colors. All stems are reinforced with 
+                wire for easy positioning, and arrangements include decorative vases or pots as specified.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">How long does it take to make an order?</h3>
+              <p className="text-gray-600">
+                Each item is handcrafted to order, which typically takes 3-5 business days. This allows us to ensure 
+                every flower meets our quality standards before shipping to you.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Can I customize colors or arrangements?</h3>
+              <p className="text-gray-600">
+                Yes! We offer custom color combinations and arrangement styles. Contact us with your specific requirements, 
+                and we'll work with you to create the perfect piece for your needs.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">How do I care for my crochet flowers?</h3>
+              <p className="text-gray-600">
+                Care is simple! Dust gently with a soft brush or blow dryer on cool setting. Avoid direct sunlight 
+                for extended periods to prevent fading. For deeper cleaning, spot clean with mild soap and water.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Do you offer bulk discounts for weddings?</h3>
+              <p className="text-gray-600">
+                Absolutely! We provide special pricing for wedding orders of 10 or more pieces. Contact us with your 
+                wedding details, and we'll create a custom quote for your special day.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">What if I'm not satisfied with my order?</h3>
+              <p className="text-gray-600">
+                We stand behind our craftsmanship with a 30-day satisfaction guarantee. If you're not completely happy 
+                with your purchase, contact us for a full refund or exchange.
+              </p>
+            </div>
+
+            <div className="bg-pink-50 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">Do you ship internationally?</h3>
+              <p className="text-gray-600">
+                Currently, we ship within the United States only. We're working on expanding our shipping options 
+                to serve international customers. Please check back soon or contact us for updates.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-gray-600 mb-4">
+              Didn't find what you were looking for?
+            </p>
+            <a 
+              href="/contact" 
+              className="inline-flex items-center px-6 py-3 bg-wine text-white rounded-lg hover:bg-dark-wine transition-colors"
+            >
+              Ask Us Anything
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
