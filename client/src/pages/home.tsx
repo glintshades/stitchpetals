@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
-import { type Product } from "@shared/schema";
+import { type Product, type Offer } from "@shared/schema";
 import { Star, Heart, Clock, Award, Package } from "lucide-react";
 const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
 
@@ -104,6 +104,35 @@ export default function Home() {
     queryKey: ["/api/products"],
   });
 
+  // Fetch active offers
+  const { data: offers = [] } = useQuery({
+    queryKey: ["/api/offers"],
+    queryFn: async () => {
+      const response = await fetch("/api/offers");
+      if (!response.ok) throw new Error('Failed to fetch offers');
+      return response.json();
+    },
+  });
+
+  // Function to get applicable offer for a product
+  const getApplicableOffer = (product: Product): Offer | null => {
+    const now = new Date();
+    const activeOffers = offers.filter((offer: Offer) => {
+      const validFrom = new Date(offer.validFrom);
+      const validUntil = new Date(offer.validUntil);
+      return offer.isActive && now >= validFrom && now <= validUntil;
+    });
+
+    // Find the best offer for this product
+    for (const offer of activeOffers) {
+      if (offer.applicableProducts?.includes("all") || 
+          offer.applicableProducts?.includes(product.id.toString())) {
+        return offer;
+      }
+    }
+    return null;
+  };
+
   const featuredProducts = products.slice(0, 4);
 
   return (
@@ -197,9 +226,16 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 -m-2.5">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {featuredProducts.map((product) => {
+                const applicableOffer = getApplicableOffer(product);
+                return (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    offer={applicableOffer} 
+                  />
+                );
+              })}
             </div>
           )}
 

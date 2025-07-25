@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
-import { type Product } from "@shared/schema";
+import { type Product, type Offer } from "@shared/schema";
 import { Search, Filter } from "lucide-react";
 import { productCategories, getCategoryDisplayName } from "@/lib/products";
 
@@ -21,6 +21,35 @@ export default function Shop() {
   const { data: allProducts = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+
+  // Fetch active offers
+  const { data: offers = [] } = useQuery({
+    queryKey: ["/api/offers"],
+    queryFn: async () => {
+      const response = await fetch("/api/offers");
+      if (!response.ok) throw new Error('Failed to fetch offers');
+      return response.json();
+    },
+  });
+
+  // Function to get applicable offer for a product
+  const getApplicableOffer = (product: Product): Offer | null => {
+    const now = new Date();
+    const activeOffers = offers.filter((offer: Offer) => {
+      const validFrom = new Date(offer.validFrom);
+      const validUntil = new Date(offer.validUntil);
+      return offer.isActive && now >= validFrom && now <= validUntil;
+    });
+
+    // Find the best offer for this product
+    for (const offer of activeOffers) {
+      if (offer.applicableProducts?.includes("all") || 
+          offer.applicableProducts?.includes(product.id.toString())) {
+        return offer;
+      }
+    }
+    return null;
+  };
 
   // Filter and sort products
   const filteredProducts = allProducts
@@ -162,9 +191,16 @@ export default function Shop() {
             </div>
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 -m-2.5">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {filteredProducts.map((product) => {
+                const applicableOffer = getApplicableOffer(product);
+                return (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    offer={applicableOffer} 
+                  />
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12">

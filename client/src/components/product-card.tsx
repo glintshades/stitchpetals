@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { type Product } from "@shared/schema";
+import { type Product, type Offer } from "@shared/schema";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useState } from "react";
@@ -17,10 +17,11 @@ import {
 
 interface ProductCardProps {
   product: Product;
+  offer?: Offer | null;
   className?: string;
 }
 
-export default function ProductCard({ product, className = "" }: ProductCardProps) {
+export default function ProductCard({ product, offer, className = "" }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
   const [selectedColor, setSelectedColor] = useState<string>(
@@ -52,11 +53,30 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
 
   const colors = Array.isArray(product.colors) ? product.colors : [];
 
+  // Calculate discounted price if offer exists
+  const originalPrice = parseFloat(product.price.toString());
+  let discountedPrice = originalPrice;
+  let hasDiscount = false;
+
+  if (offer) {
+    const discountValue = parseFloat(offer.discountValue.toString());
+    const discountAmount = offer.discountType === "percentage" 
+      ? (originalPrice * discountValue) / 100
+      : discountValue;
+    discountedPrice = Math.max(0, originalPrice - discountAmount);
+    hasDiscount = discountedPrice < originalPrice;
+  }
+
   return (
     <div className="p-2.5"> {/* 10px padding around each card */}
       <Link href={`/product/${product.id}`}>
         <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover cursor-pointer transition-transform hover:scale-105 h-full flex flex-col ${className}`}>
           <div className="relative">
+            {hasDiscount && (
+              <Badge className="absolute top-3 left-3 z-10 bg-gradient-to-r from-wine to-pink-500 text-white font-semibold">
+                {offer?.discountValue}{offer?.discountType === "percentage" ? "%" : "$"} OFF
+              </Badge>
+            )}
             <img
               src={product.imageUrl}
               alt={product.name}
@@ -112,7 +132,21 @@ export default function ProductCard({ product, className = "" }: ProductCardProp
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-auto">
-              <span className="text-xl sm:text-2xl font-bold dark-pink">${product.price}</span>
+              <div className="flex flex-col">
+                {hasDiscount ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl sm:text-2xl font-bold dark-pink">${discountedPrice.toFixed(2)}</span>
+                      <span className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
+                    </div>
+                    <span className="text-xs text-green-600 font-semibold">
+                      Save ${(originalPrice - discountedPrice).toFixed(2)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xl sm:text-2xl font-bold dark-pink">${originalPrice.toFixed(2)}</span>
+                )}
+              </div>
               <Button 
                 onClick={handleAddToCart}
                 className="bg-wine text-white hover:bg-dark-pink transition-colors w-full sm:w-auto text-sm px-4 py-2"

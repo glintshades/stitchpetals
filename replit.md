@@ -53,6 +53,8 @@ Preferred communication style: Simple, everyday language.
 - **Enhanced User Experience**: Removed redirect-to-404 issue by showing authentication alerts without page navigation
 - **Logout Query Management**: Fixed logout functionality by properly clearing authentication-related queries to prevent page refresh requirements
 - **Product Synchronization Across Pages**: Fixed admin product and category mutations to invalidate both admin and public API queries, ensuring immediate updates on home, shop, and offers pages when changes are made in admin panel
+- **Offer Integration on Shop Page**: Implemented complete offer application system on shop page, displaying discounted prices, discount badges, and savings calculations for products with active offers
+- **Dynamic Pricing Display**: Enhanced ProductCard component to show both original and discounted prices with visual indicators for active promotions across all product listings (home, shop, offers)
 
 ## System Architecture
 
