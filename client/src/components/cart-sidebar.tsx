@@ -17,7 +17,7 @@ export default function CartSidebar({ open, onClose }: CartSidebarProps) {
     if (newQuantity <= 0) {
       removeFromCart(id);
     } else {
-      updateQuantity(id, newQuantity);
+      updateQuantity({ id, quantity: newQuantity });
     }
   };
 
@@ -100,7 +100,7 @@ export default function CartSidebar({ open, onClose }: CartSidebarProps) {
                 <span className="font-semibold wine">Total:</span>
                 <span className="font-bold text-xl dark-pink">${totalPrice.toFixed(2)}</span>
               </div>
-              <Button className="w-full bg-wine hover:bg-dark-pink mb-3">
+              <Button className="w-full bg-wine hover:bg-dark-pink mb-3" onClick={() => window.location.href = '/checkout'}>
                 Checkout
               </Button>
               <Button variant="outline" className="w-full" onClick={onClose}>

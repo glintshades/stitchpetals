@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
+import OfferProductCard from "@/components/offer-product-card";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Clock, Percent, Gift, Package } from "lucide-react";
 import { Link } from "wouter";
@@ -183,10 +184,10 @@ export default function Offers() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {offerProducts.slice(0, 6).map((product: Product) => (
                         <div key={product.id} className="relative">
-                          <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-wine to-pink-500 text-white">
+                          <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-wine to-pink-500 text-black font-semibold">
                             {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
                           </Badge>
-                          <ProductCard product={product} />
+                          <OfferProductCard product={product} offer={offer} />
                         </div>
                       ))}
                     </div>
