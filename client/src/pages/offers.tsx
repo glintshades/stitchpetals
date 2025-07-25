@@ -26,7 +26,7 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
     if (offers.length > 1) {
       const interval = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % offers.length);
-      }, 4000); // Change slide every 4 seconds
+      }, 8000); // Change slide every 8 seconds
       
       return () => clearInterval(interval);
     }
@@ -60,13 +60,12 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
                   className="relative overflow-hidden bg-gradient-to-r from-wine to-pink-500 shadow-2xl min-h-[500px] md:min-h-[600px]"
                   style={{
                     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-                    backgroundSize: 'cover',
+                    backgroundSize: '120%',
                     backgroundPosition: 'center',
-                    filter: backgroundImage ? 'blur(1px)' : undefined
                   }}
                 >
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-wine/70 to-pink-500/70"></div>
+                  <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-wine/40 to-pink-500/40"></div>
                   <div className="relative px-8 py-16 md:px-16 md:py-24">
                     <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
                       <h1 className="font-playfair text-6xl md:text-8xl font-bold mb-6 leading-tight text-white" 
@@ -98,17 +97,7 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
                         </p>
                       </div>
                       
-                      <div className="text-center">
-                        <Link href="/shop">
-                          <Button className="bg-white text-wine hover:bg-gray-100 text-2xl md:text-3xl px-12 py-6 font-bold shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 rounded-full">
-                            Shop Now
-                          </Button>
-                        </Link>
-                        <p className="text-white/80 text-lg mt-6" 
-                           style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
-                          *Discount applied automatically at checkout
-                        </p>
-                      </div>
+
                     </div>
                   </div>
                 </div>
