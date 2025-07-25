@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { type Product, type Offer } from "@shared/schema";
-import { Star, Clock, Percent, Gift } from "lucide-react";
+import { Star, Clock, Percent, Gift, Package } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Offers() {
@@ -100,6 +100,11 @@ export default function Offers() {
                           </p>
                         </div>
                       )}
+                      {offer.minOrderValue && (
+                        <p className="text-sm text-gray-500 mb-2">
+                          Min order: ${offer.minOrderValue}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mb-6">
                         Valid until: {new Date(offer.validUntil).toLocaleDateString()}
                       </p>
@@ -133,6 +138,74 @@ export default function Offers() {
           )}
         </div>
       </section>
+
+      {/* Products in Offers */}
+      {offers.some(offer => offer.applicableProducts && !offer.applicableProducts.includes("all")) && (
+        <section className="py-16 bg-gradient-to-b from-white to-pink-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center mb-4">
+                <Package className="w-8 h-8 text-wine mr-3" />
+                <h2 className="font-playfair text-4xl font-bold wine">
+                  Products on Sale
+                </h2>
+              </div>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                These handcrafted items are currently included in our special offers
+              </p>
+            </div>
+            
+            {offers
+              .filter(offer => offer.applicableProducts && !offer.applicableProducts.includes("all") && offer.isActive)
+              .map((offer: Offer) => {
+                const offerProducts = products.filter((product: Product) => 
+                  offer.applicableProducts?.includes(product.id.toString())
+                );
+                
+                if (offerProducts.length === 0) return null;
+                
+                return (
+                  <div key={offer.id} className="mb-16">
+                    <div className="text-center mb-8">
+                      <Badge className="bg-gradient-to-r from-wine to-pink-500 text-white text-lg px-4 py-2 mb-4">
+                        {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
+                      </Badge>
+                      <h3 className="font-playfair text-2xl font-bold wine mb-2">
+                        {offer.title}
+                      </h3>
+                      {offer.code && (
+                        <p className="text-sm text-gray-600">
+                          Use code: <span className="font-mono font-bold text-wine">{offer.code}</span>
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {offerProducts.slice(0, 6).map((product: Product) => (
+                        <div key={product.id} className="relative">
+                          <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-wine to-pink-500 text-white">
+                            {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
+                          </Badge>
+                          <ProductCard product={product} />
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {offerProducts.length > 6 && (
+                      <div className="text-center mt-8">
+                        <Link href="/shop">
+                          <Button variant="outline" className="border-wine text-wine hover:bg-wine hover:text-white">
+                            View All {offerProducts.length} Products in This Offer
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+        </section>
+      )}
 
       {/* Featured Sale Products */}
       <section className="py-16 bg-gradient-to-b from-white to-pink-50">

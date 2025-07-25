@@ -10,9 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Calendar, Percent, DollarSign } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Percent, DollarSign, Package } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { type Offer, type InsertOffer } from "@shared/schema";
+import { type Offer, type InsertOffer, type Product } from "@shared/schema";
 
 interface OfferFormData {
   title: string;
@@ -59,6 +59,17 @@ export default function AdminOffers() {
       });
       if (!response.ok) {
         throw new Error('Failed to fetch offers');
+      }
+      return response.json();
+    },
+  });
+
+  const { data: products = [] } = useQuery({
+    queryKey: ["/api/products"],
+    queryFn: async () => {
+      const response = await fetch("/api/products");
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
       }
       return response.json();
     },
@@ -324,6 +335,82 @@ export default function AdminOffers() {
                 />
               </div>
 
+              <div>
+                <Label>Applicable Products</Label>
+                <div className="space-y-3 mt-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="all-products"
+                      name="applicableProducts"
+                      checked={formData.applicableProducts.includes("all")}
+                      onChange={() => setFormData({ ...formData, applicableProducts: ["all"] })}
+                    />
+                    <Label htmlFor="all-products">Apply to all products</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="specific-products"
+                      name="applicableProducts"
+                      checked={!formData.applicableProducts.includes("all")}
+                      onChange={() => setFormData({ ...formData, applicableProducts: [] })}
+                    />
+                    <Label htmlFor="specific-products">Apply to specific products</Label>
+                  </div>
+                  
+                  {!formData.applicableProducts.includes("all") && (
+                    <div className="ml-6 space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+                      <p className="text-sm text-gray-600 mb-2">Select products for this offer:</p>
+                      {products.map((product: Product) => (
+                        <div key={product.id} className="flex items-start space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`product-${product.id}`}
+                            checked={formData.applicableProducts.includes(product.id.toString())}
+                            onChange={(e) => {
+                              const productId = product.id.toString();
+                              if (e.target.checked) {
+                                setFormData({
+                                  ...formData,
+                                  applicableProducts: [...formData.applicableProducts, productId]
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  applicableProducts: formData.applicableProducts.filter(id => id !== productId)
+                                });
+                              }
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <Label 
+                              htmlFor={`product-${product.id}`} 
+                              className="text-sm font-normal cursor-pointer block"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <img 
+                                  src={product.imageUrl} 
+                                  alt={product.name}
+                                  className="w-8 h-8 rounded object-cover flex-shrink-0"
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-medium truncate">{product.name}</p>
+                                  <p className="text-xs text-gray-500">${product.price}</p>
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+                        </div>
+                      ))}
+                      {products.length === 0 && (
+                        <p className="text-sm text-gray-500">No products available</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex items-center space-x-2">
                 <Switch
                   id="isActive"
@@ -438,14 +525,49 @@ export default function AdminOffers() {
                   </div>
                 </div>
                 
-                {(offer.minOrderValue || offer.maxDiscount) && (
+                {(offer.minOrderValue || offer.maxDiscount || offer.applicableProducts) && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex space-x-4 text-sm text-gray-600">
-                      {offer.minOrderValue && (
-                        <span>Min Order: ${offer.minOrderValue}</span>
+                    <div className="flex flex-col space-y-2">
+                      {(offer.minOrderValue || offer.maxDiscount) && (
+                        <div className="flex space-x-4 text-sm text-gray-600">
+                          {offer.minOrderValue && (
+                            <span>Min Order: ${offer.minOrderValue}</span>
+                          )}
+                          {offer.maxDiscount && (
+                            <span>Max Discount: ${offer.maxDiscount}</span>
+                          )}
+                        </div>
                       )}
-                      {offer.maxDiscount && (
-                        <span>Max Discount: ${offer.maxDiscount}</span>
+                      
+                      {offer.applicableProducts && (
+                        <div>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Package className="h-4 w-4 text-purple-600" />
+                            <p className="text-sm font-medium">Applicable Products</p>
+                          </div>
+                          {offer.applicableProducts.includes("all") ? (
+                            <Badge variant="secondary" className="text-xs">
+                              All Products
+                            </Badge>
+                          ) : (
+                            <div className="flex flex-wrap gap-1">
+                              {offer.applicableProducts
+                                .map(productId => products.find((p: Product) => p.id.toString() === productId))
+                                .filter(Boolean)
+                                .slice(0, 3)
+                                .map((product: Product) => (
+                                  <Badge key={product.id} variant="outline" className="text-xs">
+                                    {product.name}
+                                  </Badge>
+                                ))}
+                              {offer.applicableProducts.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{offer.applicableProducts.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
