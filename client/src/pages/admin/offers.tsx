@@ -84,7 +84,18 @@ export default function AdminOffers() {
         maxDiscount: data.maxDiscount || null,
         imageUrl: data.imageUrl || null,
       };
-      return await apiRequest("POST", "/api/admin/offers", offerData);
+      const response = await fetch("/api/admin/offers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer admin-token"
+        },
+        body: JSON.stringify(offerData)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create offer');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });
@@ -106,7 +117,18 @@ export default function AdminOffers() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<OfferFormData> }) => {
-      return await apiRequest("PATCH", `/api/admin/offers/${id}`, data);
+      const response = await fetch(`/api/admin/offers/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer admin-token"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update offer');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });
@@ -129,7 +151,16 @@ export default function AdminOffers() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest("DELETE", `/api/admin/offers/${id}`);
+      const response = await fetch(`/api/admin/offers/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": "Bearer admin-token"
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete offer');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/offers"] });
