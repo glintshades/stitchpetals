@@ -58,6 +58,48 @@ export default function ProductPage() {
     enabled: !!productId,
   });
 
+  // Set initial color if not set using useEffect to avoid conditional hooks
+  useEffect(() => {
+    if (product && !selectedColor) {
+      const colors = Array.isArray(product.colors) ? product.colors : [];
+      if (colors.length > 0) {
+        setSelectedColor(colors[0]);
+      }
+    }
+  }, [product, selectedColor]);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!isZoomOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const productImages = product ? [product.imageUrl].filter(Boolean) : [];
+      
+      switch (event.key) {
+        case 'Escape':
+          setIsZoomOpen(false);
+          break;
+        case 'ArrowLeft':
+          if (productImages.length > 1) {
+            setSelectedImageIndex(prev => 
+              prev === 0 ? productImages.length - 1 : prev - 1
+            );
+          }
+          break;
+        case 'ArrowRight':
+          if (productImages.length > 1) {
+            setSelectedImageIndex(prev => 
+              prev === productImages.length - 1 ? 0 : prev + 1
+            );
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isZoomOpen, product]);
+
   const { data: allProducts = [] } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
@@ -159,43 +201,6 @@ export default function ProductPage() {
 
   const colors = Array.isArray(product.colors) ? product.colors : [];
   const productImages = [product.imageUrl].filter(Boolean); // Only show actual product image
-
-  // Set initial color if not set using useEffect to avoid conditional hooks
-  useEffect(() => {
-    if (!selectedColor && colors.length > 0) {
-      setSelectedColor(colors[0]);
-    }
-  }, [selectedColor, colors]);
-
-  // Keyboard navigation for lightbox
-  useEffect(() => {
-    if (!isZoomOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      switch (event.key) {
-        case 'Escape':
-          setIsZoomOpen(false);
-          break;
-        case 'ArrowLeft':
-          if (productImages.length > 1) {
-            setSelectedImageIndex(prev => 
-              prev === 0 ? productImages.length - 1 : prev - 1
-            );
-          }
-          break;
-        case 'ArrowRight':
-          if (productImages.length > 1) {
-            setSelectedImageIndex(prev => 
-              prev === productImages.length - 1 ? 0 : prev + 1
-            );
-          }
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isZoomOpen, productImages.length]);
 
   return (
     <div className="bg-ivory">
