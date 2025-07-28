@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,10 @@ import {
   Shield,
   RotateCcw,
   Palette,
-  ZoomIn
+  ZoomIn,
+  X,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { getCategoryDisplayName, formatPrice } from "@/lib/products";
 
@@ -162,6 +165,36 @@ export default function ProductPage() {
     setSelectedColor(colors[0]);
   }
 
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!isZoomOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'Escape':
+          setIsZoomOpen(false);
+          break;
+        case 'ArrowLeft':
+          if (productImages.length > 1) {
+            setSelectedImageIndex(prev => 
+              prev === 0 ? productImages.length - 1 : prev - 1
+            );
+          }
+          break;
+        case 'ArrowRight':
+          if (productImages.length > 1) {
+            setSelectedImageIndex(prev => 
+              prev === productImages.length - 1 ? 0 : prev + 1
+            );
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isZoomOpen, productImages.length]);
+
   return (
     <div className="bg-ivory">
       {/* Breadcrumb */}
@@ -215,13 +248,57 @@ export default function ProductPage() {
                   </div>
                 </div>
               </DialogTrigger>
-              <DialogContent className="max-w-6xl w-full max-h-[95vh] p-4 bg-black/90 border-0">
-                <div className="relative flex items-center justify-center h-full">
+              <DialogContent className="max-w-[95vw] w-full max-h-[95vh] p-0 bg-black/95 border-0 overflow-hidden">
+                <div className="relative w-full h-[95vh] flex items-center justify-center">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setIsZoomOpen(false)}
+                    className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+
+                  {/* Navigation Arrows - Only show if multiple images */}
+                  {productImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setSelectedImageIndex(prev => 
+                          prev === 0 ? productImages.length - 1 : prev - 1
+                        )}
+                        className="absolute left-4 z-10 p-3 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={() => setSelectedImageIndex(prev => 
+                          prev === productImages.length - 1 ? 0 : prev + 1
+                        )}
+                        className="absolute right-16 z-10 p-3 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Main Image */}
                   <img
                     src={productImages[selectedImageIndex]}
                     alt={product.name}
-                    className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                    className="max-w-full max-h-full object-contain cursor-zoom-out"
+                    onClick={() => setIsZoomOpen(false)}
                   />
+
+                  {/* Image Counter - Only show if multiple images */}
+                  {productImages.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-black/50 text-white text-sm rounded-full">
+                      {selectedImageIndex + 1} / {productImages.length}
+                    </div>
+                  )}
+
+                  {/* Product Title */}
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <p className="text-sm opacity-80">{product.name}</p>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
@@ -230,8 +307,11 @@ export default function ProductPage() {
                 {productImages.map((image, index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors ${
+                    onClick={() => {
+                      setSelectedImageIndex(index);
+                      setIsZoomOpen(true);
+                    }}
+                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors cursor-zoom-in hover:opacity-90 ${
                       selectedImageIndex === index ? "border-wine" : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
