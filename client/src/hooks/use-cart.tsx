@@ -33,7 +33,7 @@ export function useCart() {
     onError: (error: Error) => {
       if (error.message.includes("log in")) {
         toast({
-          title: "Authentication Required",
+          title: "Registration Required",
           description: "Please log in to add items to your cart.",
           variant: "destructive",
         });
@@ -61,7 +61,7 @@ export function useCart() {
     onError: (error: Error) => {
       if (error.message.includes("log in")) {
         toast({
-          title: "Authentication Required",
+          title: "Registration Required",
           description: "Please log in to update your cart.",
           variant: "destructive",
         });
@@ -93,7 +93,7 @@ export function useCart() {
     onError: (error: Error) => {
       if (error.message.includes("log in")) {
         toast({
-          title: "Authentication Required",
+          title: "Registration Required",
           description: "Please log in to modify your cart.",
           variant: "destructive",
         });

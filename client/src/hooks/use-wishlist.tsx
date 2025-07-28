@@ -42,7 +42,7 @@ export function useWishlist() {
     onError: (error: Error) => {
       if (error.message.includes("log in")) {
         toast({
-          title: "Authentication Required",
+          title: "Registration Required",
           description: "Please log in to add items to your wishlist.",
           variant: "destructive",
         });
@@ -74,7 +74,7 @@ export function useWishlist() {
     onError: (error: Error) => {
       if (error.message.includes("log in")) {
         toast({
-          title: "Authentication Required",
+          title: "Registration Required",
           description: "Please log in to modify your wishlist.",
           variant: "destructive",
         });
