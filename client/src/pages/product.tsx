@@ -160,10 +160,12 @@ export default function ProductPage() {
   const colors = Array.isArray(product.colors) ? product.colors : [];
   const productImages = [product.imageUrl].filter(Boolean); // Only show actual product image
 
-  // Set initial color if not set
-  if (!selectedColor && colors.length > 0) {
-    setSelectedColor(colors[0]);
-  }
+  // Set initial color if not set using useEffect to avoid conditional hooks
+  useEffect(() => {
+    if (!selectedColor && colors.length > 0) {
+      setSelectedColor(colors[0]);
+    }
+  }, [selectedColor, colors]);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
