@@ -7,6 +7,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -28,7 +33,8 @@ import {
   Truck,
   Shield,
   RotateCcw,
-  Palette
+  Palette,
+  ZoomIn
 } from "lucide-react";
 import { getCategoryDisplayName, formatPrice } from "@/lib/products";
 
@@ -42,6 +48,7 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: ["/api/products", productId],
@@ -195,13 +202,29 @@ export default function ProductPage() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-xl bg-white shadow-lg">
-              <img
-                src={productImages[selectedImageIndex]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
+              <DialogTrigger asChild>
+                <div className="aspect-square overflow-hidden rounded-xl bg-white shadow-lg cursor-zoom-in hover:opacity-95 transition-opacity relative group">
+                  <img
+                    src={productImages[selectedImageIndex]}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 rounded-xl flex items-center justify-center">
+                    <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-all duration-200" />
+                  </div>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-6xl w-full max-h-[95vh] p-4 bg-black/90 border-0">
+                <div className="relative flex items-center justify-center h-full">
+                  <img
+                    src={productImages[selectedImageIndex]}
+                    alt={product.name}
+                    className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
             {productImages.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
                 {productImages.map((image, index) => (
