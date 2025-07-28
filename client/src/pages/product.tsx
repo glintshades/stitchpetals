@@ -148,13 +148,7 @@ export default function ProductPage() {
   }
 
   const colors = Array.isArray(product.colors) ? product.colors : [];
-  const productImages = [
-    product.imageUrl,
-    // Additional product angles (using similar images as placeholders)
-    "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-    "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-    "https://pixabay.com/get/g2b9f75ffb000cae584e8282bbf2dec45f6bba9676438e8d452bac7b64fcec30f88834c23bb5fd0d33f72f6a4e3dfa0351deadd47ffddfe39a06961f1794af319_1280.jpg"
-  ];
+  const productImages = [product.imageUrl].filter(Boolean); // Only show actual product image
 
   // Set initial color if not set
   if (!selectedColor && colors.length > 0) {
@@ -208,23 +202,25 @@ export default function ProductPage() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {productImages.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImageIndex(index)}
-                  className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors ${
-                    selectedImageIndex === index ? "border-wine" : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`${product.name} view ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {productImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {productImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors ${
+                      selectedImageIndex === index ? "border-wine" : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} view ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}

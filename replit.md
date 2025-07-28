@@ -65,6 +65,8 @@ Preferred communication style: Simple, everyday language.
 - **Legal Pages Implementation**: Created comprehensive shipping & returns, privacy policy, and terms & conditions pages with professional content and consistent design
 - **FAQ Section Addition**: Added detailed FAQ section to home page with 8 common questions about products, materials, care, and policies
 - **Footer Navigation Update**: Updated footer with links to new policy pages and FAQ section redirect to home page anchor
+- **Authentication Error Message Improvement**: Updated all cart and wishlist error messages to show "Registration Required" instead of "Authentication Required" for better user experience
+- **Product Image Gallery Cleanup**: Removed unrelated stock images from product detail pages, now displaying only authentic product images uploaded through admin panel with conditional thumbnail gallery
 
 ## System Architecture
 
