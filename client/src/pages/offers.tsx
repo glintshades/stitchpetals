@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import OfferProductCard from "@/components/offer-product-card";
-import HeroSlider from "@/components/hero-slider";
+import { HeroBanner } from "@/components/hero-banner";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Clock, Percent, Gift, Package, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
@@ -165,41 +165,21 @@ export default function Offers() {
     );
   }
 
-  // Offers hero slider slides - Offers page specific images
-  const offersSlides = [
-    {
-      id: 1,
-      title: "Special Offers & Deals",
-      subtitle: "Limited Time Only",
-      description: "Discover incredible savings on our beautiful handcrafted crochet flowers. Don't miss out on these exclusive deals and limited-time offers.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp", // Main deal featured product
-      ctaText: "Shop Deals",
-      ctaLink: "#deals",
-    },
-    {
-      id: 2,
-      title: "Up to 30% Off Selected Items",
-      subtitle: "Flash Sale",
-      description: "Grab your favorite crochet bouquets and arrangements at unbeatable prices. Premium quality, exceptional savings - for a limited time only.",
-      backgroundImage: "/images/WechatIMG1746_1753286974076.webp", // Sale items
-      ctaText: "View Sale Items",
-      ctaLink: "#sale-products",
-    },
-    {
-      id: 3,
-      title: "Bundle Deals Available",
-      subtitle: "Save More",
-      description: "Mix and match your favorite pieces with our special bundle offers. Perfect for decorating your entire home with beautiful crochet flowers.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp", // Bundle arrangement
-      ctaText: "Browse Bundles",
-      ctaLink: "#featured-products",
-    }
-  ];
+
 
   return (
     <div className="bg-ivory">
-      {/* Hero Slider */}
-      <HeroSlider slides={offersSlides} autoPlay={true} autoPlayInterval={6000} />
+      {/* Hero Banner */}
+      <HeroBanner 
+        title="Special Offers & Deals"
+        subtitle="Limited Time Only"
+        description="Discover incredible savings on our beautiful handcrafted crochet flowers. Don't miss out on these exclusive deals and limited-time offers."
+        backgroundImage="/images/il_1588xN.4851706578_21g4_1753286611661.webp"
+        ctaText="Shop Deals"
+        ctaLink="#deals"
+        ctaSecondaryText="View All"
+        ctaSecondaryLink="#featured-products"
+      />
 
       {/* Legacy Offers Slider for Actual Deals */}
       {offers.length > 0 && (

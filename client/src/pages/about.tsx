@@ -1,44 +1,24 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import HeroSlider from "@/components/hero-slider";
+import { HeroBanner } from "@/components/hero-banner";
 import { Heart, Users, Award, Truck } from "lucide-react";
 
 export default function About() {
-  // About hero slider slides - About page specific images
-  const aboutSlides = [
-    {
-      id: 1,
-      title: "About GlintShades",
-      subtitle: "Our Story",
-      description: "We're passionate about bringing the timeless art of crochet to modern homes through beautiful, handcrafted flower arrangements that last forever.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp", // Crafted pot arrangement
-      ctaText: "Our Mission",
-      ctaLink: "#mission",
-    },
-    {
-      id: 2,
-      title: "Handcrafted Excellence",
-      subtitle: "Traditional Artistry",
-      description: "Each piece in our collection is meticulously created by skilled artisans who pour their passion into every stitch, celebrating the art of traditional needlework.",
-      backgroundImage: "/images/WechatIMG1746_1753288163170.webp", // Detailed craftsmanship
-      ctaText: "Shop Now",
-      ctaLink: "/shop",
-    },
-    {
-      id: 3,
-      title: "Premium Quality Materials",
-      subtitle: "Crafted to Last",
-      description: "We use only the finest soft cotton yarn to ensure durability and beauty that will grace your home for years to come.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753287720446.webp", // Material focus
-      ctaText: "Contact Us",
-      ctaLink: "/contact",
-    }
-  ];
+
 
   return (
     <div className="bg-ivory">
-      {/* Hero Slider */}
-      <HeroSlider slides={aboutSlides} autoPlay={true} autoPlayInterval={6000} />
+      {/* Hero Banner */}
+      <HeroBanner 
+        title="About GlintShades"
+        subtitle="Our Story"
+        description="We're passionate about bringing the timeless art of crochet to modern homes through beautiful, handcrafted flower arrangements that last forever."
+        backgroundImage="/images/WechatIMG1746_1753288338342.webp"
+        ctaText="Our Mission"
+        ctaLink="#mission"
+        ctaSecondaryText="Shop Now"
+        ctaSecondaryLink="/shop"
+      />
 
       {/* Our Story */}
       <section className="py-16 bg-white">

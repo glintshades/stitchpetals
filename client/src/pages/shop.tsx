@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
-import HeroSlider from "@/components/hero-slider";
+import { HeroBanner } from "@/components/hero-banner";
 import { type Product, type Offer } from "@shared/schema";
 import { Search, Filter } from "lucide-react";
 import { productCategories, getCategoryDisplayName } from "@/lib/products";
@@ -92,41 +92,21 @@ export default function Shop() {
       }))
   ];
 
-  // Shop hero slider slides - Shop page specific images
-  const shopSlides = [
-    {
-      id: 1,
-      title: "Shop Collection",
-      subtitle: "Handcrafted Excellence",
-      description: "Discover our complete range of handcrafted crochet flowers. From elegant bouquets to charming potted arrangements, find the perfect piece for your space.",
-      backgroundImage: "/images/WechatIMG1746_1753286974076.webp", // Single pot arrangement
-      ctaText: "Browse All",
-      ctaLink: "#products",
-    },
-    {
-      id: 2,
-      title: "Premium Bouquets",
-      subtitle: "Elegant Collections",
-      description: "Beautiful handcrafted crochet bouquets perfect for special occasions, home décor, or thoughtful gifts that will be treasured forever.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753287720446.webp", // Alternative bouquet view
-      ctaText: "View Bouquets",
-      ctaLink: "?category=bouquets",
-    },
-    {
-      id: 3,
-      title: "Charming Potted Arrangements",
-      subtitle: "Home Décor Favorites",
-      description: "Delightful potted crochet flowers that bring warmth and charm to any room. Perfect for adding a touch of handmade beauty to your living space.",
-      backgroundImage: "/images/WechatIMG1746_1753288163170.webp", // Multiple pot arrangement
-      ctaText: "Shop Potted",
-      ctaLink: "?category=potted",
-    }
-  ];
+
 
   return (
     <div className="bg-ivory">
-      {/* Hero Slider */}
-      <HeroSlider slides={shopSlides} autoPlay={true} autoPlayInterval={7000} />
+      {/* Hero Banner */}
+      <HeroBanner 
+        title="Shop Collection"
+        subtitle="Handcrafted Excellence"
+        description="Discover our complete range of handcrafted crochet flowers. From elegant bouquets to charming potted arrangements, find the perfect piece for your space."
+        backgroundImage="/images/WechatIMG1746_1753286974076.webp"
+        ctaText="Browse All"
+        ctaLink="#products"
+        ctaSecondaryText="View Categories"
+        ctaSecondaryLink="#categories"
+      />
 
       {/* Filters and Search */}
       <section className="py-8 bg-white border-b">
