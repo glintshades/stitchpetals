@@ -57,7 +57,7 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
             return (
               <div key={offer.id} className="w-full flex-shrink-0">
                 <div 
-                  className="relative overflow-hidden bg-gradient-to-r from-wine to-pink-500 shadow-2xl min-h-[500px] md:min-h-[600px]"
+                  className="relative overflow-hidden bg-gradient-to-r from-wine to-blush shadow-2xl min-h-[500px] md:min-h-[600px]"
                   style={{
                     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
                     backgroundSize: '120%',
@@ -65,7 +65,7 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
                   }}
                 >
                   <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-wine/40 to-pink-500/40"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-wine/40 to-blush/40"></div>
                   <div className="relative px-8 py-16 md:px-16 md:py-24">
                     <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto">
                       <h1 className="font-playfair text-6xl md:text-8xl font-bold mb-6 leading-tight text-white" 
@@ -194,7 +194,7 @@ export default function Offers() {
 
       {/* Products in Offers */}
       {offers.some(offer => offer.applicableProducts && !offer.applicableProducts.includes("all")) && (
-        <section className="py-16 bg-gradient-to-b from-white to-pink-50">
+        <section className="py-16 bg-gradient-to-b from-white to-soft-pink">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <div className="flex items-center justify-center mb-4">
@@ -220,7 +220,7 @@ export default function Offers() {
                 return (
                   <div key={offer.id} className="mb-16">
                     <div className="text-center mb-8">
-                      <Badge className="bg-gradient-to-r from-wine to-pink-500 text-white text-lg px-4 py-2 mb-4">
+                      <Badge className="bg-gradient-to-r from-wine to-blush text-white text-lg px-4 py-2 mb-4">
                         {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
                       </Badge>
                       <h3 className="font-playfair text-2xl font-bold wine mb-2">
@@ -236,7 +236,7 @@ export default function Offers() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {offerProducts.slice(0, 6).map((product: Product) => (
                         <div key={product.id} className="relative">
-                          <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-wine to-pink-500 text-black font-semibold">
+                          <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-wine to-blush text-white font-semibold">
                             {offer.discountValue}{offer.discountType === "percentage" ? "%" : "$"} OFF
                           </Badge>
                           <OfferProductCard product={product} offer={offer} />
@@ -307,11 +307,11 @@ export default function Offers() {
       {/* Newsletter Signup for Deals */}
       <section className="py-16 bg-wine text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Star className="w-12 h-12 mx-auto mb-6 text-pink-200" />
+          <Star className="w-12 h-12 mx-auto mb-6 text-white/70" />
           <h2 className="font-playfair text-3xl font-bold mb-4">
             Never Miss a Deal
           </h2>
-          <p className="text-xl text-pink-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
             Subscribe to our newsletter and be the first to know about exclusive offers, 
             flash sales, and new product launches.
           </p>
@@ -319,13 +319,13 @@ export default function Offers() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 border-0 focus:ring-2 focus:ring-pink-300"
+              className="flex-1 px-4 py-3 rounded-lg text-gray-900 border-0 focus:ring-2 focus:ring-wine"
             />
-            <Button className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3">
+            <Button className="bg-blush hover:bg-wine text-white px-8 py-3">
               Subscribe
             </Button>
           </div>
-          <p className="text-sm text-pink-200 mt-4">
+          <p className="text-sm text-white/60 mt-4">
             Unsubscribe anytime. We respect your privacy.
           </p>
         </div>

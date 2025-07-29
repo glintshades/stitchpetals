@@ -33,7 +33,7 @@ export default function CartSidebar({ open, onClose }: CartSidebarProps) {
             {cartItems.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 mb-4">Your cart is empty</p>
-                <Button onClick={onClose} className="bg-wine hover:bg-dark-pink">
+                <Button onClick={onClose} className="bg-wine hover:bg-dark-wine">
                   Continue Shopping
                 </Button>
               </div>
@@ -84,7 +84,7 @@ export default function CartSidebar({ open, onClose }: CartSidebarProps) {
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-sm font-medium dark-pink mt-1">
+                      <p className="text-sm font-medium wine mt-1">
                         ${(parseFloat(item.product.price) * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -100,7 +100,7 @@ export default function CartSidebar({ open, onClose }: CartSidebarProps) {
                 <span className="font-semibold wine">Total:</span>
                 <span className="font-bold text-xl dark-pink">${totalPrice.toFixed(2)}</span>
               </div>
-              <Button className="w-full bg-wine hover:bg-dark-pink mb-3" onClick={() => window.location.href = '/checkout'}>
+              <Button className="w-full bg-wine hover:bg-dark-wine mb-3" onClick={() => window.location.href = '/checkout'}>
                 Checkout
               </Button>
               <Button variant="outline" className="w-full" onClick={onClose}>

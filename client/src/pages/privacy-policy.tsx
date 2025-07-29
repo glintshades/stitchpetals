@@ -209,7 +209,7 @@ export default function PrivacyPolicy() {
               <p className="text-gray-600">
                 We use cookies and similar technologies to enhance your browsing experience, analyze site traffic, and personalize content. You can control cookie settings through your browser preferences.
               </p>
-              <div className="bg-pink-50 p-4 rounded-lg">
+              <div className="bg-soft-pink p-4 rounded-lg">
                 <h4 className="font-semibold text-wine mb-2">Types of Cookies We Use:</h4>
                 <ul className="text-gray-700 space-y-1">
                   <li>• Essential cookies for site functionality</li>
@@ -235,7 +235,7 @@ export default function PrivacyPolicy() {
               <p className="text-gray-600 mb-4">
                 If you have questions about this Privacy Policy or want to exercise your rights, please contact us:
               </p>
-              <div className="bg-pink-50 p-4 rounded-lg">
+              <div className="bg-soft-pink p-4 rounded-lg">
                 <p className="text-gray-700 font-semibold">GlintShades Privacy Team</p>
                 <p className="text-gray-700">Email: privacy@glintshades.com</p>
                 <p className="text-gray-700">Phone: 1-800-GLINT-SH (454-6874)</p>
@@ -245,7 +245,7 @@ export default function PrivacyPolicy() {
           </Card>
         </div>
 
-        <div className="text-center mt-12 p-6 bg-pink-50 rounded-lg">
+        <div className="text-center mt-12 p-6 bg-soft-pink rounded-lg">
           <p className="text-gray-600">
             We may update this Privacy Policy from time to time. We will notify you of any material changes by email or through our website.
           </p>

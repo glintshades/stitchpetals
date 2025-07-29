@@ -106,7 +106,7 @@ export default function ShippingReturns() {
             <CardTitle className="text-2xl font-playfair wine text-center">Important Notes</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-pink-50 p-4 rounded-lg">
+            <div className="bg-soft-pink p-4 rounded-lg">
               <h3 className="font-semibold text-wine mb-2">Handcrafted Items</h3>
               <p className="text-gray-700">
                 Each item is lovingly handcrafted to order. Slight variations in color and design are natural 
@@ -114,7 +114,7 @@ export default function ShippingReturns() {
               </p>
             </div>
             
-            <div className="bg-pink-50 p-4 rounded-lg">
+            <div className="bg-soft-pink p-4 rounded-lg">
               <h3 className="font-semibold text-wine mb-2">Care Instructions</h3>
               <p className="text-gray-700">
                 Our crochet flowers are made with premium cotton yarn. Spot clean gently with mild soap and 
@@ -122,7 +122,7 @@ export default function ShippingReturns() {
               </p>
             </div>
 
-            <div className="bg-pink-50 p-4 rounded-lg">
+            <div className="bg-soft-pink p-4 rounded-lg">
               <h3 className="font-semibold text-wine mb-2">International Shipping</h3>
               <p className="text-gray-700">
                 We currently ship within the United States only. International shipping options are coming soon. 

@@ -73,7 +73,7 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
         <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover cursor-pointer transition-transform hover:scale-105 h-full flex flex-col ${className}`}>
           <div className="relative">
             {hasDiscount && (
-              <Badge className="absolute top-3 left-3 z-10 bg-gradient-to-r from-wine to-pink-500 text-white font-semibold">
+              <Badge className="absolute top-3 left-3 z-10 bg-gradient-to-r from-wine to-blush text-white font-semibold">
                 {offer?.discountValue}{offer?.discountType === "percentage" ? "%" : "$"} OFF
               </Badge>
             )}
@@ -149,7 +149,7 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
               </div>
               <Button 
                 onClick={handleAddToCart}
-                className="bg-wine text-white hover:bg-dark-pink transition-colors w-full sm:w-auto text-sm px-4 py-2"
+                className="bg-wine text-white hover:bg-dark-wine transition-colors w-full sm:w-auto text-sm px-4 py-2"
                 disabled={!product.inStock}
               >
                 {product.inStock ? "Add to Cart" : "Out of Stock"}

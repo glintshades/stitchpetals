@@ -61,6 +61,12 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        // Custom theme colors
+        wine: "var(--wine)",
+        "dark-wine": "var(--dark-wine)",
+        "soft-pink": "var(--soft-pink)",
+        blush: "var(--blush)",
+        ivory: "var(--ivory)",
       },
       keyframes: {
         "accordion-down": {

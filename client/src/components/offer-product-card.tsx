@@ -118,7 +118,7 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
               </div>
               <Button 
                 onClick={handleAddToCart}
-                className="bg-wine text-white hover:bg-dark-pink transition-colors w-full sm:w-auto text-sm px-4 py-2"
+                className="bg-wine text-white hover:bg-dark-wine transition-colors w-full sm:w-auto text-sm px-4 py-2"
                 disabled={!product.inStock}
               >
                 {product.inStock ? "Add to Cart" : "Out of Stock"}

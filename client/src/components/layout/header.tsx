@@ -41,7 +41,7 @@ export default function Header({ onCartClick }: HeaderProps) {
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href}>
                     <span
-                      className={`wine hover:text-dark-pink transition-colors duration-200 cursor-pointer ${
+                      className={`wine hover:text-dark-wine transition-colors duration-200 cursor-pointer ${
                         location === item.href ? "font-semibold" : ""
                       }`}
                     >
@@ -53,7 +53,7 @@ export default function Header({ onCartClick }: HeaderProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="wine hover:text-dark-pink">
+            <Button variant="ghost" size="icon" className="wine hover:text-dark-wine">
               <Search className="h-5 w-5" />
             </Button>
             <div className="flex items-center space-x-1">
@@ -61,7 +61,7 @@ export default function Header({ onCartClick }: HeaderProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="wine hover:text-dark-pink"
+                  className="wine hover:text-dark-wine"
                 >
                   <Heart className="h-5 w-5" />
                 </Button>
@@ -70,12 +70,12 @@ export default function Header({ onCartClick }: HeaderProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="wine hover:text-dark-pink relative"
+                  className="wine hover:text-dark-wine relative"
                   onClick={onCartClick}
                 >
                   <ShoppingBag className="h-5 w-5" />
                   {totalItems > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-dark-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-dark-wine text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {totalItems}
                     </span>
                   )}
@@ -88,7 +88,7 @@ export default function Header({ onCartClick }: HeaderProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden wine hover:text-dark-pink"
+              className="md:hidden wine hover:text-dark-wine"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="h-5 w-5" />
@@ -103,7 +103,7 @@ export default function Header({ onCartClick }: HeaderProps) {
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
                   <span
-                    className={`wine hover:text-dark-pink transition-colors duration-200 cursor-pointer block py-2 ${
+                    className={`wine hover:text-dark-wine transition-colors duration-200 cursor-pointer block py-2 ${
                       location === item.href ? "font-semibold" : ""
                     }`}
                     onClick={() => setMobileMenuOpen(false)}

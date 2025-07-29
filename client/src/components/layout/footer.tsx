@@ -140,7 +140,7 @@ export default function Footer() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-white text-gray-800"
               />
-              <Button type="submit" className="w-full bg-dark-pink hover:bg-deep-rose">
+              <Button type="submit" className="w-full bg-dark-wine hover:bg-wine">
                 Subscribe
               </Button>
             </form>

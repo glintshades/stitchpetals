@@ -121,7 +121,7 @@ export function ImageUpload({ onImageUpload, currentImageUrl, label = "Product I
           {...getRootProps()}
           className={`
             border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-            ${isDragActive ? 'border-wine bg-pink-50' : 'border-gray-300 hover:border-wine'}
+            ${isDragActive ? 'border-wine bg-soft-pink' : 'border-gray-300 hover:border-wine'}
             ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
           `}
         >

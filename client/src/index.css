@@ -7,31 +7,31 @@
 
 :root {
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(342, 100%, 27%);
-  --muted: hsl(330, 100%, 97%);
-  --muted-foreground: hsl(342, 20%, 45%);
+  --foreground: hsl(271, 69%, 19%);
+  --muted: hsl(326, 100%, 96%);
+  --muted-foreground: hsl(271, 20%, 45%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(342, 100%, 27%);
+  --popover-foreground: hsl(271, 69%, 19%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(342, 100%, 27%);
-  --border: hsl(342, 25%, 90%);
-  --input: hsl(342, 25%, 90%);
-  --primary: hsl(342, 100%, 27%);
-  --primary-foreground: hsl(345, 100%, 98%);
-  --secondary: hsl(330, 100%, 97%);
-  --secondary-foreground: hsl(342, 50%, 15%);
-  --accent: hsl(342, 60%, 80%);
-  --accent-foreground: hsl(342, 50%, 15%);
+  --card-foreground: hsl(271, 69%, 19%);
+  --border: hsl(271, 25%, 90%);
+  --input: hsl(271, 25%, 90%);
+  --primary: hsl(271, 69%, 19%);
+  --primary-foreground: hsl(326, 100%, 98%);
+  --secondary: hsl(326, 100%, 96%);
+  --secondary-foreground: hsl(271, 50%, 15%);
+  --accent: hsl(0, 39%, 80%);
+  --accent-foreground: hsl(271, 50%, 15%);
   --destructive: hsl(0, 84%, 60%);
   --destructive-foreground: hsl(60, 9%, 98%);
-  --ring: hsl(342, 100%, 27%);
+  --ring: hsl(271, 69%, 19%);
   --radius: 0.5rem;
   
   /* Custom colors for crochet theme */
-  --wine: hsl(342, 100%, 27%);
-  --dark-pink: hsl(336, 69%, 44%);
-  --soft-pink: hsl(340, 89%, 86%);
-  --blush: hsl(330, 100%, 97%);
+  --wine: hsl(271, 69%, 19%);
+  --dark-wine: hsl(271, 75%, 15%);
+  --soft-pink: hsl(326, 100%, 96%);
+  --blush: hsl(0, 39%, 75%);
   --ivory: hsl(60, 100%, 99%);
   --warm-gray: hsl(60, 4%, 96%);
   --deep-rose: hsl(325, 84%, 35%);
@@ -49,8 +49,8 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 4%, 16%);
   --input: hsl(240, 4%, 16%);
-  --primary: hsl(342, 100%, 27%);
-  --primary-foreground: hsl(345, 100%, 98%);
+  --primary: hsl(271, 69%, 19%);
+  --primary-foreground: hsl(326, 100%, 98%);
   --secondary: hsl(240, 4%, 16%);
   --secondary-foreground: hsl(0, 0%, 98%);
   --accent: hsl(240, 4%, 16%);
@@ -80,12 +80,12 @@
     background-color: var(--wine);
   }
   
-  .dark-pink {
-    color: var(--dark-pink);
+  .dark-wine {
+    color: var(--dark-wine);
   }
   
-  .bg-dark-pink {
-    background-color: var(--dark-pink);
+  .bg-dark-wine {
+    background-color: var(--dark-wine);
   }
   
   .soft-pink {
@@ -125,7 +125,7 @@
   }
   
   .wine-gradient {
-    background: linear-gradient(135deg, var(--wine) 0%, var(--dark-pink) 100%);
+    background: linear-gradient(135deg, var(--wine) 0%, var(--dark-wine) 100%);
   }
   
   .product-hover {
@@ -134,7 +134,7 @@
   
   .product-hover:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(142, 0, 56, 0.15);
+    box-shadow: 0 20px 40px rgba(62, 13, 87, 0.15);
   }
 
   .line-clamp-1 {

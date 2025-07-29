@@ -45,7 +45,7 @@ function CategoriesSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         <Link href="/shop?category=bouquets" className="group">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
-            <div className="h-72 bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center flex-shrink-0">
+            <div className="h-72 bg-gradient-to-br from-soft-pink to-blush flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">💐</span>
             </div>
             <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
@@ -83,14 +83,14 @@ function CategoriesSection() {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
               ) : (
-                <div className="h-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
-                  <Package className="w-20 h-20 text-pink-600" />
+                <div className="h-full bg-gradient-to-br from-soft-pink to-blush flex items-center justify-center">
+                  <Package className="w-20 h-20 text-wine" />
                 </div>
               )}
             </div>
             <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
               <h3 className="text-2xl font-semibold text-gray-800 mb-3">{category.name}</h3>
-              <p className="text-gray-600 text-lg">{category.description || "Explore our collection"}</p>
+              <p className="text-gray-600 text-lg mt-[0px] mb-[0px] text-center">{category.description || "Explore our collection"}</p>
             </div>
           </div>
         </Link>
@@ -360,9 +360,9 @@ export default function Home() {
             <input
               type="email"
               placeholder="Enter your email address"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-pink-300 focus:outline-none shadow-lg"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-wine focus:outline-none shadow-lg"
             />
-            <Button className="bg-white text-wine hover:bg-pink-50 px-8 py-3 font-semibold shadow-lg">
+            <Button className="bg-white text-wine hover:bg-soft-pink px-8 py-3 font-semibold shadow-lg">
               Subscribe
             </Button>
           </div>
@@ -385,7 +385,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center group cursor-pointer">
-              <div className="w-24 h-24 bg-gradient-to-br from-pink-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-24 h-24 bg-gradient-to-br from-soft-pink to-blush rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <span className="text-4xl">💕</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">Weddings</h3>
