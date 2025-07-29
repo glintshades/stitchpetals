@@ -131,7 +131,7 @@ export function AuthButtons() {
         </Button>
         <Button
           onClick={() => setShowRegister(true)}
-          className="text-sm bg-light-pink hover:bg-soft-pink text-wine font-semibold"
+          className="text-sm bg-white hover:bg-gray-100 text-wine font-semibold border border-white/20"
         >
           Sign Up
         </Button>
