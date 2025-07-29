@@ -103,7 +103,7 @@ export default function HeroSlider({
                       <Button 
                         variant="outline" 
                         size="lg"
-                        className="border-2 border-white text-white px-8 py-4 text-lg font-semibold hover:bg-white hover:text-wine transition-all"
+                        className="border-2 border-white text-white px-8 py-4 text-lg font-semibold hover:bg-white hover:text-[#3e0d57] transition-all shadow-lg backdrop-blur-sm bg-white/10"
                       >
                         {slide.ctaSecondaryText}
                       </Button>
