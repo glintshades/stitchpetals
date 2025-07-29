@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
+import HeroSlider from "@/components/hero-slider";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Heart, Clock, Award, Package } from "lucide-react";
 const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
@@ -135,55 +136,47 @@ export default function Home() {
 
   const featuredProducts = products.slice(0, 4);
 
+  // Hero slider slides
+  const heroSlides = [
+    {
+      id: 1,
+      title: "Handcrafted Crochet Bouquets That Last Forever",
+      subtitle: "Welcome to GlintShades",
+      description: "Discover our collection of meticulously handmade crochet flower bouquets. Each piece is crafted with love, using premium soft cotton to create timeless floral arrangements that bring joy to any space.",
+      backgroundImage: bannerImage,
+      ctaText: "Shop Collection",
+      ctaLink: "/shop",
+      ctaSecondaryText: "Learn More",
+      ctaSecondaryLink: "/about"
+    },
+    {
+      id: 2,
+      title: "Premium Quality Materials",
+      subtitle: "Crafted with Excellence",
+      description: "Every bouquet is made with the finest soft cotton yarn, ensuring durability and beauty that will last for years. Our skilled artisans pour their passion into each stitch.",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      ctaText: "View Products",
+      ctaLink: "/shop",
+      ctaSecondaryText: "Our Story",
+      ctaSecondaryLink: "/about"
+    },
+    {
+      id: 3,
+      title: "Perfect for Every Occasion",
+      subtitle: "Timeless Beauty",
+      description: "From weddings to home décor, our crochet flowers bring warmth and elegance to any setting. Create lasting memories with flowers that never fade.",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      ctaText: "Browse Categories",
+      ctaLink: "/shop",
+      ctaSecondaryText: "Contact Us",
+      ctaSecondaryLink: "/contact"
+    }
+  ];
+
   return (
     <div className="bg-ivory">
-      {/* Hero Section */}
-      <section className="gradient-bg py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="font-playfair text-5xl md:text-6xl font-bold wine mb-6">
-                Handcrafted Crochet Bouquets That Last Forever
-              </h2>
-              <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-                Discover our collection of meticulously handmade crochet flower bouquets. Each piece is crafted with love, 
-                using premium soft cotton to create timeless floral arrangements that bring joy to any space.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/shop">
-                  <Button className="wine-gradient text-white px-8 py-4 text-lg font-semibold hover:opacity-90 transition-opacity">
-                    Shop Collection
-                  </Button>
-                </Link>
-                <Link href="/about">
-                  <Button variant="outline" className="border-2 border-wine text-wine px-8 py-4 text-lg font-semibold hover:bg-wine hover:text-white transition-colors">
-                    Learn More
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <img 
-                  src={bannerImage} 
-                  alt="Handmade crochet sunflower bouquet with daisies wrapped in cream paper" 
-                  className="w-full h-auto object-cover" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-wine/20 to-transparent"></div>
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-white p-4 rounded-xl shadow-lg">
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl">🌸</span>
-                  <div>
-                    <p className="font-semibold wine">Premium Quality</p>
-                    <p className="text-sm text-gray-600">Soft Cotton Materials</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider */}
+      <HeroSlider slides={heroSlides} autoPlay={true} autoPlayInterval={8000} />
 
       {/* Featured Categories */}
       <section className="py-16 bg-white">

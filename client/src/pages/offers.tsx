@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import OfferProductCard from "@/components/offer-product-card";
+import HeroSlider from "@/components/hero-slider";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Clock, Percent, Gift, Package, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
@@ -164,31 +165,48 @@ export default function Offers() {
     );
   }
 
+  // Offers hero slider slides
+  const offersSlides = [
+    {
+      id: 1,
+      title: "Special Offers & Deals",
+      subtitle: "Limited Time Only",
+      description: "Discover incredible savings on our beautiful handcrafted crochet flowers. Don't miss out on these exclusive deals and limited-time offers.",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      ctaText: "Shop Deals",
+      ctaLink: "#deals",
+    },
+    {
+      id: 2,
+      title: "Up to 30% Off Selected Items",
+      subtitle: "Flash Sale",
+      description: "Grab your favorite crochet bouquets and arrangements at unbeatable prices. Premium quality, exceptional savings - for a limited time only.",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      ctaText: "View Sale Items",
+      ctaLink: "#sale-products",
+    },
+    {
+      id: 3,
+      title: "Bundle Deals Available",
+      subtitle: "Save More",
+      description: "Mix and match your favorite pieces with our special bundle offers. Perfect for decorating your entire home with beautiful crochet flowers.",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      ctaText: "Browse Bundles",
+      ctaLink: "#featured-products",
+    }
+  ];
+
   return (
     <div className="bg-ivory">
-      {/* Offers Slider Section */}
-      <section className="w-full">
-        {offers.length > 0 ? (
+      {/* Hero Slider */}
+      <HeroSlider slides={offersSlides} autoPlay={true} autoPlayInterval={6000} />
+
+      {/* Legacy Offers Slider for Actual Deals */}
+      {offers.length > 0 && (
+        <section className="w-full">
           <OffersSlider offers={offers} products={products} />
-        ) : (
-          <div className="text-center py-20 bg-gradient-to-b from-ivory to-white">
-            <div className="max-w-md mx-auto px-4">
-              <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                No Active Offers
-              </h3>
-              <p className="text-gray-500 mb-4">
-                Check back soon for amazing deals on our beautiful crochet flowers.
-              </p>
-              <Link href="/shop">
-                <Button className="wine-gradient text-white">
-                  Browse Full Collection
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
-      </section>
+        </section>
+      )}
 
 
 

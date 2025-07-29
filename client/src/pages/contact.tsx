@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import HeroSlider from "@/components/hero-slider";
 import { Mail, Phone, Clock, MapPin, MessageCircle, Heart } from "lucide-react";
 
 export default function Contact() {
@@ -62,22 +63,41 @@ export default function Contact() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Contact hero slider slides
+  const contactSlides = [
+    {
+      id: 1,
+      title: "Get in Touch",
+      subtitle: "We're Here to Help",
+      description: "Have questions about our products or need a custom arrangement? We'd love to hear from you! Our team is ready to assist with any inquiries.",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      ctaText: "Contact Form",
+      ctaLink: "#contact-form",
+    },
+    {
+      id: 2,
+      title: "Custom Arrangements",
+      subtitle: "Personalized Service",
+      description: "Looking for something special? We offer custom crochet flower arrangements tailored to your unique vision and requirements.",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      ctaText: "Get Quote",
+      ctaLink: "#contact-form",
+    },
+    {
+      id: 3,
+      title: "Expert Support",
+      subtitle: "Here for You",
+      description: "Our dedicated customer service team is committed to providing exceptional support and ensuring your complete satisfaction with every purchase.",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      ctaText: "Start Chat",
+      ctaLink: "#contact-form",
+    }
+  ];
+
   return (
     <div className="bg-ivory">
-      {/* Hero Section */}
-      <section className="gradient-bg py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="font-playfair text-5xl md:text-6xl font-bold wine mb-6">
-              Get in Touch
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-              Have questions about our products or need a custom arrangement? We'd love to hear from you! 
-              Our team is here to help make your crochet flower dreams come true.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider */}
+      <HeroSlider slides={contactSlides} autoPlay={true} autoPlayInterval={5000} />
 
       {/* Contact Information */}
       <section className="py-16 bg-white">

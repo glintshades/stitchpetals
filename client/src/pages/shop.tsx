@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
+import HeroSlider from "@/components/hero-slider";
 import { type Product, type Offer } from "@shared/schema";
 import { Search, Filter } from "lucide-react";
 import { productCategories, getCategoryDisplayName } from "@/lib/products";
@@ -91,22 +92,41 @@ export default function Shop() {
       }))
   ];
 
+  // Shop hero slider slides
+  const shopSlides = [
+    {
+      id: 1,
+      title: "Shop Collection",
+      subtitle: "Handcrafted Excellence",
+      description: "Discover our complete range of handcrafted crochet flowers. From elegant bouquets to charming potted arrangements, find the perfect piece for your space.",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      ctaText: "Browse All",
+      ctaLink: "#products",
+    },
+    {
+      id: 2,
+      title: "Premium Bouquets",
+      subtitle: "Elegant Collections",
+      description: "Beautiful handcrafted crochet bouquets perfect for special occasions, home décor, or thoughtful gifts that will be treasured forever.",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      ctaText: "View Bouquets",
+      ctaLink: "?category=bouquets",
+    },
+    {
+      id: 3,
+      title: "Charming Potted Arrangements",
+      subtitle: "Home Décor Favorites",
+      description: "Delightful potted crochet flowers that bring warmth and charm to any room. Perfect for adding a touch of handmade beauty to your living space.",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      ctaText: "Shop Potted",
+      ctaLink: "?category=potted",
+    }
+  ];
+
   return (
     <div className="bg-ivory">
-      {/* Hero Section */}
-      <section className="gradient-bg py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="font-playfair text-5xl md:text-6xl font-bold wine mb-6">
-              Shop Collection
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-              Discover our complete range of handcrafted crochet flowers. From elegant bouquets to 
-              charming potted arrangements, find the perfect piece for your space.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider */}
+      <HeroSlider slides={shopSlides} autoPlay={true} autoPlayInterval={7000} />
 
       {/* Filters and Search */}
       <section className="py-8 bg-white border-b">

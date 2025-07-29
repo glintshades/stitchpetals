@@ -1,24 +1,44 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import HeroSlider from "@/components/hero-slider";
 import { Heart, Users, Award, Truck } from "lucide-react";
 
 export default function About() {
+  // About hero slider slides
+  const aboutSlides = [
+    {
+      id: 1,
+      title: "About GlintShades",
+      subtitle: "Our Story",
+      description: "We're passionate about bringing the timeless art of crochet to modern homes through beautiful, handcrafted flower arrangements that last forever.",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      ctaText: "Our Mission",
+      ctaLink: "#mission",
+    },
+    {
+      id: 2,
+      title: "Handcrafted Excellence",
+      subtitle: "Traditional Artistry",
+      description: "Each piece in our collection is meticulously created by skilled artisans who pour their passion into every stitch, celebrating the art of traditional needlework.",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      ctaText: "Shop Now",
+      ctaLink: "/shop",
+    },
+    {
+      id: 3,
+      title: "Premium Quality Materials",
+      subtitle: "Crafted to Last",
+      description: "We use only the finest soft cotton yarn to ensure durability and beauty that will grace your home for years to come.",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      ctaText: "Contact Us",
+      ctaLink: "/contact",
+    }
+  ];
+
   return (
     <div className="bg-ivory">
-      {/* Hero Section */}
-      <section className="gradient-bg py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="font-playfair text-5xl md:text-6xl font-bold wine mb-6">
-              About GlintShades
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-              We're passionate about bringing the timeless art of crochet to modern homes through 
-              beautiful, handcrafted flower arrangements that last forever.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider */}
+      <HeroSlider slides={aboutSlides} autoPlay={true} autoPlayInterval={6000} />
 
       {/* Our Story */}
       <section className="py-16 bg-white">
