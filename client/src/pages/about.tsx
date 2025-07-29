@@ -4,14 +4,14 @@ import HeroSlider from "@/components/hero-slider";
 import { Heart, Users, Award, Truck } from "lucide-react";
 
 export default function About() {
-  // About hero slider slides
+  // About hero slider slides - About page specific images
   const aboutSlides = [
     {
       id: 1,
       title: "About GlintShades",
       subtitle: "Our Story",
       description: "We're passionate about bringing the timeless art of crochet to modern homes through beautiful, handcrafted flower arrangements that last forever.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp", // Crafted pot arrangement
       ctaText: "Our Mission",
       ctaLink: "#mission",
     },
@@ -20,7 +20,7 @@ export default function About() {
       title: "Handcrafted Excellence",
       subtitle: "Traditional Artistry",
       description: "Each piece in our collection is meticulously created by skilled artisans who pour their passion into every stitch, celebrating the art of traditional needlework.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      backgroundImage: "/images/WechatIMG1746_1753288163170.webp", // Detailed craftsmanship
       ctaText: "Shop Now",
       ctaLink: "/shop",
     },
@@ -29,7 +29,7 @@ export default function About() {
       title: "Premium Quality Materials",
       subtitle: "Crafted to Last",
       description: "We use only the finest soft cotton yarn to ensure durability and beauty that will grace your home for years to come.",
-      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753287720446.webp", // Material focus
       ctaText: "Contact Us",
       ctaLink: "/contact",
     }

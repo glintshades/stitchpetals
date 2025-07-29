@@ -165,14 +165,14 @@ export default function Offers() {
     );
   }
 
-  // Offers hero slider slides
+  // Offers hero slider slides - Offers page specific images
   const offersSlides = [
     {
       id: 1,
       title: "Special Offers & Deals",
       subtitle: "Limited Time Only",
       description: "Discover incredible savings on our beautiful handcrafted crochet flowers. Don't miss out on these exclusive deals and limited-time offers.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp", // Main deal featured product
       ctaText: "Shop Deals",
       ctaLink: "#deals",
     },
@@ -181,7 +181,7 @@ export default function Offers() {
       title: "Up to 30% Off Selected Items",
       subtitle: "Flash Sale",
       description: "Grab your favorite crochet bouquets and arrangements at unbeatable prices. Premium quality, exceptional savings - for a limited time only.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp", // Sale items
       ctaText: "View Sale Items",
       ctaLink: "#sale-products",
     },
@@ -190,7 +190,7 @@ export default function Offers() {
       title: "Bundle Deals Available",
       subtitle: "Save More",
       description: "Mix and match your favorite pieces with our special bundle offers. Perfect for decorating your entire home with beautiful crochet flowers.",
-      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp", // Bundle arrangement
       ctaText: "Browse Bundles",
       ctaLink: "#featured-products",
     }

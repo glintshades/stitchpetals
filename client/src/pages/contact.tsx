@@ -63,14 +63,14 @@ export default function Contact() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Contact hero slider slides
+  // Contact hero slider slides - Contact page specific images
   const contactSlides = [
     {
       id: 1,
       title: "Get in Touch",
       subtitle: "We're Here to Help",
       description: "Have questions about our products or need a custom arrangement? We'd love to hear from you! Our team is ready to assist with any inquiries.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753287720446.webp", // Customer service focus
       ctaText: "Contact Form",
       ctaLink: "#contact-form",
     },
@@ -79,7 +79,7 @@ export default function Contact() {
       title: "Custom Arrangements",
       subtitle: "Personalized Service",
       description: "Looking for something special? We offer custom crochet flower arrangements tailored to your unique vision and requirements.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp",
+      backgroundImage: "/images/WechatIMG1746_1753286974076.webp", // Custom arrangement example
       ctaText: "Get Quote",
       ctaLink: "#contact-form",
     },
@@ -88,7 +88,7 @@ export default function Contact() {
       title: "Expert Support",
       subtitle: "Here for You",
       description: "Our dedicated customer service team is committed to providing exceptional support and ensuring your complete satisfaction with every purchase.",
-      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      backgroundImage: "/images/WechatIMG1746_1753288163170.webp", // Support and quality
       ctaText: "Start Chat",
       ctaLink: "#contact-form",
     }

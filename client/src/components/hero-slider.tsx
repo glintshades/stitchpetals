@@ -69,8 +69,8 @@ export default function HeroSlider({
             backgroundPosition: 'center',
           }}
         >
-          {/* Dark purple overlay */}
-          <div className="absolute inset-0 bg-wine/60"></div>
+          {/* Deep purple overlay */}
+          <div className="absolute inset-0 bg-wine/70"></div>
           
           {/* Content */}
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">

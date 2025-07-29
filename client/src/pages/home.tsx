@@ -136,14 +136,14 @@ export default function Home() {
 
   const featuredProducts = products.slice(0, 4);
 
-  // Hero slider slides
+  // Hero slider slides - Home page specific images
   const heroSlides = [
     {
       id: 1,
       title: "Handcrafted Crochet Bouquets That Last Forever",
       subtitle: "Welcome to GlintShades",
       description: "Discover our collection of meticulously handmade crochet flower bouquets. Each piece is crafted with love, using premium soft cotton to create timeless floral arrangements that bring joy to any space.",
-      backgroundImage: bannerImage,
+      backgroundImage: bannerImage, // Main sunflower bouquet
       ctaText: "Shop Collection",
       ctaLink: "/shop",
       ctaSecondaryText: "Learn More",
@@ -154,7 +154,7 @@ export default function Home() {
       title: "Premium Quality Materials",
       subtitle: "Crafted with Excellence",
       description: "Every bouquet is made with the finest soft cotton yarn, ensuring durability and beauty that will last for years. Our skilled artisans pour their passion into each stitch.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp",
+      backgroundImage: "/images/WechatIMG1746_1753288338342.webp", // Potted arrangement
       ctaText: "View Products",
       ctaLink: "/shop",
       ctaSecondaryText: "Our Story",
@@ -165,7 +165,7 @@ export default function Home() {
       title: "Perfect for Every Occasion",
       subtitle: "Timeless Beauty",
       description: "From weddings to home décor, our crochet flowers bring warmth and elegance to any setting. Create lasting memories with flowers that never fade.",
-      backgroundImage: "/images/WechatIMG1746_1753286974076.webp",
+      backgroundImage: "/images/WechatIMG1746_1753288163170.webp", // Different angle/style
       ctaText: "Browse Categories",
       ctaLink: "/shop",
       ctaSecondaryText: "Contact Us",

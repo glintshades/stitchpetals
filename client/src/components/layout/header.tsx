@@ -25,13 +25,13 @@ export default function Header({ onCartClick }: HeaderProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-ivory shadow-sm border-b border-soft-pink">
+    <header className="sticky top-0 z-50 bg-wine shadow-sm border-b border-wine/20">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <h1 className="font-playfair text-2xl font-bold wine cursor-pointer">
+                <h1 className="font-playfair text-2xl font-bold text-white cursor-pointer">
                   GlintShades
                 </h1>
               </Link>
@@ -41,8 +41,8 @@ export default function Header({ onCartClick }: HeaderProps) {
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href}>
                     <span
-                      className={`wine hover:text-dark-wine transition-colors duration-200 cursor-pointer ${
-                        location === item.href ? "font-semibold" : ""
+                      className={`text-white hover:text-light-pink transition-colors duration-200 cursor-pointer ${
+                        location === item.href ? "font-semibold text-light-pink" : ""
                       }`}
                     >
                       {item.label}
@@ -53,7 +53,7 @@ export default function Header({ onCartClick }: HeaderProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="wine hover:text-dark-wine">
+            <Button variant="ghost" size="icon" className="text-white hover:text-light-pink hover:bg-white/10">
               <Search className="h-5 w-5" />
             </Button>
             <div className="flex items-center space-x-1">
@@ -61,7 +61,7 @@ export default function Header({ onCartClick }: HeaderProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="wine hover:text-dark-wine"
+                  className="text-white hover:text-light-pink hover:bg-white/10"
                 >
                   <Heart className="h-5 w-5" />
                 </Button>
@@ -70,12 +70,12 @@ export default function Header({ onCartClick }: HeaderProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="wine hover:text-dark-wine relative"
+                  className="text-white hover:text-light-pink hover:bg-white/10 relative"
                   onClick={onCartClick}
                 >
                   <ShoppingBag className="h-5 w-5" />
                   {totalItems > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-dark-wine text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-light-pink text-wine text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                       {totalItems}
                     </span>
                   )}
@@ -88,7 +88,7 @@ export default function Header({ onCartClick }: HeaderProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden wine hover:text-dark-wine"
+              className="md:hidden text-white hover:text-light-pink hover:bg-white/10"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="h-5 w-5" />
@@ -98,13 +98,13 @@ export default function Header({ onCartClick }: HeaderProps) {
         
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-soft-pink pt-4 pb-4">
+          <div className="md:hidden border-t border-white/20 pt-4 pb-4">
             <div className="flex flex-col space-y-3">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
                   <span
-                    className={`wine hover:text-dark-wine transition-colors duration-200 cursor-pointer block py-2 ${
-                      location === item.href ? "font-semibold" : ""
+                    className={`text-white hover:text-light-pink transition-colors duration-200 cursor-pointer block py-2 ${
+                      location === item.href ? "font-semibold text-light-pink" : ""
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -112,7 +112,7 @@ export default function Header({ onCartClick }: HeaderProps) {
                   </span>
                 </Link>
               ))}
-              <div className="pt-3 border-t border-soft-pink">
+              <div className="pt-3 border-t border-white/20">
                 <AuthButtons />
               </div>
             </div>
