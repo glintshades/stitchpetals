@@ -154,7 +154,7 @@ export default function Home() {
       title: "Premium Quality Materials",
       subtitle: "Crafted with Excellence",
       description: "Every bouquet is made with the finest soft cotton yarn, ensuring durability and beauty that will last for years. Our skilled artisans pour their passion into each stitch.",
-      backgroundImage: "/images/WechatIMG1746_1753288338342.webp", // Potted arrangement
+      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753287720446.webp", // Alternative product image
       ctaText: "View Products",
       ctaLink: "/shop",
       ctaSecondaryText: "Our Story",
