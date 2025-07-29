@@ -125,13 +125,13 @@ export function AuthButtons() {
         <Button
           variant="ghost"
           onClick={() => setShowLogin(true)}
-          className="text-sm"
+          className="text-sm text-white hover:text-light-pink hover:bg-white/10"
         >
           Sign In
         </Button>
         <Button
           onClick={() => setShowRegister(true)}
-          className="text-sm bg-[#8B4B6B] hover:bg-[#7A4A5A] text-white"
+          className="text-sm bg-light-pink hover:bg-soft-pink text-wine font-semibold"
         >
           Sign Up
         </Button>
