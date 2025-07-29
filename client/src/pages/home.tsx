@@ -154,7 +154,7 @@ export default function Home() {
       title: "Premium Quality Materials",
       subtitle: "Crafted with Excellence",
       description: "Every bouquet is made with the finest soft cotton yarn, ensuring durability and beauty that will last for years. Our skilled artisans pour their passion into each stitch.",
-      backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp", // Home page exclusive
+      backgroundImage: "/attached_assets/il_1588xN.5094290650_h84a_1753800655973.webp", // Beautiful pink rose bouquet
       ctaText: "View Products",
       ctaLink: "/shop",
       ctaSecondaryText: "Our Story",
