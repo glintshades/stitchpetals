@@ -1,8 +1,8 @@
-# Stitched Petals - Crochet Flower E-commerce Platform
+# GlintShades - Crochet Flower E-commerce Platform
 
 ## Overview
 
-Stitched Petals is a full-stack e-commerce web application specializing in handcrafted crochet flower arrangements. The platform features a React frontend with a Node.js/Express backend, utilizing PostgreSQL for data persistence through Drizzle ORM. The application showcases beautiful crochet bouquets, potted arrangements, and individual stems with a sophisticated design system built on shadcn/ui components.
+GlintShades is a full-stack e-commerce web application specializing in handcrafted crochet flower arrangements. The platform features a React frontend with a Node.js/Express backend, utilizing PostgreSQL for data persistence through Drizzle ORM. The application showcases beautiful crochet bouquets, potted arrangements, and individual stems with a sophisticated design system built on shadcn/ui components.
 
 ## User Preferences
 
@@ -47,6 +47,7 @@ Preferred communication style: Simple, everyday language.
 - **Wishlist System Implementation**: Complete wishlist functionality with database persistence, session-based tracking, heart icon interactions on product cards and detail pages, dedicated wishlist page at /wishlist, and wishlist icon in header navigation
 
 ### January 25, 2025
+- **Complete Website Rebranding**: Successfully rebranded entire website from "Stitched Petals" to "GlintShades" across all files, pages, components, legal documents, email addresses, admin panels, and documentation while maintaining all functionality and design integrity
 - **Authentication Requirements for Cart/Wishlist**: Implemented comprehensive authentication system requiring user login for all cart and wishlist operations
 - **Client-Side Authentication Guards**: Added authentication checks in cart and wishlist hooks with user-friendly error messages
 - **Server-Side Authentication Middleware**: Protected all cart and wishlist API endpoints with requireAuth middleware

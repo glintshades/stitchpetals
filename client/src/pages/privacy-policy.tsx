@@ -236,9 +236,9 @@ export default function PrivacyPolicy() {
                 If you have questions about this Privacy Policy or want to exercise your rights, please contact us:
               </p>
               <div className="bg-pink-50 p-4 rounded-lg">
-                <p className="text-gray-700 font-semibold">Stitched Petals Privacy Team</p>
-                <p className="text-gray-700">Email: privacy@stitchedpetals.com</p>
-                <p className="text-gray-700">Phone: 1-800-PETALS (738-2577)</p>
+                <p className="text-gray-700 font-semibold">GlintShades Privacy Team</p>
+                <p className="text-gray-700">Email: privacy@glintshades.com</p>
+                <p className="text-gray-700">Phone: 1-800-GLINT-SH (454-6874)</p>
                 <p className="text-gray-700">Response time: Within 5 business days</p>
               </div>
             </CardContent>

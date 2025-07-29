@@ -10,7 +10,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="font-playfair text-5xl md:text-6xl font-bold wine mb-6">
-              About Stitched Petals
+              About GlintShades
             </h1>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
               We're passionate about bringing the timeless art of crochet to modern homes through 
@@ -34,7 +34,7 @@ export default function About() {
             <div>
               <h2 className="font-playfair text-4xl font-bold wine mb-6">Crafted with Love, Delivered with Care</h2>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                At Stitched Petals, we believe in the timeless beauty of handmade craftsmanship. Each crochet flower in our collection 
+                At GlintShades, we believe in the timeless beauty of handmade craftsmanship. Each crochet flower in our collection 
                 is meticulously created by skilled artisans who pour their passion into every stitch.
               </p>
               <p className="text-gray-700 mb-8 leading-relaxed">
@@ -110,7 +110,7 @@ export default function About() {
             <div>
               <h2 className="font-playfair text-4xl font-bold wine mb-6">Our Business Model</h2>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                Stitched Petals operates as a dropshipping platform, connecting customers directly with skilled artisans 
+                GlintShades operates as a dropshipping platform, connecting customers directly with skilled artisans 
                 who create these beautiful crochet flowers. This model allows us to offer you:
               </p>
               <ul className="space-y-4 mb-8">
@@ -209,7 +209,7 @@ export default function About() {
           </p>
           <div className="bg-blush p-8 rounded-xl">
             <p className="text-wine font-semibold text-lg italic">
-              "At Stitched Petals, we don't just sell crochet flowers – we share stories, preserve traditions, 
+              "At GlintShades, we don't just sell crochet flowers – we share stories, preserve traditions, 
               and create lasting beauty that brings joy to every home."
             </p>
           </div>

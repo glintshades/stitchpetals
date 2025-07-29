@@ -32,7 +32,7 @@ export default function Header({ onCartClick }: HeaderProps) {
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
                 <h1 className="font-playfair text-2xl font-bold wine cursor-pointer">
-                  Stitched Petals
+                  GlintShades
                 </h1>
               </Link>
             </div>

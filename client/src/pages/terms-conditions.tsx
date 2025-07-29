@@ -35,7 +35,7 @@ export default function TermsConditions() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-600">
-                By accessing and using the Stitched Petals website and services, you accept and agree to be bound by the terms and provision of this agreement. These terms apply to all visitors, users, and others who access or use our service.
+                By accessing and using the GlintShades website and services, you accept and agree to be bound by the terms and provision of this agreement. These terms apply to all visitors, users, and others who access or use our service.
               </p>
               <p className="text-gray-600">
                 If you do not agree to abide by the above, please do not use this service. We reserve the right to change these terms at any time without prior notice.
@@ -159,14 +159,14 @@ export default function TermsConditions() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-600">
-                The service and its original content, features, and functionality are and will remain the exclusive property of Stitched Petals and its licensors. The service is protected by copyright, trademark, and other laws.
+                The service and its original content, features, and functionality are and will remain the exclusive property of GlintShades and its licensors. The service is protected by copyright, trademark, and other laws.
               </p>
               
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Our Rights</h3>
                 <ul className="text-gray-600 space-y-1 ml-4">
                   <li>• All product designs, patterns, and images are our property</li>
-                  <li>• The Stitched Petals name and logo are our trademarks</li>
+                  <li>• The GlintShades name and logo are our trademarks</li>
                   <li>• Website content, including text and graphics, is copyrighted</li>
                 </ul>
               </div>
@@ -194,7 +194,7 @@ export default function TermsConditions() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-600">
-                In no event shall Stitched Petals, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.
+                In no event shall GlintShades, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.
               </p>
               
               <div className="bg-pink-50 p-4 rounded-lg">

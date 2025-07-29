@@ -26,7 +26,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <h4 className="font-playfair text-2xl font-bold mb-4">Stitched Petals</h4>
+            <h4 className="font-playfair text-2xl font-bold mb-4">GlintShades</h4>
             <p className="text-white/80 mb-4">
               Creating beautiful, lasting memories through handcrafted crochet artistry.
             </p>
@@ -149,7 +149,7 @@ export default function Footer() {
         
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
           <p className="text-white/80">
-            &copy; 2024 Stitched Petals. All rights reserved.
+            &copy; 2024 GlintShades. All rights reserved.
           </p>
         </div>
       </div>

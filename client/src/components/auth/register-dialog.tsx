@@ -101,7 +101,7 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
         <DialogHeader>
           <DialogTitle>Create Account</DialogTitle>
           <DialogDescription>
-            Join Stitched Petals to track your orders and save your preferences.
+            Join GlintShades to track your orders and save your preferences.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>

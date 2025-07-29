@@ -87,7 +87,7 @@ export default function Contact() {
               {
                 icon: <Mail className="h-6 w-6" />,
                 title: "Email Us",
-                details: "hello@stitchedpetals.com",
+                details: "hello@glintshades.com",
                 description: "Send us a message anytime"
               },
               {
