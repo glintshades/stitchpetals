@@ -70,7 +70,7 @@ export default function HeroSlider({
           }}
         >
           {/* Deep purple overlay */}
-          <div className="absolute inset-0 bg-wine/70"></div>
+          <div className="absolute inset-0 bg-[#3e0d57]/80"></div>
           
           {/* Content */}
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
