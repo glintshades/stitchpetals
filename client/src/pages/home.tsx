@@ -72,7 +72,7 @@ function CategoriesSection() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto pb-5">
       {activeCategories.map((category) => (
         <Link key={category.id} href={`/shop?category=${category.slug}`} className="group">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
