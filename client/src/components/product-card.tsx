@@ -84,8 +84,12 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                    (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="text-gray-400 text-center p-4"><div class="text-sm">Image not available</div></div>';
+                    const img = e.target as HTMLImageElement;
+                    const parent = img.parentElement;
+                    if (parent) {
+                      img.style.display = 'none';
+                      parent.innerHTML = '<div class="text-gray-400 text-center p-4"><div class="text-sm">Image not available</div></div>';
+                    }
                   }}
                 />
               ) : (

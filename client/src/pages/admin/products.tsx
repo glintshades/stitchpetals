@@ -197,7 +197,16 @@ export default function AdminProducts() {
 
   const openCreateDialog = () => {
     setEditingProduct(null);
-    form.reset();
+    form.reset({
+      name: "",
+      description: "",
+      price: 0,
+      category: "",
+      imageUrl: "",
+      colors: "",
+      stemCount: 1,
+      inStock: true,
+    });
     setIsDialogOpen(true);
   };
 
@@ -350,8 +359,12 @@ export default function AdminProducts() {
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="text-gray-400 text-xs text-center p-2">No Image</div>';
+                          const img = e.target as HTMLImageElement;
+                          const parent = img.parentElement;
+                          if (parent) {
+                            img.style.display = 'none';
+                            parent.innerHTML = '<div class="text-gray-400 text-xs text-center p-2">No Image</div>';
+                          }
                         }}
                       />
                     ) : (

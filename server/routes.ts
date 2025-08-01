@@ -446,8 +446,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser({
         username,
         password,
-        role: role || "user",
-        isActive: true,
       });
       
       // Remove password from response

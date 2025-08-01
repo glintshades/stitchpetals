@@ -18,6 +18,12 @@ export function ImageUpload({ onImageUpload, currentImageUrl, label = "Product I
   const [useUrl, setUseUrl] = useState(!!currentImageUrl);
   const { toast } = useToast();
 
+  // Sync with external changes to currentImageUrl
+  React.useEffect(() => {
+    setImageUrl(currentImageUrl || '');
+    setUseUrl(!!currentImageUrl);
+  }, [currentImageUrl]);
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
