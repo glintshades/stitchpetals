@@ -7,7 +7,7 @@ import ProductCard from "@/components/product-card";
 import HeroSlider from "@/components/hero-slider";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Heart, Clock, Award, Package } from "lucide-react";
-const bannerImage = "/images/957a8022-d997-41b1-9901-1a5520a60bcd_1754049600009.png";
+const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
 
 type ProductCategory = {
   id: number;
