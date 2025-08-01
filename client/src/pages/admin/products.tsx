@@ -185,7 +185,9 @@ export default function AdminProducts() {
 
   const handleSubmit = (data: ProductForm) => {
     console.log('Form submission data:', data);
+    console.log('Form errors:', form.formState.errors);
     console.log('Image URL value:', data.imageUrl);
+    console.log('Form is valid:', form.formState.isValid);
     
     if (editingProduct) {
       updateProductMutation.mutate({ id: editingProduct.id, ...data });
@@ -342,6 +344,11 @@ export default function AdminProducts() {
                   type="submit" 
                   className="bg-wine hover:bg-dark-pink"
                   disabled={createProductMutation.isPending || updateProductMutation.isPending}
+                  onClick={() => {
+                    console.log('Submit button clicked');
+                    console.log('Current form values:', form.getValues());
+                    console.log('Form errors before submit:', form.formState.errors);
+                  }}
                 >
                   {editingProduct ? "Update Product" : "Create Product"}
                 </Button>
