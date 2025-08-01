@@ -184,14 +184,17 @@ export default function AdminProducts() {
   };
 
   const handleSubmit = (data: ProductForm) => {
+    console.log('🚀 FORM ACTUALLY SUBMITTED!');
     console.log('Form submission data:', data);
     console.log('Form errors:', form.formState.errors);
     console.log('Image URL value:', data.imageUrl);
     console.log('Form is valid:', form.formState.isValid);
     
     if (editingProduct) {
+      console.log('Updating product:', editingProduct.id);
       updateProductMutation.mutate({ id: editingProduct.id, ...data });
     } else {
+      console.log('Creating new product');
       createProductMutation.mutate(data);
     }
   };
@@ -344,10 +347,14 @@ export default function AdminProducts() {
                   type="submit" 
                   className="bg-wine hover:bg-dark-pink"
                   disabled={createProductMutation.isPending || updateProductMutation.isPending}
-                  onClick={() => {
+                  onClick={(e) => {
                     console.log('Submit button clicked');
                     console.log('Current form values:', form.getValues());
                     console.log('Form errors before submit:', form.formState.errors);
+                    console.log('Form validation state:', form.formState.isValid);
+                    
+                    // Force form validation and submission
+                    form.handleSubmit(handleSubmit)();
                   }}
                 >
                   {editingProduct ? "Update Product" : "Create Product"}
