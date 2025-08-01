@@ -77,11 +77,23 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                 {offer?.discountValue}{offer?.discountType === "percentage" ? "%" : "$"} OFF
               </Badge>
             )}
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full h-48 sm:h-52 md:h-56 object-cover"
-            />
+            <div className="w-full h-48 sm:h-52 md:h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
+              {product.imageUrl && product.imageUrl !== '/system/marker' ? (
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="text-gray-400 text-center p-4"><div class="text-sm">Image not available</div></div>';
+                  }}
+                />
+              ) : (
+                <div className="text-gray-400 text-center p-4">
+                  <div className="text-sm">No image available</div>
+                </div>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="icon"

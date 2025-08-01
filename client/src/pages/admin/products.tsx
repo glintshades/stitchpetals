@@ -174,7 +174,7 @@ export default function AdminProducts() {
       price: product.price,
       category: product.category,
       imageUrl: product.imageUrl || "",
-      colors: Array.isArray(product.colors) ? product.colors.join(", ") : (product.colors || ""),
+      colors: Array.isArray(product.colors) ? product.colors.join(", ") : String(product.colors || ""),
       stemCount: product.stemCount || 1,
       inStock: product.inStock,
     });
@@ -343,11 +343,21 @@ export default function AdminProducts() {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex space-x-4">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
+                  <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    {product.imageUrl && product.imageUrl !== '/system/marker' ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="text-gray-400 text-xs text-center p-2">No Image</div>';
+                        }}
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-xs text-center p-2">No Image</div>
+                    )}
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{product.name}</h3>
                     <p className="text-gray-600 text-sm mt-1 line-clamp-2">{product.description}</p>
