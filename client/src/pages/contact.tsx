@@ -72,7 +72,7 @@ export default function Contact() {
         title="Get in Touch"
         subtitle="We're Here to Help"
         description="Have questions about our products or need a custom arrangement? We'd love to hear from you! Our team is ready to assist with any inquiries."
-        backgroundImage="/images/contact-banner.svg"
+        backgroundImage="/images/image-1753373536225-921072967.webp"
         ctaText="Contact Form"
         ctaLink="#contact-form"
         ctaSecondaryText="Call Us"

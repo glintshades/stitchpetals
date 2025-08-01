@@ -174,7 +174,7 @@ export default function Offers() {
         title="Special Offers & Deals"
         subtitle="Limited Time Only"
         description="Discover incredible savings on our beautiful handcrafted crochet flowers. Don't miss out on these exclusive deals and limited-time offers."
-        backgroundImage="/images/offers-banner.svg"
+        backgroundImage="/images/image-1753373640459-784026118.webp"
         ctaText="Shop Deals"
         ctaLink="#deals"
         ctaSecondaryText="View All"

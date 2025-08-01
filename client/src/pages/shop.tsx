@@ -101,7 +101,7 @@ export default function Shop() {
         title="Shop Collection"
         subtitle="Handcrafted Excellence"
         description="Discover our complete range of handcrafted crochet flowers. From elegant bouquets to charming potted arrangements, find the perfect piece for your space."
-        backgroundImage="/images/shop-banner.svg"
+        backgroundImage="/images/image-1753377012615-668593029.webp"
         ctaText="Browse All"
         ctaLink="#products"
         ctaSecondaryText="View Categories"
