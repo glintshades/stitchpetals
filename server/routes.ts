@@ -4,7 +4,7 @@ import session from "express-session";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertProductVariationSchema, insertOfferSchema } from "@shared/schema";
 
 // Configure multer for image uploads
 const storage_config = multer.diskStorage({
@@ -576,6 +576,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Product deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete product" });
+    }
+  });
+
+  // Product Variations API
+  app.get("/api/admin/products/:id/variations", requireAdmin, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const variations = await storage.getProductVariations(productId);
+      res.json(variations);
+    } catch (error) {
+      console.error("Error fetching product variations:", error);
+      res.status(500).json({ message: "Failed to fetch product variations" });
+    }
+  });
+
+  app.post("/api/admin/products/:id/variations", requireAdmin, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const variationData = insertProductVariationSchema.parse({
+        ...req.body,
+        productId,
+      });
+      const variation = await storage.createProductVariation(variationData);
+      res.status(201).json(variation);
+    } catch (error) {
+      console.error("Error creating product variation:", error);
+      res.status(500).json({ message: "Failed to create product variation" });
+    }
+  });
+
+  app.patch("/api/admin/products/:productId/variations/:variationId", requireAdmin, async (req, res) => {
+    try {
+      const variationId = parseInt(req.params.variationId);
+      const updates = req.body;
+      const variation = await storage.updateProductVariation(variationId, updates);
+      if (!variation) {
+        return res.status(404).json({ message: "Product variation not found" });
+      }
+      res.json(variation);
+    } catch (error) {
+      console.error("Error updating product variation:", error);
+      res.status(500).json({ message: "Failed to update product variation" });
+    }
+  });
+
+  app.delete("/api/admin/products/:productId/variations/:variationId", requireAdmin, async (req, res) => {
+    try {
+      const variationId = parseInt(req.params.variationId);
+      const success = await storage.deleteProductVariation(variationId);
+      if (!success) {
+        return res.status(404).json({ message: "Product variation not found" });
+      }
+      res.json({ message: "Product variation deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting product variation:", error);
+      res.status(500).json({ message: "Failed to delete product variation" });
     }
   });
 
