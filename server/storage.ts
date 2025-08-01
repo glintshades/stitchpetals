@@ -2,7 +2,6 @@ import {
   users, 
   products, 
   productCategories,
-  productVariations,
   cartItems, 
   wishlistItems,
   contactSubmissions, 
@@ -15,8 +14,6 @@ import {
   type InsertProduct, 
   type ProductCategory,
   type InsertProductCategory,
-  type ProductVariation,
-  type InsertProductVariation,
   type CartItem, 
   type InsertCartItem,
   type WishlistItem,
@@ -44,12 +41,6 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, updates: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
-  
-  // Product Variations
-  getProductVariations(productId: number): Promise<ProductVariation[]>;
-  createProductVariation(variation: InsertProductVariation): Promise<ProductVariation>;
-  updateProductVariation(id: number, updates: Partial<InsertProductVariation>): Promise<ProductVariation | undefined>;
-  deleteProductVariation(id: number): Promise<boolean>;
   
   getCartItems(sessionId: string): Promise<(CartItem & { product: Product })[]>;
   addToCart(item: InsertCartItem): Promise<CartItem>;
@@ -381,36 +372,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: number): Promise<boolean> {
     const result = await db.delete(products).where(eq(products.id, id));
-    return (result.rowCount || 0) > 0;
-  }
-
-  // Product Variations methods
-  async getProductVariations(productId: number): Promise<ProductVariation[]> {
-    return await db.select().from(productVariations).where(eq(productVariations.productId, productId));
-  }
-
-  async createProductVariation(variation: InsertProductVariation): Promise<ProductVariation> {
-    const [createdVariation] = await db.insert(productVariations).values({
-      ...variation,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }).returning();
-    return createdVariation;
-  }
-
-  async updateProductVariation(id: number, updates: Partial<InsertProductVariation>): Promise<ProductVariation | undefined> {
-    const [updatedVariation] = await db.update(productVariations)
-      .set({
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(productVariations.id, id))
-      .returning();
-    return updatedVariation || undefined;
-  }
-
-  async deleteProductVariation(id: number): Promise<boolean> {
-    const result = await db.delete(productVariations).where(eq(productVariations.id, id));
     return (result.rowCount || 0) > 0;
   }
 
