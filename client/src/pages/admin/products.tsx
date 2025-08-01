@@ -29,7 +29,7 @@ const productSchema = z.object({
   price: z.string().min(1, "Price is required"),
   category: z.string().min(1, "Category is required"),
   imageUrl: z.string().min(1, "Image is required").refine((val) => {
-    return val.startsWith('http') || val.startsWith('/images/') || val.startsWith('data:');
+    return val.startsWith('http') || val.startsWith('https') || val.startsWith('/images/') || val.startsWith('data:') || val.includes('image-');
   }, "Please provide a valid image URL or upload an image"),
   colors: z.string().min(1, "At least one color is required"),
   stemCount: z.number().min(1, "Stem count must be at least 1"),
@@ -184,6 +184,9 @@ export default function AdminProducts() {
   };
 
   const handleSubmit = (data: ProductForm) => {
+    console.log('Form submission data:', data);
+    console.log('Image URL value:', data.imageUrl);
+    
     if (editingProduct) {
       updateProductMutation.mutate({ id: editingProduct.id, ...data });
     } else {
