@@ -136,14 +136,14 @@ export default function Home() {
 
   const featuredProducts = products.slice(0, 4);
 
-  // Hero slider slides - Home page specific images (completely unique from other pages)
+  // Hero slider slides - Home page with custom graphics using product images
   const heroSlides = [
     {
       id: 1,
       title: "Handcrafted Crochet Bouquets That Last Forever",
       subtitle: "Welcome to GlintShades",
       description: "Discover our collection of meticulously handmade crochet flower bouquets. Each piece is crafted with love, using premium soft cotton to create timeless floral arrangements that bring joy to any space.",
-      backgroundImage: bannerImage, // Main sunflower bouquet - unique to home
+      backgroundImage: "/images/home-slider-1.svg", // Custom graphic with product collage
       ctaText: "Shop Collection",
       ctaLink: "/shop",
       ctaSecondaryText: "Learn More",
@@ -154,7 +154,7 @@ export default function Home() {
       title: "Premium Quality Materials",
       subtitle: "Crafted with Excellence",
       description: "Every bouquet is made with the finest soft cotton yarn, ensuring durability and beauty that will last for years. Our skilled artisans pour their passion into each stitch.",
-      backgroundImage: "/images/il_1588xN.5094290650_h84a_1753800655973.webp", // Beautiful pink rose bouquet
+      backgroundImage: "/images/home-slider-2.svg", // Custom graphic with rose arrangements
       ctaText: "View Products",
       ctaLink: "/shop",
       ctaSecondaryText: "Our Story",
@@ -165,7 +165,7 @@ export default function Home() {
       title: "Perfect for Every Occasion",
       subtitle: "Timeless Beauty",
       description: "From weddings to home décor, our crochet flowers bring warmth and elegance to any setting. Create lasting memories with flowers that never fade.",
-      backgroundImage: "/images/WechatIMG1746_1753288163170.webp", // Home page unique
+      backgroundImage: "/images/home-slider-3.svg", // Custom graphic with mixed arrangements
       ctaText: "Browse Categories",
       ctaLink: "/shop",
       ctaSecondaryText: "Contact Us",

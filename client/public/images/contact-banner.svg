@@ -1,0 +1,37 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="contactBg" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" style="stop-color:#ea9999;stop-opacity:0.5" />
+      <stop offset="50%" style="stop-color:#fdeff2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3e0d57;stop-opacity:0.3" />
+    </linearGradient>
+    <pattern id="elegant1" patternUnits="userSpaceOnUse" width="220" height="220">
+      <image href="/images/image-1753376718702-828095895.webp" x="0" y="0" width="220" height="220" opacity="0.4"/>
+    </pattern>
+    <pattern id="bouquet2" patternUnits="userSpaceOnUse" width="170" height="170">
+      <image href="/images/image-1753373902835-642594902.webp" x="0" y="0" width="170" height="170" opacity="0.3"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#contactBg)"/>
+  
+  <!-- Central communication theme -->
+  <circle cx="400" cy="250" r="120" fill="url(#elegant1)" opacity="0.7"/>
+  <circle cx="800" cy="350" r="100" fill="url(#bouquet2)" opacity="0.6"/>
+  
+  <!-- Corner accents -->
+  <rect x="50" y="50" width="100" height="100" rx="50" fill="url(#elegant1)" opacity="0.4"/>
+  <rect x="1050" y="450" width="120" height="120" rx="60" fill="url(#bouquet2)" opacity="0.5"/>
+  
+  <!-- Flowing elements -->
+  <ellipse cx="200" cy="450" rx="80" ry="60" fill="url(#elegant1)" opacity="0.3" transform="rotate(20 200 450)"/>
+  <ellipse cx="1000" cy="150" rx="70" ry="90" fill="url(#bouquet2)" opacity="0.4" transform="rotate(-25 1000 150)"/>
+  
+  <!-- Subtle texture -->
+  <rect width="1200" height="600" fill="url(#elegant1)" opacity="0.08"/>
+  
+  <!-- Decorative dots -->
+  <circle cx="600" cy="100" r="20" fill="#3e0d57" opacity="0.2"/>
+  <circle cx="300" cy="550" r="15" fill="#ea9999" opacity="0.3"/>
+</svg>

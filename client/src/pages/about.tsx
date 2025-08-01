@@ -13,7 +13,7 @@ export default function About() {
         title="About GlintShades"
         subtitle="Our Story"
         description="We're passionate about bringing the timeless art of crochet to modern homes through beautiful, handcrafted flower arrangements that last forever."
-        backgroundImage="/images/WechatIMG1746_1753288338342.webp"
+        backgroundImage="/images/about-banner.svg"
         ctaText="Our Mission"
         ctaLink="#mission"
         ctaSecondaryText="Shop Now"

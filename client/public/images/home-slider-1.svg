@@ -1,0 +1,29 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdeff2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea9999;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="product1" patternUnits="userSpaceOnUse" width="300" height="300">
+      <image href="/images/il_1588xN.4851706578_21g4_1753286611661.webp" x="0" y="0" width="300" height="300" opacity="0.3"/>
+    </pattern>
+    <pattern id="product2" patternUnits="userSpaceOnUse" width="200" height="200">
+      <image href="/images/image-1753373536225-921072967.webp" x="0" y="0" width="200" height="200" opacity="0.2"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background gradient -->
+  <rect width="1200" height="600" fill="url(#bg1)"/>
+  
+  <!-- Product images positioned creatively -->
+  <circle cx="200" cy="150" r="120" fill="url(#product1)" opacity="0.6"/>
+  <circle cx="900" cy="400" r="100" fill="url(#product2)" opacity="0.5"/>
+  <rect x="700" y="100" width="180" height="180" rx="20" fill="url(#product1)" opacity="0.4" transform="rotate(15 790 190)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="1000" cy="100" r="40" fill="#3e0d57" opacity="0.1"/>
+  <circle cx="100" cy="500" r="60" fill="#3e0d57" opacity="0.15"/>
+  
+  <!-- Subtle pattern overlay -->
+  <rect width="1200" height="600" fill="url(#product2)" opacity="0.1"/>
+</svg>
