@@ -31,7 +31,7 @@ const productSchema = z.object({
   imageUrl: z.string().min(1, "Image is required").refine((val) => {
     return val.startsWith('http') || val.startsWith('https') || val.startsWith('/images/') || val.startsWith('data:') || val.includes('image-');
   }, "Please provide a valid image URL or upload an image"),
-  colors: z.string().min(1, "At least one color is required"),
+  colors: z.string().optional().default("Mixed"),
   stemCount: z.number().min(1, "Stem count must be at least 1"),
   inStock: z.boolean(),
 });
@@ -74,7 +74,7 @@ export default function AdminProducts() {
       price: "",
       category: "",
       imageUrl: "",
-      colors: "",
+      colors: "Mixed",
       stemCount: 1,
       inStock: true,
     },
@@ -90,7 +90,7 @@ export default function AdminProducts() {
         },
         body: JSON.stringify({
           ...productData,
-          colors: productData.colors.split(",").map((c: string) => c.trim()),
+          colors: productData.colors ? productData.colors.split(",").map((c: string) => c.trim()) : ["Mixed"],
         }),
       });
       if (!response.ok) throw new Error("Failed to create product");
@@ -122,7 +122,7 @@ export default function AdminProducts() {
         },
         body: JSON.stringify({
           ...productData,
-          colors: productData.colors.split(",").map((c: string) => c.trim()),
+          colors: productData.colors ? productData.colors.split(",").map((c: string) => c.trim()) : ["Mixed"],
         }),
       });
       if (!response.ok) throw new Error("Failed to update product");
@@ -210,7 +210,7 @@ export default function AdminProducts() {
       price: "0",
       category: "",
       imageUrl: "",
-      colors: "",
+      colors: "Mixed",
       stemCount: 1,
       inStock: true,
     });
