@@ -28,7 +28,9 @@ const productSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.string().min(1, "Price is required"),
   category: z.string().min(1, "Category is required"),
-  imageUrl: z.string().min(1, "Image is required"),
+  imageUrl: z.string().min(1, "Image is required").refine((val) => {
+    return val.startsWith('http') || val.startsWith('/images/') || val.startsWith('data:');
+  }, "Please provide a valid image URL or upload an image"),
   colors: z.string().min(1, "At least one color is required"),
   stemCount: z.number().min(1, "Stem count must be at least 1"),
   inStock: z.boolean(),
@@ -200,7 +202,7 @@ export default function AdminProducts() {
     form.reset({
       name: "",
       description: "",
-      price: 0,
+      price: "0",
       category: "",
       imageUrl: "",
       colors: "",
