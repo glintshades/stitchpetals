@@ -32,10 +32,17 @@ const upload = multer({
       'image/gif'
     ];
     
-    if (allowedMimeTypes.includes(file.mimetype)) {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    // Check both mimetype and file extension
+    const isValidMimeType = allowedMimeTypes.includes(file.mimetype);
+    const isValidExtension = allowedExtensions.includes(fileExtension);
+    
+    if (isValidMimeType || isValidExtension) {
       cb(null, true);
     } else {
-      console.log('Rejected file with mimetype:', file.mimetype);
+      console.log('Rejected file - mimetype:', file.mimetype, 'extension:', fileExtension);
       cb(new Error('Only image files are allowed! Supported formats: JPEG, PNG, WebP, GIF'));
     }
   }
