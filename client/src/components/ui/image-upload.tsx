@@ -15,13 +15,13 @@ interface ImageUploadProps {
 export function ImageUpload({ onImageUpload, currentImageUrl, label = "Product Image" }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(currentImageUrl || '');
-  const [useUrl, setUseUrl] = useState(!!currentImageUrl);
+  const [useUrl, setUseUrl] = useState(false); // Always default to upload mode
   const { toast } = useToast();
 
   // Sync with external changes to currentImageUrl
   React.useEffect(() => {
     setImageUrl(currentImageUrl || '');
-    setUseUrl(!!currentImageUrl);
+    // Don't automatically switch to URL mode when currentImageUrl changes
   }, [currentImageUrl]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -51,7 +51,7 @@ export function ImageUpload({ onImageUpload, currentImageUrl, label = "Product I
       
       setImageUrl(uploadedImageUrl);
       onImageUpload(uploadedImageUrl);
-      setUseUrl(false);
+      // Keep in upload mode after successful upload
       
       toast({
         title: "Success",
@@ -95,19 +95,21 @@ export function ImageUpload({ onImageUpload, currentImageUrl, label = "Product I
       <div className="flex space-x-2 mb-4">
         <Button
           type="button"
-          variant={useUrl ? "default" : "outline"}
-          size="sm"
-          onClick={() => setUseUrl(true)}
-        >
-          Use URL
-        </Button>
-        <Button
-          type="button"
           variant={!useUrl ? "default" : "outline"}
           size="sm"
           onClick={() => setUseUrl(false)}
+          className={!useUrl ? "bg-wine hover:bg-dark-wine" : "border-wine text-wine hover:bg-wine hover:text-white"}
         >
           Upload Image
+        </Button>
+        <Button
+          type="button"
+          variant={useUrl ? "default" : "outline"}
+          size="sm"
+          onClick={() => setUseUrl(true)}
+          className={useUrl ? "bg-wine hover:bg-dark-wine" : "border-wine text-wine hover:bg-wine hover:text-white"}
+        >
+          Use URL
         </Button>
       </div>
 
