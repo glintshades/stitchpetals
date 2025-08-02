@@ -681,6 +681,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment Routes
+  const { cloverService } = await import('./clover-service');
+
+  // Get Clover configuration for frontend
+  app.get("/api/payment/clover-config", (req, res) => {
+    try {
+      const config = cloverService.getPublicConfig();
+      res.json(config);
+    } catch (error) {
+      console.error('Error getting Clover config:', error);
+      res.status(500).json({ message: "Payment configuration not available" });
+    }
+  });
+
+  // Process payment with Clover
+  app.post("/api/payment/process", async (req, res) => {
+    try {
+      const { paymentToken, amount, currency = 'USD', description, metadata = {} } = req.body;
+      
+      if (!paymentToken || !amount) {
+        return res.status(400).json({ message: "Payment token and amount are required" });
+      }
+
+      // Process payment with Clover
+      const paymentResult = await cloverService.createCharge({
+        amount, // amount in cents
+        currency,
+        source: paymentToken,
+        description,
+        metadata
+      });
+
+      res.json({
+        success: true,
+        paymentId: paymentResult.id,
+        amount: paymentResult.amount,
+        status: paymentResult.status,
+        chargeId: paymentResult.id
+      });
+    } catch (error: any) {
+      console.error('Payment processing error:', error);
+      res.status(400).json({ 
+        success: false,
+        message: error.message || "Payment processing failed" 
+      });
+    }
+  });
+
+  // Get payment status
+  app.get("/api/payment/:chargeId", async (req, res) => {
+    try {
+      const { chargeId } = req.params;
+      const charge = await cloverService.getCharge(chargeId);
+      res.json(charge);
+    } catch (error: any) {
+      console.error('Error getting payment status:', error);
+      res.status(400).json({ message: error.message || "Failed to get payment status" });
+    }
+  });
+
+  // Process refund
+  app.post("/api/payment/:chargeId/refund", requireAdmin, async (req, res) => {
+    try {
+      const { chargeId } = req.params;
+      const { amount } = req.body; // optional partial refund amount
+      
+      const refund = await cloverService.createRefund(chargeId, amount);
+      res.json(refund);
+    } catch (error: any) {
+      console.error('Refund error:', error);
+      res.status(400).json({ message: error.message || "Refund failed" });
+    }
+  });
+
+  // Webhook endpoint for Clover payment notifications
+  app.post("/api/payment/webhook", express.raw({ type: 'application/json' }), (req, res) => {
+    try {
+      const signature = req.headers['clover-signature'] as string;
+      const webhookSecret = process.env.CLOVER_WEBHOOK_SECRET;
+      
+      if (webhookSecret && signature) {
+        const isValid = cloverService.verifyWebhookSignature(
+          req.body.toString(),
+          signature,
+          webhookSecret
+        );
+        
+        if (!isValid) {
+          return res.status(401).json({ message: "Invalid webhook signature" });
+        }
+      }
+
+      const event = JSON.parse(req.body.toString());
+      console.log('Clover webhook received:', event.type, event.data);
+      
+      // Handle different webhook events
+      switch (event.type) {
+        case 'charge.succeeded':
+          // Payment successful
+          console.log('Payment succeeded:', event.data.id);
+          break;
+        case 'charge.failed':
+          // Payment failed
+          console.log('Payment failed:', event.data.id);
+          break;
+        case 'refund.created':
+          // Refund processed
+          console.log('Refund created:', event.data.id);
+          break;
+        default:
+          console.log('Unhandled webhook event:', event.type);
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error('Webhook processing error:', error);
+      res.status(400).json({ message: "Webhook processing failed" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

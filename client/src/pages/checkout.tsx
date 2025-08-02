@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/use-cart";
+import { CloverPayment } from "@/components/payment/clover-payment";
 import { ArrowLeft, CreditCard, Package, Truck } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -23,6 +24,9 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 export default function Checkout() {
   const [, setLocation] = useLocation();
+  const [currentStep, setCurrentStep] = useState<'shipping' | 'payment'>('shipping');
+  const [paymentData, setPaymentData] = useState<any>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
   const queryClient = useQueryClient();
@@ -60,6 +64,7 @@ export default function Checkout() {
       setLocation("/");
     },
     onError: (error) => {
+      setIsProcessingPayment(false);
       toast({
         title: "Order Failed",
         description: error.message,
@@ -81,7 +86,14 @@ export default function Checkout() {
       });
       return;
     }
+    setCurrentStep('payment');
+  };
 
+  const handlePaymentSuccess = (payment: any) => {
+    setPaymentData(payment);
+    setIsProcessingPayment(true);
+    
+    const formData = form.getValues();
     const orderItems = cartItems.map(item => ({
       productId: item.productId,
       productName: item.product.name,
@@ -91,12 +103,24 @@ export default function Checkout() {
     }));
 
     const orderData = {
-      ...data,
+      ...formData,
       totalAmount: totalAmount.toFixed(2),
       orderItems,
+      paymentId: payment.paymentId,
+      paymentStatus: payment.status,
+      paymentMethod: 'clover',
     };
 
     createOrderMutation.mutate(orderData);
+  };
+
+  const handlePaymentError = (error: string) => {
+    setIsProcessingPayment(false);
+    toast({
+      title: "Payment Failed",
+      description: error,
+      variant: "destructive",
+    });
   };
 
   if (cartItems.length === 0) {
@@ -131,86 +155,140 @@ export default function Checkout() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Order Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="h-5 w-5" />
-                Shipping Information
-              </CardTitle>
-              <CardDescription>
-                Please provide your shipping details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <Label htmlFor="customerName">Full Name</Label>
-                  <Input
-                    id="customerName"
-                    {...form.register("customerName")}
-                    placeholder="Enter your full name"
-                  />
-                  {form.formState.errors.customerName && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {form.formState.errors.customerName.message}
-                    </p>
-                  )}
+          {/* Step Indicator */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center space-x-4">
+                <div className={`flex items-center space-x-2 ${
+                  currentStep === 'shipping' || currentStep === 'payment' ? 'text-wine' : 'text-gray-400'
+                }`}>
+                  <div className={`rounded-full h-8 w-8 flex items-center justify-center ${
+                    currentStep === 'shipping' || currentStep === 'payment' ? 'bg-wine text-white' : 'bg-gray-200'
+                  }`}>
+                    1
+                  </div>
+                  <span className="font-medium">Shipping</span>
                 </div>
-
-                <div>
-                  <Label htmlFor="customerEmail">Email Address</Label>
-                  <Input
-                    id="customerEmail"
-                    type="email"
-                    {...form.register("customerEmail")}
-                    placeholder="your.email@example.com"
-                  />
-                  {form.formState.errors.customerEmail && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {form.formState.errors.customerEmail.message}
-                    </p>
-                  )}
+                <div className={`h-px w-16 ${
+                  currentStep === 'payment' ? 'bg-wine' : 'bg-gray-200'
+                }`}></div>
+                <div className={`flex items-center space-x-2 ${
+                  currentStep === 'payment' ? 'text-wine' : 'text-gray-400'
+                }`}>
+                  <div className={`rounded-full h-8 w-8 flex items-center justify-center ${
+                    currentStep === 'payment' ? 'bg-wine text-white' : 'bg-gray-200'
+                  }`}>
+                    2
+                  </div>
+                  <span className="font-medium">Payment</span>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <div>
-                  <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
-                  <Input
-                    id="customerPhone"
-                    type="tel"
-                    {...form.register("customerPhone")}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
+          {/* Form Content */}
+          {currentStep === 'shipping' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5" />
+                  Shipping Information
+                </CardTitle>
+                <CardDescription>
+                  Please provide your shipping details
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div>
+                    <Label htmlFor="customerName">Full Name</Label>
+                    <Input
+                      id="customerName"
+                      {...form.register("customerName")}
+                      placeholder="Enter your full name"
+                    />
+                    {form.formState.errors.customerName && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {form.formState.errors.customerName.message}
+                      </p>
+                    )}
+                  </div>
 
-                <div>
-                  <Label htmlFor="shippingAddress">Shipping Address</Label>
-                  <Input
-                    id="shippingAddress"
-                    {...form.register("shippingAddress")}
-                    placeholder="123 Main St, City, State 12345"
-                  />
-                  {form.formState.errors.shippingAddress && (
-                    <p className="text-sm text-red-600 mt-1">
-                      {form.formState.errors.shippingAddress.message}
-                    </p>
-                  )}
-                </div>
+                  <div>
+                    <Label htmlFor="customerEmail">Email Address</Label>
+                    <Input
+                      id="customerEmail"
+                      type="email"
+                      {...form.register("customerEmail")}
+                      placeholder="your.email@example.com"
+                    />
+                    {form.formState.errors.customerEmail && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {form.formState.errors.customerEmail.message}
+                      </p>
+                    )}
+                  </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-wine hover:bg-dark-pink"
-                  disabled={createOrderMutation.isPending}
+                  <div>
+                    <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
+                    <Input
+                      id="customerPhone"
+                      type="tel"
+                      {...form.register("customerPhone")}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="shippingAddress">Shipping Address</Label>
+                    <Input
+                      id="shippingAddress"
+                      {...form.register("shippingAddress")}
+                      placeholder="123 Main St, City, State 12345"
+                    />
+                    {form.formState.errors.shippingAddress && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {form.formState.errors.shippingAddress.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-wine hover:bg-dark-pink"
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Continue to Payment
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Payment Step */}
+          {currentStep === 'payment' && (
+            <div>
+              <div className="mb-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setCurrentStep('shipping')}
+                  className="wine hover:text-dark-wine"
                 >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  {createOrderMutation.isPending ? "Processing..." : `Place Order - $${totalAmount.toFixed(2)}`}
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Shipping
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
+              </div>
+              <CloverPayment
+                amount={totalAmount}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+                isProcessing={isProcessingPayment}
+              />
+            </div>
+          )}
 
           {/* Order Summary */}
-          <Card>
+          <Card className={currentStep === 'payment' ? 'lg:col-start-2' : ''}>
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
               <CardDescription>

@@ -73,6 +73,9 @@ export const orders = pgTable("orders", {
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull().default("pending"), // pending, processing, shipped, delivered, cancelled
   orderItems: jsonb("order_items").notNull(), // array of order items
+  paymentId: text("payment_id"), // Clover payment/charge ID
+  paymentStatus: text("payment_status"), // payment status from Clover
+  paymentMethod: text("payment_method").default("clover"), // payment method used
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
@@ -147,6 +150,9 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   totalAmount: true,
   status: true,
   orderItems: true,
+  paymentId: true,
+  paymentStatus: true,
+  paymentMethod: true,
 });
 
 export const insertAdminUserSchema = createInsertSchema(adminUsers).pick({
