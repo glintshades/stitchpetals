@@ -51,14 +51,16 @@ export default function Shop() {
       return offer.isActive && 
              now >= validFrom && 
              now <= validUntil && 
-             (!offer.categorySlug || offer.categorySlug === product.category);
+             (!offer.applicableProducts || 
+              offer.applicableProducts.includes("all") || 
+              offer.applicableProducts.includes(String(product.id)));
     });
 
     if (activeOffers.length === 0) return null;
     
-    // Return the best offer (highest discount percentage)
+    // Return the best offer (highest discount value)
     return activeOffers.reduce((best: any, current: any) => 
-      current.discountPercentage > best.discountPercentage ? current : best
+      parseFloat(current.discountValue) > parseFloat(best.discountValue) ? current : best
     );
   };
 
