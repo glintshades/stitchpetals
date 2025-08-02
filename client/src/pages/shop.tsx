@@ -110,7 +110,7 @@ export default function Shop() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-wine via-dark-pink to-soft-pink py-16 lg:py-24">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -137,7 +137,7 @@ export default function Shop() {
       </section>
 
       {/* Filters Section */}
-      <section className="py-8 bg-white border-b">
+      <section className="py-8 bg-background border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex flex-wrap gap-2">
@@ -246,7 +246,7 @@ export default function Shop() {
 
       {/* Categories Overview */}
       {selectedCategory === "all" && !searchTerm && (
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="font-playfair text-4xl font-bold wine mb-4">Shop by Category</h2>
