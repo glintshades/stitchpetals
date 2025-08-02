@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
 import multer from "multer";
@@ -23,15 +24,27 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
   fileFilter: function (req, file, cb) {
-    if (file.mimetype.startsWith('image/')) {
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/webp',
+      'image/gif'
+    ];
+    
+    if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'));
+      console.log('Rejected file with mimetype:', file.mimetype);
+      cb(new Error('Only image files are allowed! Supported formats: JPEG, PNG, WebP, GIF'));
     }
   }
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded images
+  app.use('/images', express.static(path.join(process.cwd(), 'client/public/images')));
+  
   // Setup session middleware
   app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret-key',
