@@ -8,7 +8,6 @@ import ProductCard from "@/components/product-card";
 import { HeroBanner } from "@/components/hero-banner";
 import { type Product, type Offer } from "@shared/schema";
 import { Search, Filter } from "lucide-react";
-import { productCategories, getCategoryDisplayName } from "@/lib/products";
 
 export default function Shop() {
   const [location] = useLocation();
@@ -21,6 +20,16 @@ export default function Shop() {
 
   const { data: allProducts = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+  });
+
+  // Fetch categories from admin panel
+  const { data: adminCategories = [] } = useQuery({
+    queryKey: ["/api/admin/categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/categories");
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
   });
 
   // Fetch active offers
@@ -39,201 +48,197 @@ export default function Shop() {
     const activeOffers = offers.filter((offer: Offer) => {
       const validFrom = new Date(offer.validFrom);
       const validUntil = new Date(offer.validUntil);
-      return offer.isActive && now >= validFrom && now <= validUntil;
+      return offer.isActive && 
+             now >= validFrom && 
+             now <= validUntil && 
+             (!offer.categorySlug || offer.categorySlug === product.category);
     });
 
-    // Find the best offer for this product
-    for (const offer of activeOffers) {
-      if (offer.applicableProducts?.includes("all") || 
-          offer.applicableProducts?.includes(product.id.toString())) {
-        return offer;
-      }
-    }
-    return null;
+    if (activeOffers.length === 0) return null;
+    
+    // Return the best offer (highest discount percentage)
+    return activeOffers.reduce((best: any, current: any) => 
+      current.discountPercentage > best.discountPercentage ? current : best
+    );
   };
 
-  // Filter and sort products
-  const filteredProducts = allProducts
-    .filter(product => {
-      const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesCategory && matchesSearch;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return parseFloat(a.price) - parseFloat(b.price);
-        case "price-high":
-          return parseFloat(b.price) - parseFloat(a.price);
-        default:
-          return a.name.localeCompare(b.name);
-      }
-    });
+  // Get category display name helper function
+  const getCategoryDisplayName = (slug: string) => {
+    const category = adminCategories.find((cat: any) => cat.slug === slug);
+    return category ? category.name : slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+  };
 
-  // Fetch categories from database
-  const { data: dbCategories = [] } = useQuery({
-    queryKey: ["/api/categories"],
-    queryFn: async () => {
-      const response = await fetch("/api/categories");
-      if (!response.ok) throw new Error('Failed to fetch categories');
-      return response.json();
-    },
+  // Filter by search
+  const matchesSearch = (product: Product) => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(searchLower) ||
+      product.description.toLowerCase().includes(searchLower) ||
+      (Array.isArray(product.colors) ? 
+        product.colors.some(color => color.toLowerCase().includes(searchLower)) :
+        String(product.colors || "").toLowerCase().includes(searchLower)
+      )
+    );
+  };
+
+  // Filter by category
+  const filteredProducts = allProducts.filter((product: Product) => {
+    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+    return matchesCategory && matchesSearch(product);
   });
 
-  const categories = [
-    { value: "all", label: "All Products", count: allProducts.length },
-    ...dbCategories
-      .filter((cat: any) => cat.isActive)
-      .map((cat: any) => ({
-        value: cat.slug,
-        label: cat.name,
-        count: allProducts.filter(p => p.category === cat.slug).length
-      }))
-  ];
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return parseFloat(a.price) - parseFloat(b.price);
+      case "price-high":
+        return parseFloat(b.price) - parseFloat(a.price);
+      case "name":
+      default:
+        return a.name.localeCompare(b.name);
+    }
+  });
 
-
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-wine border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-ivory">
-      {/* Hero Banner */}
-      <HeroBanner 
-        title="Shop Collection"
-        subtitle="Handcrafted Excellence"
-        description="Discover our complete range of handcrafted crochet flowers. From elegant bouquets to charming potted arrangements, find the perfect piece for your space."
-        backgroundImage="/images/image-1753377012615-668593029.webp"
-        ctaText="Browse All"
-        ctaLink="#products"
-        ctaSecondaryText="View Categories"
-        ctaSecondaryLink="#categories"
-      />
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-wine via-dark-pink to-soft-pink py-16 lg:py-24">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="font-playfair text-4xl lg:text-6xl font-bold text-white mb-6">
+            Shop Our Collection
+          </h1>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Discover handcrafted crochet flowers that bring lasting beauty to any space
+          </p>
+          
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 py-3 text-lg"
+            />
+          </div>
+        </div>
+      </section>
 
-      {/* Filters and Search */}
+      {/* Filters Section */}
       <section className="py-8 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                key="all"
+                variant={selectedCategory === "all" ? "default" : "outline"}
+                onClick={() => setSelectedCategory("all")}
+                className={selectedCategory === "all" ? "bg-wine hover:bg-dark-pink" : "border-wine text-wine hover:bg-wine hover:text-white"}
+              >
+                All Products
+              </Button>
+              {adminCategories.filter((cat: any) => cat.isActive).map((category: any) => (
+                <Button
+                  key={category.slug}
+                  variant={selectedCategory === category.slug ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category.slug)}
+                  className={selectedCategory === category.slug ? "bg-wine hover:bg-dark-pink" : "border-wine text-wine hover:bg-wine hover:text-white"}
+                >
+                  {category.name}
+                </Button>
+              ))}
             </div>
-
-            {/* Sort */}
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-medium wine">Sort by:</span>
+            
+            {/* Sort Options */}
+            <div className="flex items-center gap-4">
+              <Filter className="h-5 w-5 text-gray-500" />
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-wine focus:border-transparent"
+                onChange={(e) => setSortBy(e.target.value as "name" | "price-low" | "price-high")}
+                className="border border-gray-300 rounded-md px-3 py-2 bg-white"
               >
-                <option value="name">Name</option>
+                <option value="name">Sort by Name</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
               </select>
             </div>
-
-            {/* Results count */}
-            <div className="text-sm text-gray-600">
-              {isLoading ? "Loading..." : `${filteredProducts.length} products found`}
-            </div>
           </div>
-        </div>
-      </section>
-
-      {/* Category Filter */}
-      <section className="py-6 bg-warm-gray">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-3">
-            {categories.map((category) => (
-              <Button
-                key={category.value}
-                variant={selectedCategory === category.value ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category.value)}
-                className={`flex items-center space-x-2 ${
-                  selectedCategory === category.value
-                    ? "bg-wine text-white hover:bg-dark-pink"
-                    : "border-wine text-wine hover:bg-wine hover:text-white"
-                }`}
-              >
-                <span>{category.label}</span>
-                <Badge variant="secondary" className="ml-2">
-                  {category.count}
-                </Badge>
-              </Button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Products Grid */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 -m-2.5">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="p-2.5">
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse h-full">
-                    <div className="h-48 sm:h-52 md:h-56 bg-gray-200"></div>
-                    <div className="p-4 sm:p-5 md:p-6">
-                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                      <div className="h-8 bg-gray-200 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 -m-2.5">
-              {filteredProducts.map((product) => {
-                const applicableOffer = getApplicableOffer(product);
-                return (
-                  <ProductCard 
-                    key={product.id} 
-                    product={product} 
-                    offer={applicableOffer} 
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="font-playfair text-2xl font-bold wine mb-2">No Products Found</h3>
-              <p className="text-gray-600 mb-6">
-                {searchTerm 
-                  ? `No products match "${searchTerm}". Try adjusting your search terms.`
-                  : selectedCategory !== "all" 
-                    ? `No products available in ${getCategoryDisplayName(selectedCategory)} category.`
-                    : "No products are currently available."
-                }
-              </p>
-              <div className="space-x-4">
-                {searchTerm && (
+          
+          {/* Active Filters Display */}
+          {(searchTerm || selectedCategory !== "all") && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {searchTerm && (
+                <Badge variant="secondary" className="flex items-center gap-2">
+                  Search: "{searchTerm}"
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
+                    size="sm"
                     onClick={() => setSearchTerm("")}
-                    className="border-wine text-wine hover:bg-wine hover:text-white"
+                    className="h-auto p-0 text-gray-500 hover:text-gray-700"
                   >
-                    Clear Search
+                    ×
                   </Button>
-                )}
-                {selectedCategory !== "all" && (
+                </Badge>
+              )}
+              {selectedCategory !== "all" && (
+                <Badge variant="secondary" className="flex items-center gap-2">
+                  Category: {getCategoryDisplayName(selectedCategory)}
                   <Button 
-                    variant="outline"
+                    variant="ghost" 
+                    size="sm"
                     onClick={() => setSelectedCategory("all")}
-                    className="border-wine text-wine hover:bg-wine hover:text-white"
+                    className="h-auto p-0 text-gray-500 hover:text-gray-700"
                   >
-                    View All Products
+                    ×
                   </Button>
-                )}
-              </div>
+                </Badge>
+              )}
+            </div>
+          )}
+          
+          {/* Results count */}
+          <div className="mt-4">
+            <p className="text-gray-600">
+              {filteredProducts.length === allProducts.length 
+                ? `Showing all ${allProducts.length} products`
+                : `Showing ${filteredProducts.length} of ${allProducts.length} products`
+              }
+            </p>
+          </div>
+          
+          {/* Clear filters */}
+          {(searchTerm || selectedCategory !== "all") && (
+            <div className="flex gap-2 mt-4">
+              {searchTerm && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSearchTerm("")}
+                  className="border-wine text-wine hover:bg-wine hover:text-white"
+                >
+                  Clear Search
+                </Button>
+              )}
+              {selectedCategory !== "all" && (
+                <Button 
+                  variant="outline"
+                  onClick={() => setSelectedCategory("all")}
+                  className="border-wine text-wine hover:bg-wine hover:text-white"
+                >
+                  View All Products
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -251,55 +256,78 @@ export default function Shop() {
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  category: "bouquets",
-                  title: "Bouquets",
-                  description: "Mixed flower arrangements perfect for any occasion",
-                  image: "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-                  count: allProducts.filter(p => p.category === "bouquets").length
-                },
-                {
-                  category: "potted",
-                  title: "Potted Flowers",
-                  description: "Beautiful arrangements in decorative containers",
-                  image: "https://pixabay.com/get/g48b661a150c38e5acc30a8007516d6ec48a1128a09c59dbc2a96db4cb74efff4f4cead1152dbcc8d48000e3737c29bea90066a5010a4ad1dc7126ba5da2dd8da_1280.jpg",
-                  count: allProducts.filter(p => p.category === "potted").length
-                },
-                {
-                  category: "stems",
-                  title: "Single Stems",
-                  description: "Individual flowers perfect for small spaces",
-                  image: "https://pixabay.com/get/gf903151dd1f2de135ef6b603105babc6b62b3a44144950fbf04210ddda4dc94aabbdc7fd73e42bce1dee555fcecfaf4dcdd76dc7f685bdb5bb60fcecc52ff94f_1280.jpg",
-                  count: allProducts.filter(p => p.category === "stems").length
-                }
-              ].map((cat) => (
-                <div 
-                  key={cat.category}
-                  className="group cursor-pointer"
-                  onClick={() => setSelectedCategory(cat.category)}
-                >
-                  <div className="relative overflow-hidden rounded-xl">
-                    <img 
-                      src={cat.image} 
-                      alt={cat.title}
-                      className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <div className="bg-white text-wine px-3 py-1 rounded-full text-sm font-semibold mb-2">
-                        {cat.count} Products
+              {adminCategories.filter((cat: any) => cat.isActive).map((category: any) => {
+                const categoryProducts = allProducts.filter(p => p.category === category.slug);
+                return (
+                  <div 
+                    key={category.slug}
+                    className="group cursor-pointer"
+                    onClick={() => setSelectedCategory(category.slug)}
+                  >
+                    <div className="relative overflow-hidden rounded-xl">
+                      <img 
+                        src={category.image || "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"} 
+                        alt={category.name}
+                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          img.src = "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                      <div className="absolute bottom-4 left-4">
+                        <div className="bg-white text-wine px-3 py-1 rounded-full text-sm font-semibold mb-2">
+                          {categoryProducts.length} Products
+                        </div>
+                        <h3 className="font-playfair text-2xl font-bold text-white mb-2">{category.name}</h3>
+                        <p className="text-white/90 text-sm">{category.description}</p>
                       </div>
-                      <h3 className="font-playfair text-2xl font-bold text-white mb-2">{cat.title}</h3>
-                      <p className="text-white/90 text-sm">{cat.description}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
       )}
+
+      {/* Products Grid */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {sortedProducts.length === 0 ? (
+            <div className="text-center py-16">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">No products found</h3>
+              <p className="text-gray-600 mb-8">
+                {searchTerm || selectedCategory !== "all" 
+                  ? "Try adjusting your search or filter criteria"
+                  : "Our collection is being updated. Please check back soon!"
+                }
+              </p>
+              {(searchTerm || selectedCategory !== "all") && (
+                <Button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedCategory("all");
+                  }}
+                  className="bg-wine hover:bg-dark-pink"
+                >
+                  View All Products
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {sortedProducts.map((product: Product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  offer={getApplicableOffer(product)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

@@ -347,15 +347,6 @@ export default function AdminProducts() {
                   type="submit" 
                   className="bg-wine hover:bg-dark-pink"
                   disabled={createProductMutation.isPending || updateProductMutation.isPending}
-                  onClick={(e) => {
-                    console.log('Submit button clicked');
-                    console.log('Current form values:', form.getValues());
-                    console.log('Form errors before submit:', form.formState.errors);
-                    console.log('Form validation state:', form.formState.isValid);
-                    
-                    // Force form validation and submission
-                    form.handleSubmit(handleSubmit)();
-                  }}
                 >
                   {editingProduct ? "Update Product" : "Create Product"}
                 </Button>
