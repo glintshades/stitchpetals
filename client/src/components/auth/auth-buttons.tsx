@@ -83,7 +83,7 @@ export function AuthButtons() {
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2">
+            <Button variant="ghost" className="flex items-center gap-2 text-[#c8b2db] bg-[#755987]">
               <User className="h-4 w-4" />
               {(user as any)?.username || "User"}
             </Button>
