@@ -228,7 +228,7 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
             
             <Button 
               type="submit" 
-              className="w-full bg-wine hover:bg-dark-wine" 
+              className="w-full !bg-wine hover:!bg-dark-wine text-white" 
               disabled={isProcessing}
             >
               {isProcessing ? (
