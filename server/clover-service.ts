@@ -6,48 +6,41 @@ const CLOVER_API_BASE = {
   production: 'https://api.clover.com'
 };
 
-const CLOVER_ECOMM_BASE = {
-  sandbox: 'https://scl-sandbox.dev.clover.com',
-  production: 'https://scl.clover.com'
-};
-
 export class CloverPaymentService {
+  private merchantId: string;
   private apiKey: string;
   private environment: 'sandbox' | 'production';
   private apiBase: string;
-  private ecommBase: string;
 
   constructor() {
-    this.apiKey = process.env.CLOVER_PRIVATE_TOKEN || '';
+    this.merchantId = process.env.CLOVER_MERCHANT_ID || '';
+    this.apiKey = process.env.CLOVER_API_KEY || '';
     this.environment = (process.env.CLOVER_ENVIRONMENT as 'sandbox' | 'production') || 'sandbox';
     this.apiBase = CLOVER_API_BASE[this.environment];
-    this.ecommBase = CLOVER_ECOMM_BASE[this.environment];
   }
 
   /**
-   * Create a charge using Clover's Ecommerce API
+   * Create a payment using Clover's REST API
    */
-  async createCharge({
+  async createPayment({
     amount,
-    currency = 'USD',
-    source,
+    cardToken,
     description,
-    metadata = {}
+    orderId
   }: {
     amount: number; // amount in cents
-    currency?: string;
-    source: string; // Clover token from frontend
+    cardToken: string; // Clover card token
     description?: string;
-    metadata?: Record<string, any>;
+    orderId?: string;
   }) {
-    const url = `${this.ecommBase}/v1/charges`;
+    const url = `${this.apiBase}/v3/merchants/${this.merchantId}/payments`;
     
     const payload = {
       amount,
-      currency: currency.toLowerCase(),
-      source,
-      description,
-      metadata
+      currency: 'usd',
+      source: cardToken,
+      note: description,
+      externalPaymentId: orderId
     };
 
     const response = await fetch(url, {
@@ -69,10 +62,10 @@ export class CloverPaymentService {
   }
 
   /**
-   * Retrieve a charge by ID
+   * Retrieve a payment by ID
    */
-  async getCharge(chargeId: string) {
-    const url = `${this.ecommBase}/v1/charges/${chargeId}`;
+  async getPayment(paymentId: string) {
+    const url = `${this.apiBase}/v3/merchants/${this.merchantId}/payments/${paymentId}`;
     
     const response = await fetch(url, {
       method: 'GET',
@@ -84,17 +77,17 @@ export class CloverPaymentService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(`Failed to retrieve charge: ${error.message || response.statusText}`);
+      throw new Error(`Failed to retrieve payment: ${error.message || response.statusText}`);
     }
 
     return response.json();
   }
 
   /**
-   * Create a refund for a charge
+   * Create a refund for a payment
    */
-  async createRefund(chargeId: string, amount?: number) {
-    const url = `${this.ecommBase}/v1/charges/${chargeId}/refunds`;
+  async createRefund(paymentId: string, amount?: number) {
+    const url = `${this.apiBase}/v3/merchants/${this.merchantId}/payments/${paymentId}/refunds`;
     
     const payload: any = {};
     if (amount) {
@@ -140,9 +133,51 @@ export class CloverPaymentService {
   getPublicConfig() {
     return {
       environment: this.environment,
-      publicToken: process.env.CLOVER_PUBLIC_TOKEN || '',
-      apiBase: this.ecommBase
+      merchantId: this.merchantId,
+      apiBase: this.apiBase
     };
+  }
+
+  /**
+   * Create a card token using Clover's tokenization service
+   */
+  async createCardToken(cardData: {
+    number: string;
+    exp_month: string;
+    exp_year: string;
+    cvv: string;
+    zip?: string;
+  }) {
+    const tokenUrl = this.environment === 'sandbox' 
+      ? 'https://token-sandbox.dev.clover.com/v1/tokens'
+      : 'https://token.clover.com/v1/tokens';
+    
+    const payload = {
+      card: {
+        number: cardData.number,
+        exp_month: cardData.exp_month,
+        exp_year: cardData.exp_year,
+        cvv: cardData.cvv,
+        zip: cardData.zip
+      }
+    };
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(`Card tokenization failed: ${error.message || response.statusText}`);
+    }
+
+    return response.json();
   }
 }
 

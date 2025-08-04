@@ -23,10 +23,16 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
   const [isLoading, setIsLoading] = useState(true);
   const [paymentToken, setPaymentToken] = useState<string>('');
   const [cloverConfig, setCloverConfig] = useState<any>(null);
-  const iframeRef = useRef<HTMLDivElement>(null);
+  const [cardData, setCardData] = useState({
+    number: '',
+    exp_month: '',
+    exp_year: '',
+    cvv: '',
+    zip: ''
+  });
   const { toast } = useToast();
 
-  // Load Clover configuration and SDK
+  // Load Clover configuration
   useEffect(() => {
     const loadCloverConfig = async () => {
       try {
@@ -35,23 +41,7 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
         
         const config = await response.json();
         setCloverConfig(config);
-        
-        // Load Clover SDK
-        const script = document.createElement('script');
-        script.src = config.environment === 'sandbox' 
-          ? 'https://checkout.sandbox.dev.clover.com/sdk.js'
-          : 'https://checkout.clover.com/sdk.js';
-        script.async = true;
-        script.onload = () => initializeClover(config);
-        script.onerror = () => {
-          setIsLoading(false);
-          onPaymentError('Failed to load payment system');
-        };
-        document.head.appendChild(script);
-
-        return () => {
-          document.head.removeChild(script);
-        };
+        setIsLoading(false);
       } catch (error) {
         console.error('Error loading Clover config:', error);
         setIsLoading(false);
@@ -62,48 +52,32 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
     loadCloverConfig();
   }, []);
 
-  const initializeClover = (config: any) => {
-    if (!window.clover || !iframeRef.current) {
-      setIsLoading(false);
-      onPaymentError('Payment system not available');
-      return;
-    }
-
+  const createCardToken = async () => {
     try {
-      const cloverInstance = new window.clover.Clover({
-        environment: config.environment,
-        publicToken: config.publicToken,
-        elements: {
-          form: {
-            onTokenCreated: (token: string) => {
-              setPaymentToken(token);
-              processPayment(token);
-            },
-            onError: (error: any) => {
-              console.error('Clover payment error:', error);
-              onPaymentError(error.message || 'Payment failed');
-            }
-          }
-        }
+      // Basic validation
+      if (!cardData.number || !cardData.exp_month || !cardData.exp_year || !cardData.cvv) {
+        throw new Error('Please fill in all required card fields');
+      }
+
+      // Create card token on server
+      const response = await fetch('/api/payment/tokenize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cardData)
       });
 
-      // Create payment form elements
-      const cardNumber = cloverInstance.elements.create('CARD_NUMBER');
-      const cardDate = cloverInstance.elements.create('CARD_DATE');
-      const cardCvv = cloverInstance.elements.create('CARD_CVV');
-      const cardPostalCode = cloverInstance.elements.create('CARD_POSTAL_CODE');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Card tokenization failed');
+      }
 
-      // Mount elements to DOM
-      cardNumber.mount('#card-number');
-      cardDate.mount('#card-date');
-      cardCvv.mount('#card-cvv');
-      cardPostalCode.mount('#card-postal-code');
-
-      setIsLoading(false);
+      const tokenResult = await response.json();
+      return tokenResult.id; // Return the token ID
     } catch (error) {
-      console.error('Error initializing Clover:', error);
-      setIsLoading(false);
-      onPaymentError('Failed to initialize payment form');
+      console.error('Tokenization error:', error);
+      throw error;
     }
   };
 
@@ -140,15 +114,17 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!window.clover) {
-      onPaymentError('Payment system not ready');
-      return;
+    
+    try {
+      // Create card token
+      const token = await createCardToken();
+      setPaymentToken(token);
+      processPayment(token);
+    } catch (error: any) {
+      onPaymentError(error.message || 'Payment failed');
     }
-
-    // Trigger tokenization
-    window.clover.createToken();
   };
 
   if (isLoading) {
@@ -181,27 +157,66 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
           <div className="grid grid-cols-1 gap-4">
             <div>
               <Label htmlFor="card-number">Card Number</Label>
-              <div 
-                id="card-number" 
-                className="border rounded-md p-3 min-h-[40px] bg-white"
-                ref={iframeRef}
+              <Input
+                id="card-number"
+                type="text"
+                placeholder="1234 5678 9012 3456"
+                value={cardData.number}
+                onChange={(e) => setCardData({...cardData, number: e.target.value.replace(/\s/g, '')})}
+                className="bg-white"
+                maxLength={16}
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="card-date">Expiry Date</Label>
-                <div id="card-date" className="border rounded-md p-3 min-h-[40px] bg-white" />
+                <Label htmlFor="exp-month">Month</Label>
+                <Input
+                  id="exp-month"
+                  type="text"
+                  placeholder="MM"
+                  value={cardData.exp_month}
+                  onChange={(e) => setCardData({...cardData, exp_month: e.target.value})}
+                  className="bg-white"
+                  maxLength={2}
+                />
               </div>
               <div>
-                <Label htmlFor="card-cvv">CVV</Label>
-                <div id="card-cvv" className="border rounded-md p-3 min-h-[40px] bg-white" />
+                <Label htmlFor="exp-year">Year</Label>
+                <Input
+                  id="exp-year"
+                  type="text"
+                  placeholder="YY"
+                  value={cardData.exp_year}
+                  onChange={(e) => setCardData({...cardData, exp_year: e.target.value})}
+                  className="bg-white"
+                  maxLength={2}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cvv">CVV</Label>
+                <Input
+                  id="cvv"
+                  type="text"
+                  placeholder="123"
+                  value={cardData.cvv}
+                  onChange={(e) => setCardData({...cardData, cvv: e.target.value})}
+                  className="bg-white"
+                  maxLength={4}
+                />
               </div>
             </div>
             
             <div>
-              <Label htmlFor="card-postal-code">Postal Code</Label>
-              <div id="card-postal-code" className="border rounded-md p-3 min-h-[40px] bg-white" />
+              <Label htmlFor="zip">Postal Code</Label>
+              <Input
+                id="zip"
+                type="text"
+                placeholder="12345"
+                value={cardData.zip}
+                onChange={(e) => setCardData({...cardData, zip: e.target.value})}
+                className="bg-white"
+              />
             </div>
           </div>
           

@@ -695,29 +695,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Tokenize card data
+  app.post("/api/payment/tokenize", async (req, res) => {
+    try {
+      const { number, exp_month, exp_year, cvv, zip } = req.body;
+      
+      if (!number || !exp_month || !exp_year || !cvv) {
+        return res.status(400).json({ message: "All card fields are required" });
+      }
+
+      // Create card token using Clover
+      const tokenResult = await cloverService.createCardToken({
+        number,
+        exp_month,
+        exp_year,
+        cvv,
+        zip
+      });
+
+      res.json(tokenResult);
+    } catch (error: any) {
+      console.error('Card tokenization error:', error);
+      res.status(400).json({ 
+        message: error.message || "Card tokenization failed" 
+      });
+    }
+  });
+
   // Process payment with Clover
   app.post("/api/payment/process", async (req, res) => {
     try {
-      const { paymentToken, amount, currency = 'USD', description, metadata = {} } = req.body;
+      const { paymentToken, amount, description, orderId } = req.body;
       
       if (!paymentToken || !amount) {
         return res.status(400).json({ message: "Payment token and amount are required" });
       }
 
-      // Process payment with Clover
-      const paymentResult = await cloverService.createCharge({
+      // Process payment with Clover REST API
+      const paymentResult = await cloverService.createPayment({
         amount, // amount in cents
-        currency,
-        source: paymentToken,
+        cardToken: paymentToken,
         description,
-        metadata
+        orderId
       });
 
       res.json({
         success: true,
         paymentId: paymentResult.id,
         amount: paymentResult.amount,
-        status: paymentResult.status,
+        status: paymentResult.result,
         chargeId: paymentResult.id
       });
     } catch (error: any) {
@@ -730,11 +756,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get payment status
-  app.get("/api/payment/:chargeId", async (req, res) => {
+  app.get("/api/payment/:paymentId", async (req, res) => {
     try {
-      const { chargeId } = req.params;
-      const charge = await cloverService.getCharge(chargeId);
-      res.json(charge);
+      const { paymentId } = req.params;
+      const payment = await cloverService.getPayment(paymentId);
+      res.json(payment);
     } catch (error: any) {
       console.error('Error getting payment status:', error);
       res.status(400).json({ message: error.message || "Failed to get payment status" });
@@ -742,12 +768,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Process refund
-  app.post("/api/payment/:chargeId/refund", requireAdmin, async (req, res) => {
+  app.post("/api/payment/:paymentId/refund", requireAdmin, async (req, res) => {
     try {
-      const { chargeId } = req.params;
+      const { paymentId } = req.params;
       const { amount } = req.body; // optional partial refund amount
       
-      const refund = await cloverService.createRefund(chargeId, amount);
+      const refund = await cloverService.createRefund(paymentId, amount);
       res.json(refund);
     } catch (error: any) {
       console.error('Refund error:', error);
@@ -778,15 +804,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle different webhook events
       switch (event.type) {
-        case 'charge.succeeded':
+        case 'payment_created':
           // Payment successful
           console.log('Payment succeeded:', event.data.id);
           break;
-        case 'charge.failed':
+        case 'payment_failed':
           // Payment failed
           console.log('Payment failed:', event.data.id);
           break;
-        case 'refund.created':
+        case 'refund_created':
           // Refund processed
           console.log('Refund created:', event.data.id);
           break;
