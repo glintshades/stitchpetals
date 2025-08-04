@@ -160,23 +160,23 @@ export default function Checkout() {
             <div className="flex items-center justify-center mb-8">
               <div className="flex items-center space-x-4">
                 <div className={`flex items-center space-x-2 ${
-                  currentStep === 'shipping' || currentStep === 'payment' ? 'text-wine' : 'text-gray-400'
+                  currentStep === 'shipping' || currentStep === 'payment' ? 'text-pink-600' : 'text-gray-400'
                 }`}>
                   <div className={`rounded-full h-8 w-8 flex items-center justify-center ${
-                    currentStep === 'shipping' || currentStep === 'payment' ? 'bg-wine text-white' : 'bg-gray-200'
+                    currentStep === 'shipping' || currentStep === 'payment' ? 'bg-pink-300 text-gray-800' : 'bg-gray-200'
                   }`}>
                     1
                   </div>
                   <span className="font-medium">Shipping</span>
                 </div>
                 <div className={`h-px w-16 ${
-                  currentStep === 'payment' ? 'bg-wine' : 'bg-gray-200'
+                  currentStep === 'payment' ? 'bg-pink-300' : 'bg-gray-200'
                 }`}></div>
                 <div className={`flex items-center space-x-2 ${
-                  currentStep === 'payment' ? 'text-wine' : 'text-gray-400'
+                  currentStep === 'payment' ? 'text-pink-600' : 'text-gray-400'
                 }`}>
                   <div className={`rounded-full h-8 w-8 flex items-center justify-center ${
-                    currentStep === 'payment' ? 'bg-wine text-white' : 'bg-gray-200'
+                    currentStep === 'payment' ? 'bg-pink-300 text-gray-800' : 'bg-gray-200'
                   }`}>
                     2
                   </div>
