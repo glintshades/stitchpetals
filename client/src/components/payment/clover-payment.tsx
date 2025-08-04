@@ -228,7 +228,21 @@ export function CloverPayment({ amount, onPaymentSuccess, onPaymentError, isProc
             
             <Button 
               type="submit" 
-              className="w-full !bg-wine hover:!bg-dark-wine text-white" 
+              className="w-full text-white" 
+              style={{
+                backgroundColor: 'hsl(271, 69%, 19%)',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => {
+                if (!isProcessing) {
+                  e.currentTarget.style.backgroundColor = 'hsl(271, 75%, 15%)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isProcessing) {
+                  e.currentTarget.style.backgroundColor = 'hsl(271, 69%, 19%)';
+                }
+              }}
               disabled={isProcessing}
             >
               {isProcessing ? (
