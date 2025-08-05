@@ -236,9 +236,24 @@ export default function AdminOrders() {
                 <Separator />
 
                 {/* Order Summary */}
-                <div className="flex justify-between items-center font-semibold text-lg">
-                  <span>Total Amount:</span>
-                  <span className="text-[#8B4B6B]">${selectedOrder.totalAmount}</span>
+                <div className="space-y-2">
+                  <h4 className="font-semibold mb-3">Order Summary</h4>
+                  {(selectedOrder as any).subtotalAmount && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Subtotal:</span>
+                      <span className="font-medium">${(selectedOrder as any).subtotalAmount}</span>
+                    </div>
+                  )}
+                  {(selectedOrder as any).taxAmount && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Sales Tax (6.67%):</span>
+                      <span className="font-medium">${(selectedOrder as any).taxAmount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center font-semibold text-lg border-t pt-2">
+                    <span>Total Amount:</span>
+                    <span className="text-[#8B4B6B]">${selectedOrder.totalAmount}</span>
+                  </div>
                 </div>
 
                 <div className="text-sm text-gray-600">

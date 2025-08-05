@@ -70,6 +70,8 @@ export const orders = pgTable("orders", {
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone"),
   shippingAddress: text("shipping_address").notNull(),
+  subtotalAmount: decimal("subtotal_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull().default("pending"), // pending, processing, shipped, delivered, cancelled
   orderItems: jsonb("order_items").notNull(), // array of order items
@@ -147,6 +149,8 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   customerEmail: true,
   customerPhone: true,
   shippingAddress: true,
+  subtotalAmount: true,
+  taxAmount: true,
   totalAmount: true,
   status: true,
   orderItems: true,

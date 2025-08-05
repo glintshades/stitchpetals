@@ -42,7 +42,7 @@ export default function CartPage() {
   }, 0);
 
   const shipping = subtotal > 75 ? 0 : 9.99;
-  const tax = subtotal * 0.08; // 8% tax
+  const tax = subtotal * 0.0667; // 6.67% sales tax
   const total = subtotal + shipping + tax;
 
   if (isLoading) {
@@ -213,7 +213,7 @@ export default function CartPage() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tax</span>
+                      <span className="text-gray-600">Sales Tax (6.67%)</span>
                       <span className="font-semibold">{formatPrice(tax.toString())}</span>
                     </div>
                     <Separator />

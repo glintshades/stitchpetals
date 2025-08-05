@@ -73,9 +73,13 @@ export default function Checkout() {
     },
   });
 
-  const totalAmount = cartItems.reduce((sum, item) => {
+  const subtotalAmount = cartItems.reduce((sum, item) => {
     return sum + (parseFloat(item.product.price) * item.quantity);
   }, 0);
+  
+  const salesTaxRate = 0.0667; // 6.67% sales tax
+  const taxAmount = subtotalAmount * salesTaxRate;
+  const totalAmount = subtotalAmount + taxAmount;
 
   const onSubmit = (data: CheckoutForm) => {
     if (cartItems.length === 0) {
@@ -104,6 +108,8 @@ export default function Checkout() {
 
     const orderData = {
       ...formData,
+      subtotalAmount: subtotalAmount.toFixed(2),
+      taxAmount: taxAmount.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
       orderItems,
       paymentId: payment.paymentId,
@@ -316,8 +322,16 @@ export default function Checkout() {
                 </div>
               ))}
               
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex justify-between items-center text-lg font-semibold wine">
+              <div className="border-t border-gray-200 pt-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Subtotal</span>
+                  <span className="font-medium">${subtotalAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Sales Tax (6.67%)</span>
+                  <span className="font-medium">${taxAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-lg font-bold wine border-t border-gray-200 pt-2">
                   <span>Total</span>
                   <span>${totalAmount.toFixed(2)}</span>
                 </div>

@@ -187,7 +187,20 @@ export default function MyOrders() {
                 
                 {/* Order Summary */}
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-wine mb-2">Order Summary</h3>
+                  {(order as any).subtotalAmount && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Subtotal:</span>
+                      <span className="font-medium">${(order as any).subtotalAmount}</span>
+                    </div>
+                  )}
+                  {(order as any).taxAmount && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Sales Tax (6.67%):</span>
+                      <span className="font-medium">${(order as any).taxAmount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center border-t pt-2">
                     <span className="font-semibold">Total Amount:</span>
                     <span className="text-xl font-bold text-wine">${order.totalAmount}</span>
                   </div>
