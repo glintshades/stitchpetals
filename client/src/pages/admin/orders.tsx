@@ -6,23 +6,29 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
-import { Package, Calendar, User, MapPin, Phone, Mail } from "lucide-react";
+import { Package, Calendar, User, MapPin, Phone, Mail, CreditCard } from "lucide-react";
 
 type Order = {
   id: number;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  customerAddress: string;
+  shippingAddress: string;
   items: Array<{
     productName: string;
     quantity: number;
     selectedColor: string;
     price: string;
   }>;
+  subtotalAmount?: string;
+  taxAmount?: string;
   totalAmount: string;
+  paymentId?: string;
+  paymentStatus?: string;
+  paymentMethod?: string;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: string;
+  updatedAt?: string;
 };
 
 export default function AdminOrders() {
@@ -183,24 +189,42 @@ export default function AdminOrders() {
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    Customer Information
+                    Customer & Shipping Details
                   </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <User className="h-3 w-3 text-gray-400" />
-                      <span>{selectedOrder.customerName}</span>
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-3 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="h-3 w-3 text-gray-400" />
+                          <span className="font-medium text-gray-700">Customer Name:</span>
+                        </div>
+                        <span className="ml-5">{selectedOrder.customerName}</span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Mail className="h-3 w-3 text-gray-400" />
+                          <span className="font-medium text-gray-700">Email:</span>
+                        </div>
+                        <span className="ml-5">{selectedOrder.customerEmail}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-3 w-3 text-gray-400" />
-                      <span>{selectedOrder.customerEmail}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-3 w-3 text-gray-400" />
-                      <span>{selectedOrder.customerPhone}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-3 w-3 text-gray-400 mt-1" />
-                      <span>{selectedOrder.customerAddress}</span>
+                    
+                    {selectedOrder.customerPhone && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Phone className="h-3 w-3 text-gray-400" />
+                          <span className="font-medium text-gray-700">Phone:</span>
+                        </div>
+                        <span className="ml-5">{selectedOrder.customerPhone}</span>
+                      </div>
+                    )}
+                    
+                    <div>
+                      <div className="flex items-start gap-2 mb-2">
+                        <MapPin className="h-3 w-3 text-gray-400 mt-1" />
+                        <span className="font-medium text-gray-700">Shipping Address:</span>
+                      </div>
+                      <span className="ml-5 block">{selectedOrder.shippingAddress}</span>
                     </div>
                   </div>
                 </div>
@@ -238,16 +262,16 @@ export default function AdminOrders() {
                 {/* Order Summary */}
                 <div className="space-y-2">
                   <h4 className="font-semibold mb-3">Order Summary</h4>
-                  {(selectedOrder as any).subtotalAmount && (
+                  {selectedOrder.subtotalAmount && (
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700">Subtotal:</span>
-                      <span className="font-medium">${(selectedOrder as any).subtotalAmount}</span>
+                      <span className="font-medium">${selectedOrder.subtotalAmount}</span>
                     </div>
                   )}
-                  {(selectedOrder as any).taxAmount && (
+                  {selectedOrder.taxAmount && (
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700">Sales Tax (6.67%):</span>
-                      <span className="font-medium">${(selectedOrder as any).taxAmount}</span>
+                      <span className="font-medium">${selectedOrder.taxAmount}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center font-semibold text-lg border-t pt-2">
@@ -256,11 +280,49 @@ export default function AdminOrders() {
                   </div>
                 </div>
 
+                <Separator />
+
+                {/* Payment Information */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Payment Information
+                  </h4>
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Payment Method:</span>
+                      <span className="font-medium capitalize">{selectedOrder.paymentMethod || 'Clover'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Payment Status:</span>
+                      <span className={`font-medium capitalize ${
+                        selectedOrder.paymentStatus === 'succeeded' ? 'text-green-600' : 
+                        selectedOrder.paymentStatus === 'failed' ? 'text-red-600' : 
+                        'text-yellow-600'
+                      }`}>
+                        {selectedOrder.paymentStatus || 'Processing'}
+                      </span>
+                    </div>
+                    {selectedOrder.paymentId && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Payment ID:</span>
+                        <span className="font-mono text-xs">{selectedOrder.paymentId}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-3 w-3" />
                     Order placed: {new Date(selectedOrder.createdAt).toLocaleString()}
                   </div>
+                  {selectedOrder.updatedAt && selectedOrder.updatedAt !== selectedOrder.createdAt && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Calendar className="h-3 w-3" />
+                      Last updated: {new Date(selectedOrder.updatedAt).toLocaleString()}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
