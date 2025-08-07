@@ -8,6 +8,7 @@ import {
   orders,
   adminUsers,
   offers,
+  savedAddresses,
   type User, 
   type InsertUser, 
   type Product, 
@@ -25,7 +26,9 @@ import {
   type AdminUser,
   type InsertAdminUser,
   type Offer,
-  type InsertOffer
+  type InsertOffer,
+  type SavedAddress,
+  type InsertSavedAddress
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and } from "drizzle-orm";
@@ -75,6 +78,13 @@ export interface IStorage {
   createOffer(offer: InsertOffer): Promise<Offer>;
   updateOffer(id: number, updates: Partial<InsertOffer>): Promise<Offer | undefined>;
   deleteOffer(id: number): Promise<boolean>;
+  
+  // Saved addresses management
+  getSavedAddresses(sessionId: string): Promise<SavedAddress[]>;
+  createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress>;
+  updateSavedAddress(id: number, updates: Partial<InsertSavedAddress>): Promise<SavedAddress | undefined>;
+  deleteSavedAddress(id: number): Promise<boolean>;
+  setDefaultAddress(sessionId: string, addressId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -587,6 +597,60 @@ export class DatabaseStorage implements IStorage {
 
   async deleteOffer(id: number): Promise<boolean> {
     const result = await db.delete(offers).where(eq(offers.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Saved addresses management methods
+  async getSavedAddresses(sessionId: string): Promise<SavedAddress[]> {
+    return await db.select().from(savedAddresses).where(eq(savedAddresses.sessionId, sessionId));
+  }
+
+  async createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress> {
+    // If this is set as default, unset all other defaults for this session
+    if (address.isDefault) {
+      await db.update(savedAddresses)
+        .set({ isDefault: false })
+        .where(eq(savedAddresses.sessionId, address.sessionId));
+    }
+    
+    const [savedAddress] = await db.insert(savedAddresses).values(address).returning();
+    return savedAddress;
+  }
+
+  async updateSavedAddress(id: number, updates: Partial<InsertSavedAddress>): Promise<SavedAddress | undefined> {
+    // If setting as default, unset all other defaults for this session
+    if (updates.isDefault) {
+      const address = await db.select().from(savedAddresses).where(eq(savedAddresses.id, id));
+      if (address.length > 0) {
+        await db.update(savedAddresses)
+          .set({ isDefault: false })
+          .where(eq(savedAddresses.sessionId, address[0].sessionId));
+      }
+    }
+    
+    const [updatedAddress] = await db.update(savedAddresses)
+      .set({ ...updates, updatedAt: new Date().toISOString() })
+      .where(eq(savedAddresses.id, id))
+      .returning();
+    return updatedAddress || undefined;
+  }
+
+  async deleteSavedAddress(id: number): Promise<boolean> {
+    const result = await db.delete(savedAddresses).where(eq(savedAddresses.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async setDefaultAddress(sessionId: string, addressId: number): Promise<boolean> {
+    // Unset all defaults for this session
+    await db.update(savedAddresses)
+      .set({ isDefault: false })
+      .where(eq(savedAddresses.sessionId, sessionId));
+    
+    // Set the new default
+    const result = await db.update(savedAddresses)
+      .set({ isDefault: true, updatedAt: new Date().toISOString() })
+      .where(and(eq(savedAddresses.id, addressId), eq(savedAddresses.sessionId, sessionId)));
+    
     return (result.rowCount || 0) > 0;
   }
 }

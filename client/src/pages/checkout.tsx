@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/use-cart";
 import { CloverPayment } from "@/components/payment/clover-payment";
-import { ArrowLeft, CreditCard, Package, Truck, MapPin, Phone, Mail } from "lucide-react";
+import { ArrowLeft, CreditCard, Package, Truck, MapPin, Phone, Mail, BookOpen, Check, AlertTriangle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const checkoutSchema = z.object({
@@ -40,9 +41,19 @@ export default function Checkout() {
   const [shippingRates, setShippingRates] = useState<any[]>([]);
   const [selectedShippingRate, setSelectedShippingRate] = useState<any>(null);
   const [loadingRates, setLoadingRates] = useState(false);
+  const [selectedSavedAddress, setSelectedSavedAddress] = useState<string>('');
+  const [isValidatingAddress, setIsValidatingAddress] = useState(false);
+  const [addressValidation, setAddressValidation] = useState<any>(null);
+  const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
   const queryClient = useQueryClient();
+  
+  // Fetch saved addresses
+  const { data: savedAddressesData = [] } = useQuery<any[]>({
+    queryKey: ["/api/addresses"],
+    refetchOnWindowFocus: false,
+  });
 
   const form = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -101,6 +112,33 @@ export default function Checkout() {
   const shippingAmount = selectedShippingRate?.cost || 0;
   const totalAmount = subtotalAmount + taxAmount + shippingAmount;
 
+  const validateAddress = async (formData: CheckoutForm) => {
+    setIsValidatingAddress(true);
+    try {
+      const response = await fetch('/api/address/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          addressLine1: formData.addressLine1,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country,
+        }),
+      });
+      if (response.ok) {
+        const validation = await response.json();
+        setAddressValidation(validation);
+        return validation.isValid;
+      }
+    } catch (error) {
+      console.error('Address validation failed:', error);
+      setAddressValidation({ isValid: true, errors: [], warnings: [] });
+    }
+    setIsValidatingAddress(false);
+    return true;
+  };
+
   const getShippingRates = async (formData: CheckoutForm) => {
     setLoadingRates(true);
     try {
@@ -132,6 +170,48 @@ export default function Checkout() {
     setLoadingRates(false);
   };
 
+  const saveSavedAddress = async (formData: CheckoutForm, shouldSave: boolean) => {
+    if (!shouldSave) return;
+    
+    try {
+      await fetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Shipping Address',
+          recipientName: formData.customerName,
+          phone: formData.customerPhone,
+          addressLine1: formData.addressLine1,
+          addressLine2: formData.addressLine2,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country,
+          deliveryInstructions: formData.deliveryInstructions,
+          isDefault: savedAddressesData.length === 0, // Make first address default
+        }),
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/addresses"] });
+    } catch (error) {
+      console.error('Failed to save address:', error);
+    }
+  };
+  
+  const loadSavedAddress = (addressId: string) => {
+    const address = savedAddressesData.find(addr => addr.id === parseInt(addressId));
+    if (address) {
+      form.setValue('customerName', address.recipientName);
+      form.setValue('customerPhone', address.phone);
+      form.setValue('addressLine1', address.addressLine1);
+      form.setValue('addressLine2', address.addressLine2 || '');
+      form.setValue('city', address.city);
+      form.setValue('state', address.state);
+      form.setValue('zipCode', address.zipCode);
+      form.setValue('country', address.country);
+      form.setValue('deliveryInstructions', address.deliveryInstructions || '');
+    }
+  };
+
   const onSubmit = async (data: CheckoutForm) => {
     if (cartItems.length === 0) {
       toast({
@@ -141,6 +221,21 @@ export default function Checkout() {
       });
       return;
     }
+    
+    // Validate address first
+    const isValid = await validateAddress(data);
+    if (!isValid && addressValidation?.errors?.length > 0) {
+      toast({
+        title: "Address Validation Failed",
+        description: "Please correct the address errors before continuing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Save address if requested
+    await saveSavedAddress(data, shouldSaveAddress);
+    
     await getShippingRates(data);
     setCurrentStep('payment');
   };
@@ -320,10 +415,52 @@ export default function Checkout() {
 
                   {/* Shipping Address */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold wine flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Shipping Address
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold wine flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Shipping Address
+                      </h3>
+                      {savedAddressesData.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedSavedAddress(selectedSavedAddress ? '' : savedAddressesData[0]?.id?.toString())}
+                          className="text-wine border-wine hover:bg-wine hover:text-white"
+                        >
+                          <BookOpen className="h-3 w-3 mr-1" />
+                          {selectedSavedAddress ? 'Enter New' : 'Use Saved'}
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {/* Saved Addresses Dropdown */}
+                    {savedAddressesData.length > 0 && (
+                      <div className="space-y-2">
+                        <Label htmlFor="savedAddress">Choose from saved addresses</Label>
+                        <Select
+                          value={selectedSavedAddress}
+                          onValueChange={(value) => {
+                            setSelectedSavedAddress(value);
+                            if (value) {
+                              loadSavedAddress(value);
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a saved address" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Enter new address</SelectItem>
+                            {savedAddressesData.map((address) => (
+                              <SelectItem key={address.id} value={address.id.toString()}>
+                                {address.name} - {address.recipientName}, {address.city}, {address.state}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     
                     <div>
                       <Label htmlFor="addressLine1">Street Address *</Label>
@@ -421,6 +558,58 @@ export default function Checkout() {
                         placeholder="Leave at front door, Ring doorbell, etc."
                         rows={3}
                       />
+                    </div>
+
+                    {/* Address Validation Results */}
+                    {addressValidation && (
+                      <div className="space-y-2">
+                        {addressValidation.errors?.length > 0 && (
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-red-700 font-medium mb-2">
+                              <AlertTriangle className="h-4 w-4" />
+                              Address Issues
+                            </div>
+                            <ul className="text-sm text-red-600 space-y-1">
+                              {addressValidation.errors.map((error: string, index: number) => (
+                                <li key={index}>• {error}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {addressValidation.warnings?.length > 0 && (
+                          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-yellow-700 font-medium mb-2">
+                              <AlertTriangle className="h-4 w-4" />
+                              Please Verify
+                            </div>
+                            <ul className="text-sm text-yellow-600 space-y-1">
+                              {addressValidation.warnings.map((warning: string, index: number) => (
+                                <li key={index}>• {warning}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {addressValidation.isValid && addressValidation.errors?.length === 0 && addressValidation.warnings?.length === 0 && (
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-2 text-green-700 font-medium">
+                              <Check className="h-4 w-4" />
+                              Address verified successfully
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Save Address Option */}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="saveAddress"
+                        checked={shouldSaveAddress}
+                        onCheckedChange={setShouldSaveAddress}
+                      />
+                      <Label htmlFor="saveAddress" className="text-sm">
+                        Save this address for future orders
+                      </Label>
                     </div>
                   </div>
 

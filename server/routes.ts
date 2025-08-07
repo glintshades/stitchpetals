@@ -947,6 +947,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Address validation endpoint
+  app.post("/api/address/validate", async (req, res) => {
+    try {
+      const { addressLine1, city, state, zipCode, country } = req.body;
+      
+      // Basic validation
+      const validation = {
+        isValid: true,
+        suggestions: [],
+        errors: [],
+        warnings: []
+      };
+      
+      // ZIP code format validation
+      if (country === 'US') {
+        const zipRegex = /^\d{5}(-\d{4})?$/;
+        if (!zipRegex.test(zipCode)) {
+          validation.isValid = false;
+          validation.errors.push('Invalid ZIP code format. Use 5 digits or 5+4 format (12345 or 12345-6789)');
+        }
+      }
+      
+      // State validation for US
+      if (country === 'US' && state) {
+        const usStates = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'];
+        if (!usStates.includes(state.toUpperCase())) {
+          validation.warnings.push('Please verify the state code. Use 2-letter abbreviation (e.g., CA, NY, TX)');
+        }
+      }
+      
+      // Address completeness check
+      if (!addressLine1 || addressLine1.length < 5) {
+        validation.isValid = false;
+        validation.errors.push('Street address must be at least 5 characters long');
+      }
+      
+      if (!city || city.length < 2) {
+        validation.isValid = false;
+        validation.errors.push('City name must be at least 2 characters long');
+      }
+      
+      res.json(validation);
+    } catch (error) {
+      console.error('Address validation error:', error);
+      res.status(500).json({ error: 'Address validation failed' });
+    }
+  });
+
+  // Saved addresses endpoints
+  app.get("/api/addresses", async (req, res) => {
+    try {
+      const sessionId = req.sessionID;
+      const addresses = await storage.getSavedAddresses(sessionId);
+      res.json(addresses);
+    } catch (error) {
+      console.error('Error fetching saved addresses:', error);
+      res.status(500).json({ error: 'Failed to fetch addresses' });
+    }
+  });
+
+  app.post("/api/addresses", async (req, res) => {
+    try {
+      const sessionId = req.sessionID;
+      const addressData = { ...req.body, sessionId };
+      const address = await storage.createSavedAddress(addressData);
+      res.json(address);
+    } catch (error) {
+      console.error('Error creating saved address:', error);
+      res.status(500).json({ error: 'Failed to save address' });
+    }
+  });
+
+  app.put("/api/addresses/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const address = await storage.updateSavedAddress(id, req.body);
+      if (!address) {
+        return res.status(404).json({ error: 'Address not found' });
+      }
+      res.json(address);
+    } catch (error) {
+      console.error('Error updating saved address:', error);
+      res.status(500).json({ error: 'Failed to update address' });
+    }
+  });
+
+  app.delete("/api/addresses/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteSavedAddress(id);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Address not found' });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting saved address:', error);
+      res.status(500).json({ error: 'Failed to delete address' });
+    }
+  });
+
+  app.post("/api/addresses/:id/set-default", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const sessionId = req.sessionID;
+      const success = await storage.setDefaultAddress(sessionId, id);
+      if (!success) {
+        return res.status(404).json({ error: 'Address not found' });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error setting default address:', error);
+      res.status(500).json({ error: 'Failed to set default address' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

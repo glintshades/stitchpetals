@@ -116,6 +116,24 @@ export const offers = pgTable("offers", {
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
 
+export const savedAddresses = pgTable("saved_addresses", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(), // For guest users
+  name: text("name").notNull(), // Address nickname like "Home", "Work", "Mom's House"
+  recipientName: text("recipient_name").notNull(),
+  phone: text("phone").notNull(),
+  addressLine1: text("address_line1").notNull(),
+  addressLine2: text("address_line2"),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  country: text("country").notNull().default("US"),
+  deliveryInstructions: text("delivery_instructions"),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -188,6 +206,21 @@ export const insertOfferSchema = createInsertSchema(offers).pick({
   imageUrl: true,
 });
 
+export const insertSavedAddressSchema = createInsertSchema(savedAddresses).pick({
+  sessionId: true,
+  name: true,
+  recipientName: true,
+  phone: true,
+  addressLine1: true,
+  addressLine2: true,
+  city: true,
+  state: true,
+  zipCode: true,
+  country: true,
+  deliveryInstructions: true,
+  isDefault: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type ProductCategory = typeof productCategories.$inferSelect;
@@ -206,3 +239,5 @@ export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type Offer = typeof offers.$inferSelect;
 export type InsertOffer = z.infer<typeof insertOfferSchema>;
+export type SavedAddress = typeof savedAddresses.$inferSelect;
+export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
