@@ -827,6 +827,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // FedEx Shipping Routes
+  const fedexService = (await import('./fedex-service')).default;
+
+  // Get shipping rates
+  app.post("/api/shipping/rates", async (req, res) => {
+    try {
+      const { fromZip, fromCountry, toZip, toCountry, weight, length, width, height } = req.body;
+      
+      if (!fromZip || !toZip || !weight) {
+        return res.status(400).json({ message: "fromZip, toZip, and weight are required" });
+      }
+
+      const rates = await fedexService.getRates({
+        fromZip,
+        fromCountry: fromCountry || 'US',
+        toZip,
+        toCountry: toCountry || 'US',
+        weight,
+        length,
+        width,
+        height
+      });
+
+      res.json(rates);
+    } catch (error: any) {
+      console.error('Error getting shipping rates:', error);
+      res.status(500).json({ message: error.message || "Failed to get shipping rates" });
+    }
+  });
+
+  // Create shipment
+  app.post("/api/shipping/create", requireAdmin, async (req, res) => {
+    try {
+      const { orderId, serviceType } = req.body;
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "orderId is required" });
+      }
+
+      // Get order details
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Parse shipping address
+      const shippingParts = order.shippingAddress.split(',').map(part => part.trim());
+      
+      // Create shipment data
+      const shipmentData = {
+        shipper: {
+          name: "GlintShades Store",
+          company: "GlintShades",
+          phone: "555-123-4567",
+          address1: "123 Business St",
+          city: "Business City",
+          state: "CA",
+          zip: "90210",
+          country: "US"
+        },
+        recipient: {
+          name: order.customerName,
+          phone: order.customerPhone || "",
+          address1: shippingParts[0] || "",
+          city: shippingParts[1] || "",
+          state: shippingParts[2] || "",
+          zip: shippingParts[3] || "",
+          country: "US"
+        },
+        weight: 2, // Default weight in pounds
+        serviceType: serviceType || "FEDEX_GROUND"
+      };
+
+      const shipmentResult = await fedexService.createShipment(shipmentData);
+
+      // Update order with shipping information
+      await storage.updateOrder(orderId, {
+        trackingNumber: shipmentResult.trackingNumber,
+        shippingLabelUrl: shipmentResult.labelUrl,
+        shippingCost: shipmentResult.cost.toString(),
+        shippingMethod: serviceType || "FEDEX_GROUND",
+        status: "shipped",
+        shippedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+
+      res.json({
+        success: true,
+        trackingNumber: shipmentResult.trackingNumber,
+        labelUrl: shipmentResult.labelUrl,
+        cost: shipmentResult.cost
+      });
+    } catch (error: any) {
+      console.error('Error creating shipment:', error);
+      res.status(500).json({ message: error.message || "Failed to create shipment" });
+    }
+  });
+
+  // Track shipment
+  app.get("/api/shipping/track/:trackingNumber", async (req, res) => {
+    try {
+      const { trackingNumber } = req.params;
+      const trackingResult = await fedexService.trackShipment(trackingNumber);
+      res.json(trackingResult);
+    } catch (error: any) {
+      console.error('Error tracking shipment:', error);
+      res.status(500).json({ message: error.message || "Failed to track shipment" });
+    }
+  });
+
+  // Validate FedEx credentials (admin only)
+  app.get("/api/shipping/validate", requireAdmin, async (req, res) => {
+    try {
+      const isValid = await fedexService.validateCredentials();
+      res.json({ valid: isValid });
+    } catch (error) {
+      res.json({ valid: false });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

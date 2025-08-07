@@ -78,6 +78,13 @@ export const orders = pgTable("orders", {
   paymentId: text("payment_id"), // Clover payment/charge ID
   paymentStatus: text("payment_status"), // payment status from Clover
   paymentMethod: text("payment_method").default("clover"), // payment method used
+  // Shipping information
+  shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }),
+  shippingMethod: text("shipping_method"), // e.g., "FEDEX_GROUND", "FEDEX_2_DAY"
+  trackingNumber: text("tracking_number"), // FedEx tracking number
+  shippingLabelUrl: text("shipping_label_url"), // URL to shipping label PDF
+  shippedAt: text("shipped_at"), // when the order was actually shipped
+  estimatedDelivery: text("estimated_delivery"), // estimated delivery date
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });

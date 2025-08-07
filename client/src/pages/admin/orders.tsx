@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
-import { Package, Calendar, User, MapPin, Phone, Mail, CreditCard } from "lucide-react";
+import { Package, Calendar, User, MapPin, Phone, Mail, CreditCard, Truck, ExternalLink } from "lucide-react";
 
 type Order = {
   id: number;
@@ -26,6 +26,13 @@ type Order = {
   paymentId?: string;
   paymentStatus?: string;
   paymentMethod?: string;
+  // Shipping information
+  shippingCost?: string;
+  shippingMethod?: string;
+  trackingNumber?: string;
+  shippingLabelUrl?: string;
+  shippedAt?: string;
+  estimatedDelivery?: string;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: string;
   updatedAt?: string;
@@ -58,6 +65,23 @@ export default function AdminOrders() {
     },
   });
 
+  const createShipmentMutation = useMutation({
+    mutationFn: async ({ orderId, serviceType }: { orderId: number; serviceType?: string }) => {
+      const response = await apiRequest("/api/shipping/create", {
+        method: "POST",
+        body: JSON.stringify({ orderId, serviceType }),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer admin-token"
+        },
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/orders"] });
+    },
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -81,6 +105,10 @@ export default function AdminOrders() {
 
   const handleStatusUpdate = (orderId: number, newStatus: string) => {
     updateStatusMutation.mutate({ orderId, status: newStatus });
+  }
+
+  const handleCreateShipment = (orderId: number, serviceType?: string) => {
+    createShipmentMutation.mutate({ orderId, serviceType });
   };
 
   if (isLoading) {
@@ -307,6 +335,93 @@ export default function AdminOrders() {
                       <div className="flex justify-between items-center">
                         <span className="text-gray-700">Payment ID:</span>
                         <span className="font-mono text-xs">{selectedOrder.paymentId}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Shipping Information */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Truck className="h-4 w-4" />
+                    Shipping Management
+                  </h4>
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                    {selectedOrder.trackingNumber ? (
+                      // Existing shipment
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-700">Tracking Number:</span>
+                          <span className="font-mono text-sm">{selectedOrder.trackingNumber}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-700">Shipping Method:</span>
+                          <span className="text-sm">{selectedOrder.shippingMethod || 'FedEx Ground'}</span>
+                        </div>
+                        {selectedOrder.shippingCost && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">Shipping Cost:</span>
+                            <span className="text-sm">${selectedOrder.shippingCost}</span>
+                          </div>
+                        )}
+                        {selectedOrder.shippedAt && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">Shipped At:</span>
+                            <span className="text-sm">{new Date(selectedOrder.shippedAt).toLocaleString()}</span>
+                          </div>
+                        )}
+                        {selectedOrder.estimatedDelivery && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">Est. Delivery:</span>
+                            <span className="text-sm">{new Date(selectedOrder.estimatedDelivery).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {selectedOrder.shippingLabelUrl && (
+                          <div className="pt-2">
+                            <a 
+                              href={selectedOrder.shippingLabelUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              View Shipping Label
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      // Create new shipment
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-600">No shipment created yet</p>
+                        {selectedOrder.status === 'processing' && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-medium mb-2 block">FedEx Service Type</label>
+                              <Select defaultValue="FEDEX_GROUND">
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select shipping service" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="FEDEX_GROUND">FedEx Ground</SelectItem>
+                                  <SelectItem value="FEDEX_EXPRESS_SAVER">FedEx Express Saver</SelectItem>
+                                  <SelectItem value="FEDEX_2_DAY">FedEx 2Day</SelectItem>
+                                  <SelectItem value="STANDARD_OVERNIGHT">FedEx Standard Overnight</SelectItem>
+                                  <SelectItem value="PRIORITY_OVERNIGHT">FedEx Priority Overnight</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <Button 
+                              onClick={() => handleCreateShipment(selectedOrder.id)}
+                              disabled={createShipmentMutation.isPending}
+                              className="w-full"
+                            >
+                              {createShipmentMutation.isPending ? 'Creating Shipment...' : 'Create FedEx Shipment'}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
