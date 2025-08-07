@@ -43,6 +43,9 @@ export const cartItems = pgTable("cart_items", {
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull().default(1),
   selectedColor: text("selected_color"),
+  shippingAddressId: integer("shipping_address_id").references(() => savedAddresses.id),
+  recipientName: text("recipient_name"), // For gift orders or different recipients
+  giftMessage: text("gift_message"), // Optional gift message
 });
 
 export const wishlistItems = pgTable("wishlist_items", {
@@ -69,22 +72,35 @@ export const orders = pgTable("orders", {
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone"),
-  shippingAddress: text("shipping_address").notNull(),
   subtotalAmount: decimal("subtotal_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
   taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull().default("pending"), // pending, processing, shipped, delivered, cancelled
-  orderItems: jsonb("order_items").notNull(), // array of order items
   paymentId: text("payment_id"), // Clover payment/charge ID
   paymentStatus: text("payment_status"), // payment status from Clover
   paymentMethod: text("payment_method").default("clover"), // payment method used
-  // Shipping information
+  hasMultipleShipments: boolean("has_multiple_shipments").default(false),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
+// New table for individual shipments within an order
+export const orderShipments = pgTable("order_shipments", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
+  recipientName: text("recipient_name").notNull(),
+  recipientPhone: text("recipient_phone"),
+  shippingAddress: text("shipping_address").notNull(),
+  orderItems: jsonb("order_items").notNull(), // array of items for this shipment
+  subtotalAmount: decimal("subtotal_amount", { precision: 10, scale: 2 }).notNull(),
   shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }),
-  shippingMethod: text("shipping_method"), // e.g., "FEDEX_GROUND", "FEDEX_2_DAY"
-  trackingNumber: text("tracking_number"), // FedEx tracking number
-  shippingLabelUrl: text("shipping_label_url"), // URL to shipping label PDF
-  shippedAt: text("shipped_at"), // when the order was actually shipped
-  estimatedDelivery: text("estimated_delivery"), // estimated delivery date
+  shippingMethod: text("shipping_method"),
+  trackingNumber: text("tracking_number"),
+  shippingLabelUrl: text("shipping_label_url"),
+  shippedAt: text("shipped_at"),
+  estimatedDelivery: text("estimated_delivery"),
+  giftMessage: text("gift_message"),
+  status: text("status").notNull().default("pending"), // pending, processing, shipped, delivered
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
@@ -155,6 +171,9 @@ export const insertCartItemSchema = createInsertSchema(cartItems).pick({
   productId: true,
   quantity: true,
   selectedColor: true,
+  shippingAddressId: true,
+  recipientName: true,
+  giftMessage: true,
 });
 
 export const insertWishlistItemSchema = createInsertSchema(wishlistItems).pick({

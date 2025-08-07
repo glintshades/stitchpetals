@@ -1,9 +1,11 @@
 import { Link } from "wouter";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
 import { type Product } from "@shared/schema";
@@ -14,7 +16,10 @@ import {
   Trash2, 
   ArrowLeft,
   Heart,
-  CreditCard
+  CreditCard,
+  MapPin,
+  Gift,
+  Package
 } from "lucide-react";
 import { formatPrice } from "@/lib/products";
 
@@ -22,8 +27,14 @@ export default function CartPage() {
   const { data: cartItems = [], isLoading } = useQuery<(any & { product: Product })[]>({
     queryKey: ["/api/cart"],
   });
+  const { data: savedAddresses = [] } = useQuery<any[]>({
+    queryKey: ["/api/addresses"],
+    refetchOnWindowFocus: false,
+  });
   const { updateQuantity: updateCartQuantity, removeFromCart } = useCart();
   const { toast } = useToast();
+  const [itemAddresses, setItemAddresses] = useState<{[key: number]: string}>({});
+  const [showMultiShipping, setShowMultiShipping] = useState(false);
 
   const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -41,7 +52,19 @@ export default function CartPage() {
     return sum + (parseFloat(item.product.price) * item.quantity);
   }, 0);
 
-  const shipping = subtotal > 75 ? 0 : 9.99;
+  // Group items by shipping address
+  const groupedItems = cartItems.reduce((groups, item) => {
+    const addressKey = itemAddresses[item.id] || 'default';
+    if (!groups[addressKey]) {
+      groups[addressKey] = [];
+    }
+    groups[addressKey].push(item);
+    return groups;
+  }, {} as {[key: string]: any[]});
+
+  const numberOfShipments = Object.keys(groupedItems).length;
+  const baseShipping = 9.99;
+  const shipping = subtotal > 75 ? (numberOfShipments > 1 ? baseShipping * (numberOfShipments - 1) : 0) : baseShipping * numberOfShipments;
   const tax = subtotal * 0.0667; // 6.67% sales tax
   const total = subtotal + shipping + tax;
 
@@ -112,6 +135,36 @@ export default function CartPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
+              {/* Multi-Shipping Toggle */}
+              <Card className="bg-white">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-5 w-5 text-wine" />
+                      <div>
+                        <h3 className="font-semibold wine">Multiple Shipping Addresses</h3>
+                        <p className="text-sm text-gray-600">Send items to different addresses (gifts, etc.)</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant={showMultiShipping ? "default" : "outline"}
+                      onClick={() => setShowMultiShipping(!showMultiShipping)}
+                      className={showMultiShipping ? "bg-wine hover:bg-dark-pink" : "border-wine text-wine hover:bg-wine hover:text-white"}
+                    >
+                      {showMultiShipping ? "Enabled" : "Enable"}
+                    </Button>
+                  </div>
+                  {showMultiShipping && (
+                    <div className="mt-3 p-3 bg-soft-pink rounded-lg">
+                      <p className="text-sm text-wine">
+                        💡 You can now assign different shipping addresses to each item. 
+                        {savedAddresses.length === 0 && "Save addresses in checkout to use them here."}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
               {cartItems.map((item) => (
                 <Card key={item.id} className="bg-white">
                   <CardContent className="p-6">
@@ -150,6 +203,48 @@ export default function CartPage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
+
+                        {/* Shipping Address Selection */}
+                        {showMultiShipping && (
+                          <div className="mb-3">
+                            <label className="text-sm font-medium mb-2 block flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              Ship to:
+                            </label>
+                            <Select
+                              value={itemAddresses[item.id] || 'default'}
+                              onValueChange={(value) => {
+                                setItemAddresses(prev => ({
+                                  ...prev,
+                                  [item.id]: value
+                                }));
+                              }}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select shipping address" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="default">
+                                  <div className="flex items-center gap-2">
+                                    <Package className="h-3 w-3" />
+                                    <span>Main order address</span>
+                                  </div>
+                                </SelectItem>
+                                {savedAddresses.map((address) => (
+                                  <SelectItem key={address.id} value={address.id.toString()}>
+                                    <div className="flex items-center gap-2">
+                                      <Gift className="h-3 w-3" />
+                                      <div className="text-left">
+                                        <div className="font-medium">{address.recipientName}</div>
+                                        <div className="text-xs text-gray-500">{address.city}, {address.state}</div>
+                                      </div>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
 
                         {/* Quantity and Price */}
                         <div className="flex justify-between items-center">
@@ -202,16 +297,42 @@ export default function CartPage() {
                       <span className="text-gray-600">Subtotal</span>
                       <span className="font-semibold">{formatPrice(subtotal.toString())}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Shipping</span>
-                      <span className="font-semibold">
-                        {shipping === 0 ? (
-                          <span className="text-green-600">FREE</span>
-                        ) : (
-                          formatPrice(shipping.toString())
-                        )}
-                      </span>
-                    </div>
+                    
+                    {/* Shipping Details */}
+                    {numberOfShipments > 1 ? (
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Shipping ({numberOfShipments} shipments)</span>
+                          <span className="font-semibold">{formatPrice(shipping.toString())}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 pl-4">
+                          {Object.entries(groupedItems).map(([addressKey, items], index) => {
+                            const shipmentSubtotal = items.reduce((sum, item) => sum + (parseFloat(item.product.price) * item.quantity), 0);
+                            const shipmentCost = shipmentSubtotal > 75 && index === 0 ? 0 : baseShipping;
+                            const addressName = addressKey === 'default' ? 'Main address' : 
+                              savedAddresses.find(addr => addr.id.toString() === addressKey)?.recipientName || `Address ${addressKey}`;
+                            return (
+                              <div key={addressKey} className="flex justify-between">
+                                <span>• {addressName} ({items.length} items)</span>
+                                <span>{shipmentCost === 0 ? 'FREE' : formatPrice(shipmentCost.toString())}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Shipping</span>
+                        <span className="font-semibold">
+                          {shipping === 0 ? (
+                            <span className="text-green-600">FREE</span>
+                          ) : (
+                            formatPrice(shipping.toString())
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between">
                       <span className="text-gray-600">Sales Tax (6.67%)</span>
                       <span className="font-semibold">{formatPrice(tax.toString())}</span>
@@ -223,10 +344,20 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {shipping > 0 && (
+                  {shipping > 0 && numberOfShipments === 1 && (
                     <div className="mt-4 p-3 bg-soft-pink rounded-lg">
                       <p className="text-sm text-wine">
                         Add {formatPrice((75 - subtotal).toString())} more for free shipping!
+                      </p>
+                    </div>
+                  )}
+                  
+                  {numberOfShipments > 1 && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-700">
+                        <Package className="h-3 w-3 inline mr-1" />
+                        Multiple shipments: Items will be sent to {numberOfShipments} different addresses.
+                        {shipping > baseShipping && " Additional shipping charges apply."}
                       </p>
                     </div>
                   )}
