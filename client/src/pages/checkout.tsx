@@ -6,18 +6,28 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/use-cart";
 import { CloverPayment } from "@/components/payment/clover-payment";
-import { ArrowLeft, CreditCard, Package, Truck } from "lucide-react";
+import { ArrowLeft, CreditCard, Package, Truck, MapPin, Phone, Mail } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
   customerEmail: z.string().email("Please enter a valid email"),
-  customerPhone: z.string().optional(),
-  shippingAddress: z.string().min(10, "Please enter a complete shipping address"),
+  customerPhone: z.string().min(10, "Please enter a valid phone number"),
+  // Shipping Address Fields
+  addressLine1: z.string().min(5, "Street address is required"),
+  addressLine2: z.string().optional(),
+  city: z.string().min(2, "City is required"),
+  state: z.string().min(2, "State/Province is required"),
+  zipCode: z.string().min(5, "ZIP/Postal code is required"),
+  country: z.string().min(2, "Country is required"),
+  deliveryInstructions: z.string().optional(),
 });
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
@@ -27,6 +37,9 @@ export default function Checkout() {
   const [currentStep, setCurrentStep] = useState<'shipping' | 'payment'>('shipping');
   const [paymentData, setPaymentData] = useState<any>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [shippingRates, setShippingRates] = useState<any[]>([]);
+  const [selectedShippingRate, setSelectedShippingRate] = useState<any>(null);
+  const [loadingRates, setLoadingRates] = useState(false);
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
   const queryClient = useQueryClient();
@@ -37,7 +50,13 @@ export default function Checkout() {
       customerName: "",
       customerEmail: "",
       customerPhone: "",
-      shippingAddress: "",
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "US",
+      deliveryInstructions: "",
     },
   });
 
@@ -79,9 +98,41 @@ export default function Checkout() {
   
   const salesTaxRate = 0.0667; // 6.67% sales tax
   const taxAmount = subtotalAmount * salesTaxRate;
-  const totalAmount = subtotalAmount + taxAmount;
+  const shippingAmount = selectedShippingRate?.cost || 0;
+  const totalAmount = subtotalAmount + taxAmount + shippingAmount;
 
-  const onSubmit = (data: CheckoutForm) => {
+  const getShippingRates = async (formData: CheckoutForm) => {
+    setLoadingRates(true);
+    try {
+      const response = await fetch('/api/shipping/rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromZip: '12345', // Your business zip code
+          fromCountry: 'US',
+          toZip: formData.zipCode,
+          toCountry: formData.country,
+          weight: cartItems.length * 0.5, // Estimate 0.5 lbs per item
+        }),
+      });
+      if (response.ok) {
+        const rates = await response.json();
+        setShippingRates(rates);
+        if (rates.length > 0) {
+          setSelectedShippingRate(rates[0]); // Select first rate by default
+        }
+      }
+    } catch (error) {
+      console.error('Failed to get shipping rates:', error);
+      // Set a default shipping rate if API fails
+      const defaultRate = { service: 'FEDEX_GROUND', serviceName: 'FedEx Ground', cost: 9.99, currency: 'USD' };
+      setShippingRates([defaultRate]);
+      setSelectedShippingRate(defaultRate);
+    }
+    setLoadingRates(false);
+  };
+
+  const onSubmit = async (data: CheckoutForm) => {
     if (cartItems.length === 0) {
       toast({
         title: "Cart Empty",
@@ -90,6 +141,7 @@ export default function Checkout() {
       });
       return;
     }
+    await getShippingRates(data);
     setCurrentStep('payment');
   };
 
@@ -106,10 +158,16 @@ export default function Checkout() {
       price: item.product.price,
     }));
 
+    // Combine address fields for storage
+    const fullShippingAddress = `${formData.addressLine1}${formData.addressLine2 ? ', ' + formData.addressLine2 : ''}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`;
+    
     const orderData = {
       ...formData,
+      shippingAddress: fullShippingAddress,
       subtotalAmount: subtotalAmount.toFixed(2),
       taxAmount: taxAmount.toFixed(2),
+      shippingCost: shippingAmount.toFixed(2),
+      shippingMethod: selectedShippingRate?.serviceName || 'Standard Shipping',
       totalAmount: totalAmount.toFixed(2),
       orderItems,
       paymentId: payment.paymentId,
@@ -205,66 +263,183 @@ export default function Checkout() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <div>
-                    <Label htmlFor="customerName">Full Name</Label>
-                    <Input
-                      id="customerName"
-                      {...form.register("customerName")}
-                      placeholder="Enter your full name"
-                    />
-                    {form.formState.errors.customerName && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {form.formState.errors.customerName.message}
-                      </p>
-                    )}
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  {/* Contact Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold wine flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Contact Information
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="customerName">Full Name *</Label>
+                        <Input
+                          id="customerName"
+                          {...form.register("customerName")}
+                          placeholder="Enter your full name"
+                        />
+                        {form.formState.errors.customerName && (
+                          <p className="text-sm text-red-600 mt-1">
+                            {form.formState.errors.customerName.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="customerPhone">Phone Number *</Label>
+                        <Input
+                          id="customerPhone"
+                          type="tel"
+                          {...form.register("customerPhone")}
+                          placeholder="+1 (555) 123-4567"
+                        />
+                        {form.formState.errors.customerPhone && (
+                          <p className="text-sm text-red-600 mt-1">
+                            {form.formState.errors.customerPhone.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="customerEmail">Email Address *</Label>
+                      <Input
+                        id="customerEmail"
+                        type="email"
+                        {...form.register("customerEmail")}
+                        placeholder="your.email@example.com"
+                      />
+                      {form.formState.errors.customerEmail && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {form.formState.errors.customerEmail.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="customerEmail">Email Address</Label>
-                    <Input
-                      id="customerEmail"
-                      type="email"
-                      {...form.register("customerEmail")}
-                      placeholder="your.email@example.com"
-                    />
-                    {form.formState.errors.customerEmail && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {form.formState.errors.customerEmail.message}
-                      </p>
-                    )}
-                  </div>
+                  {/* Shipping Address */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold wine flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Shipping Address
+                    </h3>
+                    
+                    <div>
+                      <Label htmlFor="addressLine1">Street Address *</Label>
+                      <Input
+                        id="addressLine1"
+                        {...form.register("addressLine1")}
+                        placeholder="123 Main Street"
+                      />
+                      {form.formState.errors.addressLine1 && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {form.formState.errors.addressLine1.message}
+                        </p>
+                      )}
+                    </div>
 
-                  <div>
-                    <Label htmlFor="customerPhone">Phone Number (Optional)</Label>
-                    <Input
-                      id="customerPhone"
-                      type="tel"
-                      {...form.register("customerPhone")}
-                      placeholder="+1 (555) 123-4567"
-                    />
-                  </div>
+                    <div>
+                      <Label htmlFor="addressLine2">Apartment, Suite, Unit (Optional)</Label>
+                      <Input
+                        id="addressLine2"
+                        {...form.register("addressLine2")}
+                        placeholder="Apt 2B, Suite 100, etc."
+                      />
+                    </div>
 
-                  <div>
-                    <Label htmlFor="shippingAddress">Shipping Address</Label>
-                    <Input
-                      id="shippingAddress"
-                      {...form.register("shippingAddress")}
-                      placeholder="123 Main St, City, State 12345"
-                    />
-                    {form.formState.errors.shippingAddress && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {form.formState.errors.shippingAddress.message}
-                      </p>
-                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="city">City *</Label>
+                        <Input
+                          id="city"
+                          {...form.register("city")}
+                          placeholder="New York"
+                        />
+                        {form.formState.errors.city && (
+                          <p className="text-sm text-red-600 mt-1">
+                            {form.formState.errors.city.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="state">State/Province *</Label>
+                        <Input
+                          id="state"
+                          {...form.register("state")}
+                          placeholder="NY"
+                        />
+                        {form.formState.errors.state && (
+                          <p className="text-sm text-red-600 mt-1">
+                            {form.formState.errors.state.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="zipCode">ZIP/Postal Code *</Label>
+                        <Input
+                          id="zipCode"
+                          {...form.register("zipCode")}
+                          placeholder="10001"
+                        />
+                        {form.formState.errors.zipCode && (
+                          <p className="text-sm text-red-600 mt-1">
+                            {form.formState.errors.zipCode.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="country">Country *</Label>
+                      <Select defaultValue="US" onValueChange={(value) => form.setValue("country", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="US">United States</SelectItem>
+                          <SelectItem value="CA">Canada</SelectItem>
+                          <SelectItem value="MX">Mexico</SelectItem>
+                          <SelectItem value="GB">United Kingdom</SelectItem>
+                          <SelectItem value="AU">Australia</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {form.formState.errors.country && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {form.formState.errors.country.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="deliveryInstructions">Delivery Instructions (Optional)</Label>
+                      <Textarea
+                        id="deliveryInstructions"
+                        {...form.register("deliveryInstructions")}
+                        placeholder="Leave at front door, Ring doorbell, etc."
+                        rows={3}
+                      />
+                    </div>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full bg-wine hover:bg-dark-pink"
+                    className="w-full bg-wine hover:bg-dark-pink text-lg py-3"
+                    disabled={loadingRates}
                   >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Continue to Payment
+                    {loadingRates ? (
+                      <>
+                        <Package className="h-4 w-4 mr-2 animate-spin" />
+                        Calculating Shipping...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Continue to Payment
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -273,7 +448,7 @@ export default function Checkout() {
 
           {/* Payment Step */}
           {currentStep === 'payment' && (
-            <div>
+            <div className="space-y-6">
               <div className="mb-4">
                 <Button 
                   variant="ghost" 
@@ -284,6 +459,59 @@ export default function Checkout() {
                   Back to Shipping
                 </Button>
               </div>
+
+              {/* Shipping Options */}
+              {shippingRates.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Truck className="h-5 w-5" />
+                      Choose Shipping Method
+                    </CardTitle>
+                    <CardDescription>
+                      Select your preferred shipping option
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <RadioGroup 
+                      value={selectedShippingRate?.service} 
+                      onValueChange={(value) => {
+                        const rate = shippingRates.find(r => r.service === value);
+                        setSelectedShippingRate(rate);
+                      }}
+                      className="space-y-3"
+                    >
+                      {shippingRates.map((rate) => (
+                        <div key={rate.service} className="flex items-center space-x-3 border rounded-lg p-4 hover:bg-gray-50">
+                          <RadioGroupItem value={rate.service} id={rate.service} />
+                          <Label htmlFor={rate.service} className="flex-1 cursor-pointer">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">{rate.serviceName}</p>
+                                {rate.transitTime && (
+                                  <p className="text-sm text-gray-600">
+                                    Estimated delivery: {rate.transitTime} business days
+                                  </p>
+                                )}
+                                {rate.deliveryDate && (
+                                  <p className="text-sm text-gray-600">
+                                    Delivery by: {rate.deliveryDate}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold">${rate.cost.toFixed(2)}</p>
+                                <p className="text-sm text-gray-600">{rate.currency}</p>
+                              </div>
+                            </div>
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+              )}
+
               <CloverPayment
                 amount={totalAmount}
                 onPaymentSuccess={handlePaymentSuccess}
@@ -331,12 +559,27 @@ export default function Checkout() {
                   <span className="text-gray-700">Sales Tax (6.67%)</span>
                   <span className="font-medium">${taxAmount.toFixed(2)}</span>
                 </div>
+                {selectedShippingRate && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700">Shipping ({selectedShippingRate.serviceName})</span>
+                    <span className="font-medium">${selectedShippingRate.cost.toFixed(2)}</span>
+                  </div>
+                )}
+                {!selectedShippingRate && currentStep === 'shipping' && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700">Shipping</span>
+                    <span className="font-medium text-gray-500">Calculated next step</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-lg font-bold wine border-t border-gray-200 pt-2">
                   <span>Total</span>
                   <span>${totalAmount.toFixed(2)}</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  Free shipping on all orders. Handcrafted with love and delivered with care.
+                  {selectedShippingRate ? 
+                    `Shipping via ${selectedShippingRate.serviceName}. Handcrafted with love and delivered with care.` :
+                    "Shipping cost will be calculated based on your address. Handcrafted with love and delivered with care."
+                  }
                 </p>
               </div>
             </CardContent>
