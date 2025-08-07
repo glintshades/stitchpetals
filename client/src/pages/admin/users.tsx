@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
-import { User, UserPlus, Edit, Trash2, Mail, Calendar, Shield } from "lucide-react";
+import { User, UserPlus, Edit, Trash2, Mail, Calendar, Shield, MapPin, Home, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type AdminUser = {
@@ -28,6 +28,7 @@ export default function AdminUsers() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { toast } = useToast();
 
+  // Fetch users
   const { data: users, isLoading } = useQuery<AdminUser[]>({
     queryKey: ["/api/admin/users"],
     queryFn: async () => {
@@ -39,6 +40,22 @@ export default function AdminUsers() {
       }
       return response.json();
     },
+  });
+
+  // Fetch addresses for selected user
+  const { data: userAddresses, isLoading: addressesLoading } = useQuery({
+    queryKey: ["/api/admin/users", selectedUser?.id, "addresses"],
+    queryFn: async () => {
+      if (!selectedUser?.id) return [];
+      const response = await fetch(`/api/admin/users/${selectedUser.id}/addresses`, {
+        headers: { Authorization: "Bearer admin-token" }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch user addresses');
+      }
+      return response.json();
+    },
+    enabled: !!selectedUser?.id,
   });
 
   const createUserMutation = useMutation({
@@ -417,6 +434,54 @@ export default function AdminUsers() {
                       </div>
                     )}
                   </div>
+                </div>
+
+                <Separator />
+
+                {/* Shipping Addresses */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Shipping Addresses
+                  </h4>
+                  {addressesLoading ? (
+                    <div className="text-center py-4 text-gray-500">Loading addresses...</div>
+                  ) : userAddresses && userAddresses.length > 0 ? (
+                    <div className="space-y-3">
+                      {userAddresses.map((address: any) => (
+                        <div key={address.id} className="p-3 border rounded-lg">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <Home className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium">{address.name}</span>
+                              {address.isDefault && (
+                                <Badge className="bg-green-500 text-white text-xs">Default</Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <div><strong>Recipient:</strong> {address.recipientName}</div>
+                            <div><strong>Phone:</strong> {address.phone}</div>
+                            <div><strong>Address:</strong> {address.addressLine1}</div>
+                            {address.addressLine2 && (
+                              <div className="ml-16">{address.addressLine2}</div>
+                            )}
+                            <div><strong>City:</strong> {address.city}, {address.state} {address.zipCode}</div>
+                            <div><strong>Country:</strong> {address.country}</div>
+                            {address.deliveryInstructions && (
+                              <div><strong>Instructions:</strong> {address.deliveryInstructions}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>No shipping addresses saved</p>
+                      <p className="text-xs">Customer will add addresses during checkout or registration</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

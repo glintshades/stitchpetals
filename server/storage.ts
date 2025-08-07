@@ -79,12 +79,13 @@ export interface IStorage {
   updateOffer(id: number, updates: Partial<InsertOffer>): Promise<Offer | undefined>;
   deleteOffer(id: number): Promise<boolean>;
   
-  // Saved addresses management
-  getSavedAddresses(sessionId: string): Promise<SavedAddress[]>;
+  // Saved addresses management - Enhanced for both users and sessions
+  getSavedAddresses(sessionId?: string, userId?: number): Promise<SavedAddress[]>;
+  getDefaultAddress(sessionId?: string, userId?: number): Promise<SavedAddress | undefined>;
   createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress>;
   updateSavedAddress(id: number, updates: Partial<InsertSavedAddress>): Promise<SavedAddress | undefined>;
   deleteSavedAddress(id: number): Promise<boolean>;
-  setDefaultAddress(sessionId: string, addressId: number): Promise<boolean>;
+  setDefaultAddress(sessionId: string | null, userId: number | null, addressId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -280,8 +281,16 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
+  async createUser(insertUser: InsertUser | any): Promise<User> {
+    const userData = {
+      username: insertUser.username,
+      password: insertUser.password,
+      email: insertUser.email || null,
+      role: "user",
+      isActive: true,
+      createdAt: new Date().toISOString()
+    };
+    const [user] = await db.insert(users).values(userData).returning();
     return user;
   }
 
@@ -601,19 +610,55 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Saved addresses management methods
-  async getSavedAddresses(sessionId: string): Promise<SavedAddress[]> {
-    return await db.select().from(savedAddresses).where(eq(savedAddresses.sessionId, sessionId));
+  async getSavedAddresses(sessionId?: string, userId?: number): Promise<SavedAddress[]> {
+    if (userId) {
+      return await db.select().from(savedAddresses).where(eq(savedAddresses.userId, userId));
+    } else if (sessionId) {
+      return await db.select().from(savedAddresses).where(eq(savedAddresses.sessionId, sessionId));
+    }
+    return [];
+  }
+
+  async getDefaultAddress(sessionId?: string, userId?: number): Promise<SavedAddress | undefined> {
+    if (userId) {
+      const [address] = await db.select().from(savedAddresses)
+        .where(and(
+          eq(savedAddresses.userId, userId),
+          eq(savedAddresses.isDefault, true)
+        ));
+      return address;
+    } else if (sessionId) {
+      const [address] = await db.select().from(savedAddresses)
+        .where(and(
+          eq(savedAddresses.sessionId, sessionId),
+          eq(savedAddresses.isDefault, true)
+        ));
+      return address;
+    }
+    return undefined;
   }
 
   async createSavedAddress(address: InsertSavedAddress): Promise<SavedAddress> {
-    // If this is set as default, unset all other defaults for this session
+    // If this is set as default, unset all other defaults for this user/session
     if (address.isDefault) {
-      await db.update(savedAddresses)
-        .set({ isDefault: false })
-        .where(eq(savedAddresses.sessionId, address.sessionId));
+      if (address.userId) {
+        await db.update(savedAddresses)
+          .set({ isDefault: false })
+          .where(eq(savedAddresses.userId, address.userId));
+      } else if (address.sessionId) {
+        await db.update(savedAddresses)
+          .set({ isDefault: false })
+          .where(eq(savedAddresses.sessionId, address.sessionId));
+      }
     }
     
-    const [savedAddress] = await db.insert(savedAddresses).values(address).returning();
+    const addressData = {
+      ...address,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    const [savedAddress] = await db.insert(savedAddresses).values(addressData).returning();
     return savedAddress;
   }
 
@@ -640,18 +685,39 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
-  async setDefaultAddress(sessionId: string, addressId: number): Promise<boolean> {
-    // Unset all defaults for this session
-    await db.update(savedAddresses)
-      .set({ isDefault: false })
-      .where(eq(savedAddresses.sessionId, sessionId));
+  async setDefaultAddress(sessionId: string | null, userId: number | null, addressId: number): Promise<boolean> {
+    // First, unset all default addresses for this user/session
+    if (userId) {
+      await db.update(savedAddresses)
+        .set({ isDefault: false })
+        .where(eq(savedAddresses.userId, userId));
+      
+      // Then set the specified address as default
+      const result = await db.update(savedAddresses)
+        .set({ isDefault: true, updatedAt: new Date().toISOString() })
+        .where(and(
+          eq(savedAddresses.id, addressId),
+          eq(savedAddresses.userId, userId)
+        ));
+      
+      return (result.rowCount || 0) > 0;
+    } else if (sessionId) {
+      await db.update(savedAddresses)
+        .set({ isDefault: false })
+        .where(eq(savedAddresses.sessionId, sessionId));
+      
+      // Then set the specified address as default
+      const result = await db.update(savedAddresses)
+        .set({ isDefault: true, updatedAt: new Date().toISOString() })
+        .where(and(
+          eq(savedAddresses.id, addressId),
+          eq(savedAddresses.sessionId, sessionId)
+        ));
+      
+      return (result.rowCount || 0) > 0;
+    }
     
-    // Set the new default
-    const result = await db.update(savedAddresses)
-      .set({ isDefault: true, updatedAt: new Date().toISOString() })
-      .where(and(eq(savedAddresses.id, addressId), eq(savedAddresses.sessionId, sessionId)));
-    
-    return (result.rowCount || 0) > 0;
+    return false;
   }
 }
 

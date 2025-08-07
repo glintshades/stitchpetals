@@ -134,7 +134,8 @@ export const offers = pgTable("offers", {
 
 export const savedAddresses = pgTable("saved_addresses", {
   id: serial("id").primaryKey(),
-  sessionId: text("session_id").notNull(), // For guest users
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }), // For registered users
+  sessionId: text("session_id"), // For guest users (nullable now)
   name: text("name").notNull(), // Address nickname like "Home", "Work", "Mom's House"
   recipientName: text("recipient_name").notNull(),
   phone: text("phone").notNull(),
@@ -226,6 +227,7 @@ export const insertOfferSchema = createInsertSchema(offers).pick({
 });
 
 export const insertSavedAddressSchema = createInsertSchema(savedAddresses).pick({
+  userId: true,
   sessionId: true,
   name: true,
   recipientName: true,
@@ -238,6 +240,24 @@ export const insertSavedAddressSchema = createInsertSchema(savedAddresses).pick(
   country: true,
   deliveryInstructions: true,
   isDefault: true,
+});
+
+// Enhanced user registration schema with optional shipping info
+export const insertUserWithShippingSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+  email: true,
+}).extend({
+  // Optional shipping address during registration
+  shippingName: z.string().optional(),
+  shippingPhone: z.string().optional(),
+  shippingAddressLine1: z.string().optional(),
+  shippingAddressLine2: z.string().optional(),
+  shippingCity: z.string().optional(),
+  shippingState: z.string().optional(),
+  shippingZipCode: z.string().optional(),
+  shippingCountry: z.string().optional(),
+  shippingDeliveryInstructions: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -260,3 +280,4 @@ export type Offer = typeof offers.$inferSelect;
 export type InsertOffer = z.infer<typeof insertOfferSchema>;
 export type SavedAddress = typeof savedAddresses.$inferSelect;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
+export type InsertUserWithShipping = z.infer<typeof insertUserWithShippingSchema>;

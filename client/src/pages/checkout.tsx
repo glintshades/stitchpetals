@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -54,6 +54,17 @@ export default function Checkout() {
     queryKey: ["/api/addresses"],
     refetchOnWindowFocus: false,
   });
+
+  // Auto-select default address when addresses are loaded
+  useEffect(() => {
+    if (savedAddressesData.length > 0 && !selectedSavedAddress) {
+      const defaultAddress = savedAddressesData.find(addr => addr.isDefault);
+      if (defaultAddress) {
+        setSelectedSavedAddress(defaultAddress.id.toString());
+        loadSavedAddress(defaultAddress.id.toString());
+      }
+    }
+  }, [savedAddressesData]);
 
   const form = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -371,6 +382,7 @@ export default function Checkout() {
                         <Label htmlFor="customerName">Full Name *</Label>
                         <Input
                           id="customerName"
+                          data-testid="input-customer-name"
                           {...form.register("customerName")}
                           placeholder="Enter your full name"
                         />
@@ -615,6 +627,7 @@ export default function Checkout() {
 
                   <Button
                     type="submit"
+                    data-testid="button-continue-payment"
                     className="w-full bg-wine hover:bg-dark-pink text-lg py-3"
                     disabled={loadingRates}
                   >

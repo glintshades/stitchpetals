@@ -5,7 +5,7 @@ import session from "express-session";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema } from "@shared/schema";
 
 // Configure multer for image uploads
 const storage_config = multer.diskStorage({
@@ -248,12 +248,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post('/api/auth/register', async (req, res) => {
     try {
-      const { username, password } = req.body;
+      // Validate input using schema
+      const validatedData = insertUserWithShippingSchema.parse(req.body);
       
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
-      }
-
+      const { username, password, email } = validatedData;
+      
       if (password.length < 6) {
         return res.status(400).json({ message: "Password must be at least 6 characters long" });
       }
@@ -265,15 +264,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Create new user
-      const newUser = await storage.createUser({ username, password });
+      const newUser = await storage.createUser({ username, password, email });
+      
+      // Create shipping address if provided
+      const hasShippingInfo = validatedData.shippingName && validatedData.shippingPhone && 
+                              validatedData.shippingAddressLine1 && validatedData.shippingCity && 
+                              validatedData.shippingState && validatedData.shippingZipCode;
+      
+      if (hasShippingInfo) {
+        await storage.createSavedAddress({
+          userId: newUser.id,
+          sessionId: null,
+          name: "Default Address",
+          recipientName: validatedData.shippingName!,
+          phone: validatedData.shippingPhone!,
+          addressLine1: validatedData.shippingAddressLine1!,
+          addressLine2: validatedData.shippingAddressLine2 || null,
+          city: validatedData.shippingCity!,
+          state: validatedData.shippingState!,
+          zipCode: validatedData.shippingZipCode!,
+          country: validatedData.shippingCountry || "US",
+          deliveryInstructions: validatedData.shippingDeliveryInstructions || null,
+          isDefault: true,
+        });
+      }
       
       // Set session
       (req as any).session.userId = newUser.id;
       (req as any).session.user = newUser;
       
-      res.json({ id: newUser.id, username: newUser.username });
+      res.json({ id: newUser.id, username: newUser.username, email: newUser.email });
     } catch (error) {
       console.error("Registration error:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid input data" });
+      }
       res.status(500).json({ message: "Failed to create account" });
     }
   });
@@ -504,6 +529,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "User deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
+  // Get user's shipping addresses (Admin only)
+  app.get("/api/admin/users/:id/addresses", requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Verify user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const addresses = await storage.getSavedAddresses(undefined, userId);
+      res.json(addresses);
+    } catch (error) {
+      console.error("Error fetching user addresses:", error);
+      res.status(500).json({ message: "Failed to fetch user addresses" });
     }
   });
 
@@ -998,8 +1042,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Saved addresses endpoints
   app.get("/api/addresses", async (req, res) => {
     try {
+      const userId = (req as any).session?.userId;
       const sessionId = req.sessionID;
-      const addresses = await storage.getSavedAddresses(sessionId);
+      
+      const addresses = await storage.getSavedAddresses(sessionId, userId);
       res.json(addresses);
     } catch (error) {
       console.error('Error fetching saved addresses:', error);
@@ -1009,8 +1055,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/addresses", async (req, res) => {
     try {
+      const userId = (req as any).session?.userId;
       const sessionId = req.sessionID;
-      const addressData = { ...req.body, sessionId };
+      
+      const addressData = {
+        ...req.body,
+        userId: userId || null,
+        sessionId: userId ? null : sessionId, // Use sessionId only for guests
+      };
+      
       const address = await storage.createSavedAddress(addressData);
       res.json(address);
     } catch (error) {
@@ -1047,20 +1100,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/addresses/:id/set-default", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const sessionId = req.sessionID;
-      const success = await storage.setDefaultAddress(sessionId, id);
-      if (!success) {
-        return res.status(404).json({ error: 'Address not found' });
-      }
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Error setting default address:', error);
-      res.status(500).json({ error: 'Failed to set default address' });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
