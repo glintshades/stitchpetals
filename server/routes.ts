@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
 import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema } from "@shared/schema";
+import { fedexService, type ShippingAddress } from './fedexService';
 
 // Configure multer for image uploads
 const storage_config = multer.diskStorage({
@@ -1183,6 +1184,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Internal backup error:', error);
       res.status(500).json({ message: "Backup failed" });
+    }
+  });
+
+  // FedEx Shipping Integration Routes
+  
+  // Validate FedEx API connection
+  app.get("/api/shipping/test", async (req, res) => {
+    try {
+      const isValid = await fedexService.validateConnection();
+      if (isValid) {
+        res.json({ 
+          status: 'connected',
+          message: 'FedEx API connection successful',
+          services: ['rate_calculation', 'tracking', 'label_generation']
+        });
+      } else {
+        res.status(500).json({ 
+          status: 'error',
+          message: 'FedEx API connection failed' 
+        });
+      }
+    } catch (error) {
+      console.error('FedEx connection test failed:', error);
+      res.status(500).json({ 
+        status: 'error',
+        message: 'FedEx API connection test failed' 
+      });
+    }
+  });
+
+  // Calculate shipping rates for checkout
+  app.post("/api/shipping/rates", async (req, res) => {
+    try {
+      const { shippingAddress, items } = req.body;
+      
+      if (!shippingAddress || !items || !Array.isArray(items)) {
+        return res.status(400).json({ 
+          error: 'Missing required fields: shippingAddress and items' 
+        });
+      }
+
+      // Convert user address to FedEx format
+      const recipientAddress: ShippingAddress = {
+        streetLines: [shippingAddress.street],
+        city: shippingAddress.city,
+        stateOrProvinceCode: shippingAddress.state,
+        postalCode: shippingAddress.zipCode,
+        countryCode: 'US',
+        residential: true
+      };
+
+      // Get business shipping address
+      const businessAddress = fedexService.getBusinessAddress();
+
+      // Calculate package dimensions based on items
+      const totalItems = items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+      let packageType: 'bouquet' | 'potted' | 'single' = 'bouquet';
+      
+      // Determine package type based on items
+      if (totalItems === 1) {
+        packageType = 'single';
+      } else if (items.some((item: any) => item.name?.toLowerCase().includes('pot'))) {
+        packageType = 'potted';
+      }
+
+      const packageDimensions = fedexService.getStandardPackageDimensions(packageType);
+
+      // Get shipping rates
+      const rates = await fedexService.getShippingRates(
+        businessAddress,
+        recipientAddress,
+        [packageDimensions]
+      );
+
+      console.log(`✅ Calculated ${rates.length} shipping rates for order`);
+      res.json({ rates });
+    } catch (error) {
+      console.error('Failed to calculate shipping rates:', error);
+      res.status(500).json({ 
+        error: 'Failed to calculate shipping rates',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Track shipment by tracking number
+  app.get("/api/shipping/track/:trackingNumber", async (req, res) => {
+    try {
+      const { trackingNumber } = req.params;
+      
+      if (!trackingNumber) {
+        return res.status(400).json({ error: 'Tracking number is required' });
+      }
+
+      const trackingInfo = await fedexService.trackShipment(trackingNumber);
+      
+      if (!trackingInfo) {
+        return res.status(404).json({ 
+          error: 'Tracking information not found for this number' 
+        });
+      }
+
+      console.log(`✅ Retrieved tracking info for ${trackingNumber}`);
+      res.json({ tracking: trackingInfo });
+    } catch (error) {
+      console.error('Failed to track shipment:', error);
+      res.status(500).json({ 
+        error: 'Failed to track shipment',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get available shipping services
+  app.get("/api/shipping/services", async (req, res) => {
+    try {
+      const services = [
+        {
+          code: 'PRIORITY_OVERNIGHT',
+          name: 'FedEx Priority Overnight',
+          description: 'Next business day by 10:30 AM',
+          deliveryTime: '1 business day'
+        },
+        {
+          code: 'STANDARD_OVERNIGHT', 
+          name: 'FedEx Standard Overnight',
+          description: 'Next business day by 3:00 PM',
+          deliveryTime: '1 business day'
+        },
+        {
+          code: 'FEDEX_2_DAY',
+          name: 'FedEx 2Day',
+          description: 'Second business day',
+          deliveryTime: '2 business days'
+        },
+        {
+          code: 'FEDEX_EXPRESS_SAVER',
+          name: 'FedEx Express Saver',
+          description: 'Third business day',
+          deliveryTime: '3 business days'
+        },
+        {
+          code: 'FEDEX_GROUND',
+          name: 'FedEx Ground',
+          description: '1-5 business days based on distance',
+          deliveryTime: '1-5 business days'
+        }
+      ];
+
+      res.json({ services });
+    } catch (error) {
+      console.error('Failed to get shipping services:', error);
+      res.status(500).json({ error: 'Failed to get shipping services' });
     }
   });
 

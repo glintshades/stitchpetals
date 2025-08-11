@@ -13,6 +13,7 @@ import Bouquets from "@/pages/bouquets";
 import Shop from "@/pages/shop";
 import Offers from "@/pages/offers";
 import Contact from "@/pages/contact";
+import ShippingPage from "@/pages/shipping";
 import Product from "@/pages/product";
 import Cart from "@/pages/cart";
 import AdminPanel from "@/pages/admin";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/shop" component={Shop} />
       <Route path="/offers" component={Offers} />
       <Route path="/contact" component={Contact} />
+      <Route path="/shipping" component={ShippingPage} />
       <Route path="/product/:id" component={Product} />
       <Route path="/cart" component={Cart} />
       <Route path="/wishlist" component={WishlistPage} />

@@ -25,6 +25,7 @@ Preferred communication style: Simple, everyday language.
 - **Session Management**: Express sessions with PostgreSQL session store
 - **Error Handling**: Centralized error handling middleware
 - **Core Features**: Authentication system, comprehensive admin panel for managing orders, products (with CRUD, image upload, inventory), users, and categories. Includes a wishlist system and contact message handling.
+- **Shipping Integration**: FedEx API integration for shipping rate calculation, tracking, and label generation
 
 ### Database Layer
 - **Database**: PostgreSQL
@@ -46,6 +47,7 @@ Preferred communication style: Simple, everyday language.
 ### Third-Party Services
 - **Database Hosting**: Neon PostgreSQL serverless
 - **Session Storage**: PostgreSQL-backed session store
+- **Shipping Provider**: FedEx API for shipping rates and tracking
 
 ### Data Protection & Deployment
 - **User Data Persistence**: Automatic preservation in PostgreSQL during redeployments
