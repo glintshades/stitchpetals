@@ -86,6 +86,12 @@ export interface IStorage {
   updateSavedAddress(id: number, updates: Partial<InsertSavedAddress>): Promise<SavedAddress | undefined>;
   deleteSavedAddress(id: number): Promise<boolean>;
   setDefaultAddress(sessionId: string | null, userId: number | null, addressId: number): Promise<boolean>;
+  
+  // Backup methods
+  getAllUsers(): Promise<User[]>;
+  getAllAddresses(): Promise<SavedAddress[]>;
+  getAllCategories(): Promise<ProductCategory[]>;
+  getAllAdminUsers(): Promise<AdminUser[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -718,6 +724,23 @@ export class DatabaseStorage implements IStorage {
     }
     
     return false;
+  }
+
+  // Backup methods implementation
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users);
+  }
+
+  async getAllAddresses(): Promise<SavedAddress[]> {
+    return db.select().from(savedAddresses);
+  }
+
+  async getAllCategories(): Promise<ProductCategory[]> {
+    return db.select().from(productCategories);
+  }
+
+  async getAllAdminUsers(): Promise<AdminUser[]> {
+    return db.select().from(adminUsers);
   }
 }
 

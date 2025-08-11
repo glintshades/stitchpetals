@@ -1100,6 +1100,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database Backup Routes
+  app.post("/api/admin/backup", requireAdmin, async (req, res) => {
+    try {
+      const backupData = {
+        timestamp: new Date().toISOString(),
+        tables: {} as Record<string, any[]>,
+        metadata: {
+          totalRecords: 0,
+          backupSize: '0KB'
+        }
+      };
+
+      // Backup all tables
+      try {
+        backupData.tables.users = await storage.getAllUsers();
+        backupData.tables.saved_addresses = await storage.getAllAddresses();
+        backupData.tables.products = await storage.getAllProducts();
+        backupData.tables.categories = await storage.getAllCategories();
+        backupData.tables.orders = await storage.getAllOrders();
+        backupData.tables.contact_submissions = await storage.getAllContactSubmissions();
+        backupData.tables.admin_users = await storage.getAllAdminUsers();
+        backupData.tables.offers = await storage.getAllOffers();
+
+        // Calculate total records
+        backupData.metadata.totalRecords = Object.values(backupData.tables)
+          .reduce((sum, table) => sum + table.length, 0);
+
+        // Calculate backup size (approximate)
+        const backupString = JSON.stringify(backupData);
+        backupData.metadata.backupSize = `${Math.round(backupString.length / 1024)}KB`;
+
+        console.log(`Created backup with ${backupData.metadata.totalRecords} total records`);
+        res.json(backupData);
+      } catch (storageError) {
+        console.error('Backup storage error:', storageError);
+        res.status(500).json({ message: "Failed to access database tables" });
+      }
+    } catch (error) {
+      console.error('Backup error:', error);
+      res.status(500).json({ message: "Failed to create backup" });
+    }
+  });
+
+  // Internal backup endpoint (for scripts) - localhost only
+  app.post("/api/internal/backup", async (req, res) => {
+    // Only allow from localhost for security
+    const clientIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
+    if (clientIp !== '127.0.0.1' && clientIp !== '::1' && !clientIp?.includes('127.0.0.1')) {
+      return res.status(403).json({ message: "Access denied - localhost only" });
+    }
+
+    try {
+      const backupData = {
+        timestamp: new Date().toISOString(),
+        tables: {} as Record<string, any[]>,
+        metadata: {
+          totalRecords: 0,
+          backupSize: '0KB'
+        }
+      };
+
+      // Backup all tables  
+      backupData.tables.users = await storage.getAllUsers();
+      backupData.tables.saved_addresses = await storage.getAllAddresses();
+      backupData.tables.products = await storage.getAllProducts();
+      backupData.tables.categories = await storage.getAllCategories();
+      backupData.tables.orders = await storage.getAllOrders();
+      backupData.tables.contact_submissions = await storage.getAllContactSubmissions();
+      backupData.tables.admin_users = await storage.getAllAdminUsers();
+      backupData.tables.offers = await storage.getAllOffers();
+
+      // Calculate metadata
+      backupData.metadata.totalRecords = Object.values(backupData.tables)
+        .reduce((sum, table) => sum + table.length, 0);
+
+      const backupString = JSON.stringify(backupData);
+      backupData.metadata.backupSize = `${Math.round(backupString.length / 1024)}KB`;
+
+      console.log(`✅ Internal backup created: ${backupData.metadata.totalRecords} records, ${backupData.metadata.backupSize}`);
+      res.json(backupData);
+    } catch (error) {
+      console.error('Internal backup error:', error);
+      res.status(500).json({ message: "Backup failed" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

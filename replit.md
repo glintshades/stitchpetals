@@ -1,7 +1,7 @@
 # GlintShades - Crochet Flower E-commerce Platform
 
 ## Overview
-GlintShades is a full-stack e-commerce web application specializing in handcrafted crochet flower arrangements. The platform showcases beautiful crochet bouquets, potted arrangements, and individual stems with a sophisticated design. It includes a complete e-commerce flow from product browsing, cart management, to checkout, along with a comprehensive admin panel for order, product, user, and category management. The project aims to provide a seamless shopping experience for unique, artisanal crochet products, leveraging a modern tech stack for scalability and performance.
+GlintShades is a full-stack e-commerce web application specializing in handcrafted crochet flower arrangements. The platform showcases beautiful crochet bouquets, potted arrangements, and individual stems with a sophisticated design. It includes a complete e-commerce flow from product browsing, cart management, to checkout, along with a comprehensive admin panel for order, product, user, and category management. The project features user account registration with default shipping address options and clear address selection during checkout. A database backup system ensures data protection during deployments.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -46,3 +46,10 @@ Preferred communication style: Simple, everyday language.
 ### Third-Party Services
 - **Database Hosting**: Neon PostgreSQL serverless
 - **Session Storage**: PostgreSQL-backed session store
+
+### Data Protection & Deployment
+- **User Data Persistence**: Automatic preservation in PostgreSQL during redeployments
+- **Backup System**: Pre-deployment backup scripts in `scripts/` directory
+- **User Registration**: Enhanced with default shipping address collection
+- **Checkout Flow**: Radio button selection between saved and new addresses
+- **Address Management**: Default address indicators with star (★) symbols
