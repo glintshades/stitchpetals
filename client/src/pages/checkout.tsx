@@ -427,50 +427,69 @@ export default function Checkout() {
 
                   {/* Shipping Address */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold wine flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Shipping Address
-                      </h3>
-                      {savedAddressesData.length > 0 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedSavedAddress(selectedSavedAddress ? '' : savedAddressesData[0]?.id?.toString())}
-                          className="text-wine border-wine hover:bg-wine hover:text-white"
-                        >
-                          <BookOpen className="h-3 w-3 mr-1" />
-                          {selectedSavedAddress ? 'Enter New' : 'Use Saved'}
-                        </Button>
-                      )}
-                    </div>
+                    <h3 className="text-lg font-semibold wine flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Shipping Address
+                    </h3>
                     
-                    {/* Saved Addresses Dropdown */}
+                    {/* Address Selection Options */}
                     {savedAddressesData.length > 0 && (
-                      <div className="space-y-2">
-                        <Label htmlFor="savedAddress">Choose from saved addresses</Label>
-                        <Select
-                          value={selectedSavedAddress}
+                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+                        <h4 className="font-medium text-gray-900">Address Options</h4>
+                        <RadioGroup
+                          value={selectedSavedAddress ? 'saved' : 'new'}
                           onValueChange={(value) => {
-                            setSelectedSavedAddress(value);
-                            if (value) {
-                              loadSavedAddress(value);
+                            if (value === 'new') {
+                              setSelectedSavedAddress('');
+                              // Clear form when switching to new address
+                              form.reset();
+                            } else if (value === 'saved' && savedAddressesData.length > 0) {
+                              const defaultAddress = savedAddressesData.find(addr => addr.isDefault) || savedAddressesData[0];
+                              setSelectedSavedAddress(defaultAddress.id.toString());
+                              loadSavedAddress(defaultAddress.id.toString());
                             }
                           }}
+                          className="flex flex-col space-y-2"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a saved address" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="">Enter new address</SelectItem>
-                            {savedAddressesData.map((address) => (
-                              <SelectItem key={address.id} value={address.id.toString()}>
-                                {address.name} - {address.recipientName}, {address.city}, {address.state}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="saved" id="use-saved" data-testid="radio-use-saved-address" />
+                            <Label htmlFor="use-saved" className="font-medium">
+                              Use saved address
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="new" id="use-new" data-testid="radio-use-new-address" />
+                            <Label htmlFor="use-new" className="font-medium">
+                              Enter new address
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                        
+                        {/* Saved Address Dropdown - only show when saved is selected */}
+                        {selectedSavedAddress && (
+                          <div className="space-y-2">
+                            <Label htmlFor="savedAddressSelect">Choose from your saved addresses</Label>
+                            <Select
+                              value={selectedSavedAddress}
+                              onValueChange={(value) => {
+                                setSelectedSavedAddress(value);
+                                loadSavedAddress(value);
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a saved address" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {savedAddressesData.map((address) => (
+                                  <SelectItem key={address.id} value={address.id.toString()}>
+                                    {address.isDefault && <span className="font-semibold text-wine">★ </span>}
+                                    {address.name} - {address.recipientName}, {address.city}, {address.state}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
                       </div>
                     )}
                     
@@ -617,7 +636,7 @@ export default function Checkout() {
                       <Checkbox
                         id="saveAddress"
                         checked={shouldSaveAddress}
-                        onCheckedChange={setShouldSaveAddress}
+                        onCheckedChange={(checked) => setShouldSaveAddress(checked as boolean)}
                       />
                       <Label htmlFor="saveAddress" className="text-sm">
                         Save this address for future orders

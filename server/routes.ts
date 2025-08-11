@@ -285,7 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           zipCode: validatedData.shippingZipCode!,
           country: validatedData.shippingCountry || "US",
           deliveryInstructions: validatedData.shippingDeliveryInstructions || null,
-          isDefault: true,
+          isDefault: validatedData.setAsDefault || true, // Use provided value or default to true
         });
       }
       

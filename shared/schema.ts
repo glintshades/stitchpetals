@@ -193,12 +193,10 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   customerName: true,
   customerEmail: true,
   customerPhone: true,
-  shippingAddress: true,
   subtotalAmount: true,
   taxAmount: true,
   totalAmount: true,
   status: true,
-  orderItems: true,
   paymentId: true,
   paymentStatus: true,
   paymentMethod: true,
@@ -258,6 +256,7 @@ export const insertUserWithShippingSchema = createInsertSchema(users).pick({
   shippingZipCode: z.string().optional(),
   shippingCountry: z.string().optional(),
   shippingDeliveryInstructions: z.string().optional(),
+  setAsDefault: z.boolean().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

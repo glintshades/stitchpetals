@@ -44,6 +44,7 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
   const [shippingZipCode, setShippingZipCode] = useState("");
   const [shippingCountry, setShippingCountry] = useState("US");
   const [shippingDeliveryInstructions, setShippingDeliveryInstructions] = useState("");
+  const [setAsDefault, setSetAsDefault] = useState(true); // Default to true for first address
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -85,6 +86,7 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
       setShippingZipCode("");
       setShippingCountry("US");
       setShippingDeliveryInstructions("");
+      setSetAsDefault(true);
     },
     onError: (error: any) => {
       toast({
@@ -152,6 +154,7 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
         shippingZipCode,
         shippingCountry,
         shippingDeliveryInstructions: shippingDeliveryInstructions.trim() || undefined,
+        setAsDefault,
       })
     };
 
@@ -361,6 +364,19 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
                     placeholder="Delivery instructions (optional)"
                     data-testid="input-shipping-instructions"
                   />
+                </div>
+                
+                {/* Set as Default Address Option */}
+                <div className="flex items-center space-x-2 pt-4 border-t">
+                  <Checkbox
+                    id="set-as-default"
+                    checked={setAsDefault}
+                    onCheckedChange={(checked) => setSetAsDefault(checked as boolean)}
+                    data-testid="checkbox-set-as-default"
+                  />
+                  <Label htmlFor="set-as-default" className="text-sm font-medium">
+                    Set as my default shipping address
+                  </Label>
                 </div>
               </CardContent>
             </Card>
