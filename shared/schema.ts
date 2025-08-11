@@ -43,9 +43,6 @@ export const cartItems = pgTable("cart_items", {
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull().default(1),
   selectedColor: text("selected_color"),
-  shippingAddressId: integer("shipping_address_id").references(() => savedAddresses.id),
-  recipientName: text("recipient_name"), // For gift orders or different recipients
-  giftMessage: text("gift_message"), // Optional gift message
 });
 
 export const wishlistItems = pgTable("wishlist_items", {
@@ -172,9 +169,6 @@ export const insertCartItemSchema = createInsertSchema(cartItems).pick({
   productId: true,
   quantity: true,
   selectedColor: true,
-  shippingAddressId: true,
-  recipientName: true,
-  giftMessage: true,
 });
 
 export const insertWishlistItemSchema = createInsertSchema(wishlistItems).pick({
