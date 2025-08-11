@@ -23,6 +23,7 @@ import AdminOrders from "./orders";
 import AdminUsers from "./users";
 import AdminCategories from "./categories";
 import AdminOffers from "./offers";
+import { AdminNewsletterSubscriptions } from "@/components/admin/AdminNewsletterSubscriptions";
 
 // Contact submissions component
 function ContactsList() {
@@ -173,13 +174,14 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
         {/* Main Content */}
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="offers">Offers</TabsTrigger>
             <TabsTrigger value="contacts">Contacts</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
           </TabsList>
 
           {/* Orders Tab */}
@@ -218,6 +220,21 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               </CardHeader>
               <CardContent>
                 <ContactsList />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Newsletter Tab */}
+          <TabsContent value="newsletter" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Newsletter Subscriptions</CardTitle>
+                <CardDescription>
+                  Manage newsletter subscribers and their subscription status
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AdminNewsletterSubscriptions />
               </CardContent>
             </Card>
           </TabsContent>

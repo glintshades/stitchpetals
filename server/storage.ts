@@ -9,6 +9,7 @@ import {
   adminUsers,
   offers,
   savedAddresses,
+  newsletterSubscriptions,
   type User, 
   type InsertUser, 
   type Product, 
@@ -28,7 +29,9 @@ import {
   type Offer,
   type InsertOffer,
   type SavedAddress,
-  type InsertSavedAddress
+  type InsertSavedAddress,
+  type NewsletterSubscription,
+  type InsertNewsletterSubscription
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and } from "drizzle-orm";
@@ -87,6 +90,12 @@ export interface IStorage {
   deleteSavedAddress(id: number): Promise<boolean>;
   setDefaultAddress(sessionId: string | null, userId: number | null, addressId: number): Promise<boolean>;
   
+  // Newsletter subscription management
+  getAllNewsletterSubscriptions(): Promise<NewsletterSubscription[]>;
+  createNewsletterSubscription(subscription: InsertNewsletterSubscription): Promise<NewsletterSubscription>;
+  unsubscribeNewsletter(email: string): Promise<boolean>;
+  resubscribeNewsletter(email: string): Promise<boolean>;
+
   // Backup methods
   getAllUsers(): Promise<User[]>;
   getAllAddresses(): Promise<SavedAddress[]>;
@@ -724,6 +733,81 @@ export class DatabaseStorage implements IStorage {
     }
     
     return false;
+  }
+
+  // Newsletter subscription management implementation
+  async getAllNewsletterSubscriptions(): Promise<NewsletterSubscription[]> {
+    return await db.select().from(newsletterSubscriptions);
+  }
+
+  async createNewsletterSubscription(subscription: InsertNewsletterSubscription): Promise<NewsletterSubscription> {
+    try {
+      // Check if email already exists
+      const [existingSubscription] = await db.select().from(newsletterSubscriptions)
+        .where(eq(newsletterSubscriptions.email, subscription.email));
+      
+      if (existingSubscription) {
+        // If exists but was unsubscribed, reactivate
+        if (!existingSubscription.isActive) {
+          const [reactivated] = await db.update(newsletterSubscriptions)
+            .set({ 
+              isActive: true, 
+              subscribedAt: new Date().toISOString(),
+              unsubscribedAt: null 
+            })
+            .where(eq(newsletterSubscriptions.email, subscription.email))
+            .returning();
+          return reactivated;
+        }
+        // Already subscribed and active
+        return existingSubscription;
+      }
+
+      // Create new subscription
+      const [newSubscription] = await db.insert(newsletterSubscriptions)
+        .values({
+          email: subscription.email,
+          source: subscription.source || 'website',
+          isActive: true,
+          subscribedAt: new Date().toISOString()
+        })
+        .returning();
+      
+      return newSubscription;
+    } catch (error) {
+      throw new Error('Failed to create newsletter subscription');
+    }
+  }
+
+  async unsubscribeNewsletter(email: string): Promise<boolean> {
+    try {
+      const result = await db.update(newsletterSubscriptions)
+        .set({ 
+          isActive: false, 
+          unsubscribedAt: new Date().toISOString() 
+        })
+        .where(eq(newsletterSubscriptions.email, email));
+      
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async resubscribeNewsletter(email: string): Promise<boolean> {
+    try {
+      const result = await db.update(newsletterSubscriptions)
+        .set({ 
+          isActive: true, 
+          subscribedAt: new Date().toISOString(),
+          unsubscribedAt: null 
+        })
+        .where(eq(newsletterSubscriptions.email, email));
+      
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      return false;
+    }
   }
 
   // Backup methods implementation

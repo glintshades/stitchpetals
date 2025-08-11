@@ -5,7 +5,7 @@ import session from "express-session";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { fedexService, type ShippingAddress } from './fedexService';
 
 // Configure multer for image uploads
@@ -665,6 +665,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(contacts);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch contact submissions" });
+    }
+  });
+
+  // Newsletter subscription endpoints
+  app.post("/api/newsletter/subscribe", async (req, res) => {
+    try {
+      const subscriptionData = insertNewsletterSubscriptionSchema.parse(req.body);
+      const subscription = await storage.createNewsletterSubscription(subscriptionData);
+      res.status(201).json({ 
+        message: "Successfully subscribed to newsletter!",
+        subscription 
+      });
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+      res.status(400).json({ message: "Invalid subscription data or email already subscribed" });
+    }
+  });
+
+  app.post("/api/newsletter/unsubscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      const success = await storage.unsubscribeNewsletter(email);
+      if (success) {
+        res.json({ message: "Successfully unsubscribed from newsletter" });
+      } else {
+        res.status(404).json({ message: "Email not found in subscription list" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to unsubscribe from newsletter" });
+    }
+  });
+
+  // Admin - Newsletter subscriptions management
+  app.get("/api/admin/newsletter-subscriptions", requireAdmin, async (req, res) => {
+    try {
+      const subscriptions = await storage.getAllNewsletterSubscriptions();
+      res.json(subscriptions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch newsletter subscriptions" });
+    }
+  });
+
+  app.post("/api/admin/newsletter/resubscribe", requireAdmin, async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      const success = await storage.resubscribeNewsletter(email);
+      if (success) {
+        res.json({ message: "Successfully resubscribed user to newsletter" });
+      } else {
+        res.status(404).json({ message: "Email not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to resubscribe user" });
     }
   });
 

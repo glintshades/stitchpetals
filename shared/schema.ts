@@ -148,6 +148,15 @@ export const savedAddresses = pgTable("saved_addresses", {
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
 
+export const newsletterSubscriptions = pgTable("newsletter_subscriptions", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  isActive: boolean("is_active").notNull().default(true),
+  subscribedAt: text("subscribed_at").notNull().default(new Date().toISOString()),
+  unsubscribedAt: text("unsubscribed_at"),
+  source: text("source").default("website"), // where they subscribed from
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -234,6 +243,11 @@ export const insertSavedAddressSchema = createInsertSchema(savedAddresses).pick(
   isDefault: true,
 });
 
+export const insertNewsletterSubscriptionSchema = createInsertSchema(newsletterSubscriptions).pick({
+  email: true,
+  source: true,
+});
+
 // Enhanced user registration schema with optional shipping info
 export const insertUserWithShippingSchema = createInsertSchema(users).pick({
   username: true,
@@ -274,3 +288,5 @@ export type InsertOffer = z.infer<typeof insertOfferSchema>;
 export type SavedAddress = typeof savedAddresses.$inferSelect;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertUserWithShipping = z.infer<typeof insertUserWithShippingSchema>;
+export type NewsletterSubscription = typeof newsletterSubscriptions.$inferSelect;
+export type InsertNewsletterSubscription = z.infer<typeof insertNewsletterSubscriptionSchema>;

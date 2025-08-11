@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import HeroSlider from "@/components/hero-slider";
+import { NewsletterSubscription } from "@/components/NewsletterSubscription";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Heart, Clock, Award, Package } from "lucide-react";
 const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
@@ -349,16 +350,7 @@ export default function Home() {
             Join our community of flower lovers!
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-wine focus:outline-none shadow-lg"
-            />
-            <Button className="bg-white text-wine hover:bg-soft-pink px-8 py-3 font-semibold shadow-lg">
-              Subscribe
-            </Button>
-          </div>
+          <NewsletterSubscription />
           
           <p className="text-pink-200 text-sm mt-4">
             We respect your privacy. Unsubscribe at any time.
