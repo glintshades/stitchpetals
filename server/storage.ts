@@ -83,6 +83,7 @@ export interface IStorage {
   
   // Contact submissions
   getAllContactSubmissions(): Promise<ContactSubmission[]>;
+  deleteContactSubmission(id: number): Promise<void>;
   
   // Offers management
   getAllOffers(): Promise<Offer[]>;
@@ -625,6 +626,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllContactSubmissions(): Promise<ContactSubmission[]> {
     return await db.select().from(contactSubmissions);
+  }
+
+  async deleteContactSubmission(id: number): Promise<void> {
+    await db.delete(contactSubmissions).where(eq(contactSubmissions.id, id));
   }
 
   // Offers management methods

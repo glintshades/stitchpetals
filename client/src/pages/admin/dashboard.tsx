@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,8 @@ import {
   Edit,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Trash2
 } from "lucide-react";
 
 import type { Order, Product, ContactSubmission } from "@shared/schema";
@@ -27,6 +30,9 @@ import { AdminNewsletterSubscriptions } from "@/components/admin/AdminNewsletter
 
 // Contact submissions component
 function ContactsList() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["/api/admin/contacts"],
     queryFn: async () => {
@@ -37,6 +43,27 @@ function ContactsList() {
         throw new Error('Failed to fetch contacts');
       }
       return response.json();
+    },
+  });
+
+  const deleteContactMutation = useMutation({
+    mutationFn: async (contactId: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/contacts/${contactId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/contacts"] });
+      toast({
+        title: "Contact deleted",
+        description: "Contact message has been successfully deleted.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete contact message.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -57,13 +84,23 @@ function ContactsList() {
       {contacts.map((contact: ContactSubmission) => (
         <div key={contact.id} className="border border-gray-200 rounded-lg p-4">
           <div className="flex justify-between items-start mb-3">
-            <div>
+            <div className="flex-1">
               <h3 className="font-semibold">{contact.subject}</h3>
               <p className="text-sm text-gray-600">{contact.name} - {contact.email}</p>
               <p className="text-sm text-gray-500">
                 {new Date(contact.createdAt).toLocaleDateString()}
               </p>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => deleteContactMutation.mutate(contact.id)}
+              disabled={deleteContactMutation.isPending}
+              className="text-red-600 hover:text-red-800 hover:bg-red-50"
+              data-testid={`delete-contact-${contact.id}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
           <p className="text-gray-700 text-sm bg-gray-50 p-3 rounded">
             {contact.message}

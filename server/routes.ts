@@ -736,6 +736,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/admin/contacts/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteContactSubmission(id);
+      res.json({ message: "Contact submission deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete contact submission" });
+    }
+  });
+
   // Newsletter subscription endpoints
   app.post("/api/newsletter/subscribe", async (req, res) => {
     try {
