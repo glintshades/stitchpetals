@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus, Package, Eye, EyeOff, Palette, X } from "lucide-react";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { apiRequest } from "@/lib/queryClient";
 import type { Product, ProductVariation } from "@shared/schema";
 
 type ProductCategory = {
@@ -586,12 +587,7 @@ function ProductVariationsManager({ product, open, onOpenChange }: ProductVariat
   // Create variation mutation
   const createVariationMutation = useMutation({
     mutationFn: async (data: VariationForm) => {
-      const response = await fetch(`/api/admin/products/${product!.id}/variations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create variation");
+      const response = await apiRequest("POST", `/api/admin/products/${product!.id}/variations`, data);
       return response.json();
     },
     onSuccess: () => {
@@ -608,12 +604,7 @@ function ProductVariationsManager({ product, open, onOpenChange }: ProductVariat
   // Update variation mutation
   const updateVariationMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<VariationForm> }) => {
-      const response = await fetch(`/api/admin/variations/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to update variation");
+      const response = await apiRequest("PATCH", `/api/admin/variations/${id}`, data);
       return response.json();
     },
     onSuccess: () => {
@@ -630,10 +621,7 @@ function ProductVariationsManager({ product, open, onOpenChange }: ProductVariat
   // Delete variation mutation
   const deleteVariationMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/variations/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete variation");
+      const response = await apiRequest("DELETE", `/api/admin/variations/${id}`);
       return response.json();
     },
     onSuccess: () => {

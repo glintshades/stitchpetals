@@ -858,17 +858,8 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Backup methods implementation
-  async getAllUsers(): Promise<User[]> {
-    return db.select().from(users);
-  }
-
   async getAllAddresses(): Promise<SavedAddress[]> {
     return db.select().from(savedAddresses);
-  }
-
-  async getAllCategories(): Promise<ProductCategory[]> {
-    return db.select().from(productCategories);
   }
 
   async getAllAdminUsers(): Promise<AdminUser[]> {
