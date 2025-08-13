@@ -18,6 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useToast } from "@/hooks/use-toast";
@@ -37,7 +43,12 @@ import {
   ZoomIn,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Facebook,
+  Twitter,
+  Link2,
+  MessageCircle,
+  Copy
 } from "lucide-react";
 import { getCategoryDisplayName, formatPrice } from "@/lib/products";
 
@@ -53,6 +64,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: ["/api/products", productId],
@@ -125,6 +137,49 @@ export default function ProductPage() {
   const relatedProducts = allProducts
     .filter(p => p.id !== productId && p.category === product?.category)
     .slice(0, 4);
+
+  // Social sharing functions
+  const getCurrentUrl = () => window.location.href;
+  
+  const shareOnPlatform = (platform: string) => {
+    if (!product) return;
+    
+    const url = getCurrentUrl();
+    const title = encodeURIComponent(product.name);
+    const description = encodeURIComponent(product.description);
+    const price = encodeURIComponent(formatPrice(selectedVariation?.price || product.price));
+    const text = encodeURIComponent(`Check out this beautiful ${product.name} for ${price}!`);
+    
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${text} ${encodeURIComponent(url)}`;
+        break;
+      case 'pinterest':
+        const imageUrl = encodeURIComponent(selectedVariation?.imageUrl || product.imageUrl);
+        shareUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${imageUrl}&description=${description}`;
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(url).then(() => {
+          toast({
+            title: "Link copied!",
+            description: "Product link has been copied to your clipboard.",
+          });
+        });
+        return;
+    }
+    
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -421,9 +476,55 @@ export default function ProductPage() {
                   >
                     <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                   </Button>
-                  <Button variant="ghost" size="icon" className="wine hover:bg-soft-pink">
-                    <Share2 className="h-5 w-5" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="wine hover:bg-soft-pink" data-testid="button-share">
+                        <Share2 className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        onClick={() => shareOnPlatform('facebook')}
+                        className="cursor-pointer"
+                        data-testid="share-facebook"
+                      >
+                        <Facebook className="h-4 w-4 mr-2" />
+                        Share on Facebook
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => shareOnPlatform('twitter')}
+                        className="cursor-pointer"
+                        data-testid="share-twitter"
+                      >
+                        <Twitter className="h-4 w-4 mr-2" />
+                        Share on Twitter
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => shareOnPlatform('whatsapp')}
+                        className="cursor-pointer"
+                        data-testid="share-whatsapp"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Share on WhatsApp
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => shareOnPlatform('pinterest')}
+                        className="cursor-pointer"
+                        data-testid="share-pinterest"
+                      >
+                        <div className="h-4 w-4 mr-2 bg-red-600 rounded-sm flex items-center justify-center text-xs text-white font-bold">P</div>
+                        Share on Pinterest
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => shareOnPlatform('copy')}
+                        className="cursor-pointer"
+                        data-testid="share-copy-link"
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy Link
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               
