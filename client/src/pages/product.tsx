@@ -22,7 +22,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useToast } from "@/hooks/use-toast";
 import ProductCard from "@/components/product-card";
-import { type Product } from "@shared/schema";
+import { type Product, type ProductVariation } from "@shared/schema";
 import { 
   ArrowLeft, 
   Heart, 
@@ -49,6 +49,7 @@ export default function ProductPage() {
   const { toast } = useToast();
   
   const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -58,15 +59,32 @@ export default function ProductPage() {
     enabled: !!productId,
   });
 
-  // Set initial color if not set using useEffect to avoid conditional hooks
+  // Fetch product variations
+  const { data: variations = [] } = useQuery<ProductVariation[]>({
+    queryKey: ["/api/products", productId, "variations"],
+    queryFn: async () => {
+      const response = await fetch(`/api/products/${productId}/variations`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!productId,
+  });
+
+  // Set initial variation and color if not set
   useEffect(() => {
-    if (product && !selectedColor) {
+    if (variations.length > 0 && !selectedVariation) {
+      // If variations exist, use the first available one
+      const availableVariation = variations.find(v => v.isAvailable) || variations[0];
+      setSelectedVariation(availableVariation);
+      setSelectedColor(availableVariation.colorName);
+    } else if (product && !selectedColor && variations.length === 0) {
+      // Fallback to product colors if no variations exist
       const colors = Array.isArray(product.colors) ? product.colors : [];
       if (colors.length > 0) {
         setSelectedColor(colors[0]);
       }
     }
-  }, [product, selectedColor]);
+  }, [product, selectedColor, variations, selectedVariation]);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -111,10 +129,31 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!product) return;
     
+    // Check if variations exist and require selection
+    if (variations.length > 0 && !selectedVariation) {
+      toast({
+        title: "Please select a color variation",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if product has regular colors and requires selection
     const colors = Array.isArray(product.colors) ? product.colors : [];
-    if (colors.length > 1 && !selectedColor) {
+    if (variations.length === 0 && colors.length > 1 && !selectedColor) {
       toast({
         title: "Please select a color",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check availability based on variation or main product
+    const isAvailable = selectedVariation ? selectedVariation.isAvailable : product.inStock;
+    if (!isAvailable) {
+      toast({
+        title: "Product not available",
+        description: "The selected variation is out of stock",
         variant: "destructive",
       });
       return;
@@ -123,17 +162,39 @@ export default function ProductPage() {
     addToCart({
       productId: product.id,
       quantity,
-      selectedColor: selectedColor || undefined,
+      selectedColor: selectedVariation?.colorName || selectedColor || undefined,
+      variationId: selectedVariation?.id,
     });
   };
 
   const handleBuyNow = () => {
     if (!product) return;
     
+    // Check if variations exist and require selection
+    if (variations.length > 0 && !selectedVariation) {
+      toast({
+        title: "Please select a color variation",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if product has regular colors and requires selection
     const colors = Array.isArray(product.colors) ? product.colors : [];
-    if (colors.length > 1 && !selectedColor) {
+    if (variations.length === 0 && colors.length > 1 && !selectedColor) {
       toast({
         title: "Please select a color",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check availability based on variation or main product
+    const isAvailable = selectedVariation ? selectedVariation.isAvailable : product.inStock;
+    if (!isAvailable) {
+      toast({
+        title: "Product not available",
+        description: "The selected variation is out of stock",
         variant: "destructive",
       });
       return;
@@ -143,7 +204,8 @@ export default function ProductPage() {
     addToCart({
       productId: product.id,
       quantity,
-      selectedColor: selectedColor || undefined,
+      selectedColor: selectedVariation?.colorName || selectedColor || undefined,
+      variationId: selectedVariation?.id,
     });
 
     // Show checkout message (since we don't have a full checkout system)
@@ -200,7 +262,9 @@ export default function ProductPage() {
   }
 
   const colors = Array.isArray(product.colors) ? product.colors : [];
-  const productImages = [product.imageUrl].filter(Boolean); // Only show actual product image
+  const productImages = [
+    selectedVariation?.imageUrl || product.imageUrl
+  ].filter(Boolean); // Show variation image if selected, otherwise product image
 
   return (
     <div className="bg-ivory">
@@ -382,12 +446,47 @@ export default function ProductPage() {
               </p>
 
               <div className="text-3xl font-bold dark-pink mb-8">
-                {formatPrice(product.price)}
+                {formatPrice(selectedVariation?.price || product.price)}
               </div>
             </div>
 
-            {/* Color Selection */}
-            {colors.length > 1 && (
+            {/* Color/Variation Selection */}
+            {variations.length > 0 ? (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Palette className="h-4 w-4 wine" />
+                  <Label className="font-semibold wine">Color:</Label>
+                  {selectedVariation && (
+                    <span className="text-gray-600">{selectedVariation.colorName}</span>
+                  )}
+                </div>
+                <Select 
+                  value={selectedVariation?.id.toString() || ""} 
+                  onValueChange={(value) => {
+                    const variation = variations.find(v => v.id.toString() === value);
+                    if (variation) {
+                      setSelectedVariation(variation);
+                      setSelectedColor(variation.colorName);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full focus:ring-wine focus:border-wine">
+                    <SelectValue placeholder="Select a color" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {variations.map((variation) => (
+                      <SelectItem 
+                        key={variation.id} 
+                        value={variation.id.toString()}
+                        disabled={!variation.isAvailable}
+                      >
+                        {variation.colorName} {!variation.isAvailable && "(Out of Stock)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : colors.length > 1 && (
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Palette className="h-4 w-4 wine" />
@@ -439,27 +538,27 @@ export default function ProductPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Button
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={selectedVariation ? !selectedVariation.isAvailable : !product.inStock}
                   variant="outline"
                   className="w-full py-4 text-lg font-semibold border-wine text-wine hover:bg-wine hover:text-white transition-colors"
                 >
-                  {product.inStock ? "Add to Cart" : "Out of Stock"}
+                  {(selectedVariation ? selectedVariation.isAvailable : product.inStock) ? "Add to Cart" : "Out of Stock"}
                 </Button>
                 
                 <Button
                   onClick={handleBuyNow}
-                  disabled={!product.inStock}
+                  disabled={selectedVariation ? !selectedVariation.isAvailable : !product.inStock}
                   className="w-full wine-gradient text-white py-4 text-lg font-semibold hover:opacity-90 transition-opacity"
                 >
-                  {product.inStock ? "Buy Now" : "Out of Stock"}
+                  {(selectedVariation ? selectedVariation.isAvailable : product.inStock) ? "Buy Now" : "Out of Stock"}
                 </Button>
               </div>
               
-              {product.inStock && (
+              {(selectedVariation ? selectedVariation.isAvailable : product.inStock) && (
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
                     Total: <span className="font-semibold dark-pink">
-                      {formatPrice((parseFloat(product.price) * quantity).toString())}
+                      {formatPrice((parseFloat(selectedVariation?.price || product.price) * quantity).toString())}
                     </span>
                   </p>
                 </div>

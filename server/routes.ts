@@ -112,6 +112,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public product variations endpoint
+  app.get("/api/products/:id/variations", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const variations = await storage.getProductVariations(productId);
+      // Only return available variations for public API
+      const availableVariations = variations.filter(v => v.isAvailable);
+      res.json(availableVariations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch product variations" });
+    }
+  });
+
   // Public Categories API
   app.get("/api/categories", async (req, res) => {
     try {
