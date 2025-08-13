@@ -42,6 +42,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   
   getAllProducts(): Promise<Product[]>;
+  getVisibleProducts(): Promise<Product[]>; // For public listings - only visible products
   getProduct(id: number): Promise<Product | undefined>;
   getProductsByCategory(category: string): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
@@ -380,6 +381,17 @@ export class DatabaseStorage implements IStorage {
     await this.initializeProducts(); // Ensure products are initialized
     // Filter out the system marker product
     return await db.select().from(products).where(ne(products.name, "INITIAL_SETUP_CHECK"));
+  }
+
+  async getVisibleProducts(): Promise<Product[]> {
+    await this.initializeProducts(); // Ensure products are initialized
+    // Filter out the system marker product AND only show visible products
+    return await db.select().from(products).where(
+      and(
+        ne(products.name, "INITIAL_SETUP_CHECK"),
+        eq(products.isVisible, true)
+      )
+    );
   }
 
   async getProduct(id: number): Promise<Product | undefined> {

@@ -34,6 +34,7 @@ const productSchema = z.object({
   colors: z.string().optional().default("Mixed"),
   stemCount: z.number().min(1, "Stem count must be at least 1"),
   inStock: z.boolean(),
+  isVisible: z.boolean(),
 });
 
 type ProductForm = z.infer<typeof productSchema>;
@@ -77,6 +78,7 @@ export default function AdminProducts() {
       colors: "Mixed",
       stemCount: 1,
       inStock: true,
+      isVisible: true,
     },
   });
 
@@ -179,6 +181,7 @@ export default function AdminProducts() {
       colors: Array.isArray(product.colors) ? product.colors.join(", ") : String(product.colors || ""),
       stemCount: product.stemCount || 1,
       inStock: product.inStock,
+      isVisible: product.isVisible !== false, // Default to true if undefined
     });
     setIsDialogOpen(true);
   };
@@ -216,6 +219,7 @@ export default function AdminProducts() {
       colors: "Mixed",
       stemCount: 1,
       inStock: true,
+      isVisible: true,
     });
     setIsDialogOpen(true);
   };
@@ -328,15 +332,28 @@ export default function AdminProducts() {
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="inStock"
-                  checked={form.watch("inStock")}
-                  onChange={(e) => form.setValue("inStock", e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-                <Label htmlFor="inStock">In Stock</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="inStock"
+                    checked={form.watch("inStock")}
+                    onChange={(e) => form.setValue("inStock", e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="inStock">In Stock</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isVisible"
+                    checked={form.watch("isVisible")}
+                    onChange={(e) => form.setValue("isVisible", e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="isVisible">Visible in Product Listing</Label>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
@@ -392,6 +409,11 @@ export default function AdminProducts() {
                         <Badge className="bg-green-100 text-green-800">In Stock</Badge>
                       ) : (
                         <Badge className="bg-red-100 text-red-800">Out of Stock</Badge>
+                      )}
+                      {product.isVisible !== false ? (
+                        <Badge className="bg-blue-100 text-blue-800">Visible</Badge>
+                      ) : (
+                        <Badge className="bg-gray-100 text-gray-800">Hidden</Badge>
                       )}
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">

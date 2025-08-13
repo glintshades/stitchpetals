@@ -35,6 +35,7 @@ export const products = pgTable("products", {
   colors: jsonb("colors").default([]).notNull(), // array of available colors
   stemCount: integer("stem_count"), // number of stems/flowers
   inStock: boolean("in_stock").default(true).notNull(),
+  isVisible: boolean("is_visible").default(true).notNull(), // admin can hide products from listing
 });
 
 export const cartItems = pgTable("cart_items", {
@@ -171,6 +172,7 @@ export const insertProductSchema = createInsertSchema(products).pick({
   colors: true,
   stemCount: true,
   inStock: true,
+  isVisible: true,
 });
 
 export const insertCartItemSchema = createInsertSchema(cartItems).pick({

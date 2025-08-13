@@ -86,9 +86,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const category = req.query.category as string;
       if (category) {
         const products = await storage.getProductsByCategory(category);
-        res.json(products);
+        // Filter visible products for public API
+        const visibleProducts = products.filter(p => p.isVisible !== false);
+        res.json(visibleProducts);
       } else {
-        const products = await storage.getAllProducts();
+        // Use visible products for public API
+        const products = await storage.getVisibleProducts();
         res.json(products);
       }
     } catch (error) {
