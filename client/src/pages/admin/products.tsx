@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, Package } from "lucide-react";
+import { Pencil, Trash2, Plus, Package, Eye, EyeOff } from "lucide-react";
 import { ImageUpload } from "@/components/ui/image-upload";
 import type { Product } from "@shared/schema";
 
@@ -170,6 +170,36 @@ export default function AdminProducts() {
     },
   });
 
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: async ({ id, isVisible }: { id: number; isVisible: boolean }) => {
+      const response = await fetch(`/api/admin/products/${id}`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: "Bearer admin-token"
+        },
+        body: JSON.stringify({ isVisible }),
+      });
+      if (!response.ok) throw new Error("Failed to update product visibility");
+      return response.json();
+    },
+    onSuccess: (_, variables) => {
+      toast({ 
+        title: "Success", 
+        description: `Product ${variables.isVisible ? 'shown' : 'hidden'} successfully`
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Error", 
+        description: error.message,
+        variant: "destructive"
+      });
+    },
+  });
+
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     form.reset({
@@ -206,6 +236,14 @@ export default function AdminProducts() {
     if (confirm("Are you sure you want to delete this product?")) {
       deleteProductMutation.mutate(id);
     }
+  };
+
+  const handleToggleVisibility = (product: Product) => {
+    const newVisibility = !product.isVisible;
+    toggleVisibilityMutation.mutate({ 
+      id: product.id, 
+      isVisible: newVisibility 
+    });
   };
 
   const openCreateDialog = () => {
@@ -429,7 +467,22 @@ export default function AdminProducts() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => handleToggleVisibility(product)}
+                    disabled={toggleVisibilityMutation.isPending}
+                    title={product.isVisible !== false ? "Hide from website" : "Show on website"}
+                    data-testid={`button-toggle-visibility-${product.id}`}
+                  >
+                    {product.isVisible !== false ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleEdit(product)}
+                    data-testid={`button-edit-${product.id}`}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -438,6 +491,7 @@ export default function AdminProducts() {
                     size="sm"
                     onClick={() => handleDelete(product.id)}
                     disabled={deleteProductMutation.isPending}
+                    data-testid={`button-delete-${product.id}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
