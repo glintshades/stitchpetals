@@ -38,12 +38,27 @@ export const products = pgTable("products", {
   isVisible: boolean("is_visible").default(true).notNull(), // admin can hide products from listing
 });
 
+// New table for product color variations with specific images
+export const productVariations = pgTable("product_variations", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  colorName: text("color_name").notNull(), // e.g., "Pink", "Purple", "Mixed"
+  colorCode: text("color_code"), // optional hex color code for display
+  imageUrl: text("image_url").notNull(), // specific image for this color variation
+  stockQuantity: integer("stock_quantity").default(0).notNull(),
+  isAvailable: boolean("is_available").default(true).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(), // for admin to control display order
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
 export const cartItems = pgTable("cart_items", {
   id: serial("id").primaryKey(),
   sessionId: text("session_id").notNull(),
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull().default(1),
   selectedColor: text("selected_color"),
+  variationId: integer("variation_id").references(() => productVariations.id), // link to specific color variation
 });
 
 export const wishlistItems = pgTable("wishlist_items", {
@@ -175,11 +190,22 @@ export const insertProductSchema = createInsertSchema(products).pick({
   isVisible: true,
 });
 
+export const insertProductVariationSchema = createInsertSchema(productVariations).pick({
+  productId: true,
+  colorName: true,
+  colorCode: true,
+  imageUrl: true,
+  stockQuantity: true,
+  isAvailable: true,
+  sortOrder: true,
+});
+
 export const insertCartItemSchema = createInsertSchema(cartItems).pick({
   sessionId: true,
   productId: true,
   quantity: true,
   selectedColor: true,
+  variationId: true,
 });
 
 export const insertWishlistItemSchema = createInsertSchema(wishlistItems).pick({
@@ -292,3 +318,5 @@ export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
 export type InsertUserWithShipping = z.infer<typeof insertUserWithShippingSchema>;
 export type NewsletterSubscription = typeof newsletterSubscriptions.$inferSelect;
 export type InsertNewsletterSubscription = z.infer<typeof insertNewsletterSubscriptionSchema>;
+export type ProductVariation = typeof productVariations.$inferSelect;
+export type InsertProductVariation = z.infer<typeof insertProductVariationSchema>;

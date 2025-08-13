@@ -647,6 +647,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Product variations management
+  app.get("/api/admin/products/:id/variations", requireAdmin, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const variations = await storage.getProductVariations(productId);
+      res.json(variations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch product variations" });
+    }
+  });
+
+  app.post("/api/admin/products/:id/variations", requireAdmin, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const variation = await storage.createProductVariation({
+        ...req.body,
+        productId
+      });
+      res.status(201).json(variation);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to create variation" });
+    }
+  });
+
+  app.patch("/api/admin/variations/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const variation = await storage.updateProductVariation(id, req.body);
+      if (!variation) {
+        return res.status(404).json({ message: "Variation not found" });
+      }
+      res.json(variation);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update variation" });
+    }
+  });
+
+  app.delete("/api/admin/variations/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteProductVariation(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Variation not found" });
+      }
+      res.json({ message: "Variation deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete variation" });
+    }
+  });
+
   // Image upload endpoint
   app.post("/api/admin/upload-image", requireAdmin, upload.single('image'), async (req, res) => {
     try {
