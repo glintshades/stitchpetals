@@ -661,13 +661,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/products/:id/variations", requireAdmin, async (req, res) => {
     try {
       const productId = parseInt(req.params.id);
+      console.log("Creating variation with data:", { ...req.body, productId });
       const variation = await storage.createProductVariation({
         ...req.body,
         productId
       });
       res.status(201).json(variation);
     } catch (error) {
-      res.status(400).json({ message: "Failed to create variation" });
+      console.error("Variation creation error:", error);
+      res.status(400).json({ message: "Failed to create variation", error: error.message });
     }
   });
 
