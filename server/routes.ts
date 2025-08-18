@@ -57,8 +57,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const imagePath = req.params[0]; // Get the path after /images/
       const fullPath = path.join(process.cwd(), 'client/public/images', imagePath);
       
+      console.log(`[IMAGE] Request: ${req.url}, Full Path: ${fullPath}`);
+      
       // Check if file exists
       if (!fs.existsSync(fullPath)) {
+        console.log(`[IMAGE] File not found: ${fullPath}`);
         return res.status(404).json({ error: 'Image not found' });
       }
       
@@ -76,6 +79,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day cache
       res.setHeader('Access-Control-Allow-Origin', '*');
+      
+      console.log(`[IMAGE] Serving: ${imagePath} as ${contentType}`);
       
       // Stream the file
       const fileStream = fs.createReadStream(fullPath);
