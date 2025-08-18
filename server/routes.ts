@@ -4,6 +4,7 @@ import { createServer, type Server } from "http";
 import session from "express-session";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { fedexService, type ShippingAddress } from './fedexService';
@@ -50,8 +51,40 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve uploaded images
-  app.use('/images', express.static(path.join(process.cwd(), 'client/public/images')));
+  // Serve uploaded images through API endpoint to avoid Vite conflicts
+  app.get('/images/*', async (req, res) => {
+    try {
+      const imagePath = req.params[0]; // Get the path after /images/
+      const fullPath = path.join(process.cwd(), 'client/public/images', imagePath);
+      
+      // Check if file exists
+      if (!fs.existsSync(fullPath)) {
+        return res.status(404).json({ error: 'Image not found' });
+      }
+      
+      // Set proper headers for images
+      const ext = path.extname(fullPath).toLowerCase();
+      const mimeTypes: { [key: string]: string } = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.webp': 'image/webp',
+        '.gif': 'image/gif',
+      };
+      
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day cache
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      
+      // Stream the file
+      const fileStream = fs.createReadStream(fullPath);
+      fileStream.pipe(res);
+    } catch (error) {
+      console.error('Error serving image:', error);
+      res.status(500).json({ error: 'Failed to serve image' });
+    }
+  });
   
   // Setup session middleware
   app.use(session({
