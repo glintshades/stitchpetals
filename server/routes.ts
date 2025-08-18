@@ -76,14 +76,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const contentType = mimeTypes[ext] || 'application/octet-stream';
+      
+      // Get file stats for proper Content-Length
+      const stats = fs.statSync(fullPath);
+      
       res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Length', stats.size.toString());
       res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day cache
       res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Accept-Ranges', 'bytes');
       
       console.log(`[IMAGE] Serving: ${imagePath} as ${contentType}`);
       
       // Stream the file
       const fileStream = fs.createReadStream(fullPath);
+      fileStream.on('error', (error) => {
+        console.error(`[IMAGE] Stream error for ${fullPath}:`, error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Failed to stream image' });
+        }
+      });
       fileStream.pipe(res);
     } catch (error) {
       console.error('Error serving image:', error);

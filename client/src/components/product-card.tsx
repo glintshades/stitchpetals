@@ -84,6 +84,11 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                   alt={product.name}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  onLoad={() => console.log(`Image loaded: ${product.imageUrl}`)}
+                  onError={(e) => {
+                    console.error(`Image failed to load: ${product.imageUrl}`);
+                    console.error('Error:', e);
+                  }}
                 />
               ) : (
                 <div className="text-gray-400 text-center p-4">
