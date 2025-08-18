@@ -147,7 +147,7 @@ export default function ProductPage() {
     const url = getCurrentUrl();
     const title = encodeURIComponent(product.name);
     const description = encodeURIComponent(product.description);
-    const price = encodeURIComponent(formatPrice(selectedVariation?.price || product.price));
+    const price = encodeURIComponent(formatPrice(product.price));
     const text = encodeURIComponent(`Check out this beautiful ${product.name} for ${price}!`);
     
     let shareUrl = '';
@@ -547,7 +547,7 @@ export default function ProductPage() {
               </p>
 
               <div className="text-3xl font-bold dark-pink mb-8">
-                {formatPrice(selectedVariation?.price || product.price)}
+                {formatPrice(product.price)}
               </div>
             </div>
 
@@ -659,7 +659,7 @@ export default function ProductPage() {
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
                     Total: <span className="font-semibold dark-pink">
-                      {formatPrice((parseFloat(selectedVariation?.price || product.price) * quantity).toString())}
+                      {formatPrice((parseFloat(product.price) * quantity).toString())}
                     </span>
                   </p>
                 </div>

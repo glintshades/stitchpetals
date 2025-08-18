@@ -114,7 +114,7 @@ class FedExService {
       // Token expires in 3600 seconds (1 hour) - refresh 5 minutes early
       tokenExpiration = Date.now() + (3600 - 300) * 1000;
 
-      return accessToken;
+      return accessToken!;
     } catch (error) {
       console.error('Failed to get FedEx access token:', error);
       throw new Error('Failed to authenticate with FedEx API');
