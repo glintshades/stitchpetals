@@ -185,8 +185,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cart API
-  app.get("/api/cart", requireAuth, async (req, res) => {
+  // Cart API - Allow guest access using session
+  app.get("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItems = await storage.getCartItems(sessionId);
@@ -197,21 +197,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart", requireAuth, async (req, res) => {
+  app.post("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItemData = { ...req.body, sessionId };
       console.log("Adding to cart:", cartItemData);
       const validatedData = insertCartItemSchema.parse(cartItemData);
       const cartItem = await storage.addToCart(validatedData);
-      res.json(cartItem);
+      res.status(201).json(cartItem);
     } catch (error) {
       console.error("Cart add error:", error);
       res.status(400).json({ message: "Failed to add item to cart", error: String(error) });
     }
   });
 
-  app.patch("/api/cart/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cart/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { quantity } = req.body;
@@ -225,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cart/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.removeFromCart(id);
@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart", requireAuth, async (req, res) => {
+  app.delete("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       await storage.clearCart(sessionId);

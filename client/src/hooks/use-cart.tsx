@@ -17,9 +17,7 @@ export function useCart() {
 
   const addToCartMutation = useMutation({
     mutationFn: async (item: Omit<InsertCartItem, "sessionId">) => {
-      if (!isAuthenticated) {
-        throw new Error("Please log in to add items to your cart");
-      }
+      console.log("Adding item to cart:", item);
       const response = await apiRequest("POST", "/api/cart", item);
       return response.json();
     },
@@ -31,27 +29,17 @@ export function useCart() {
       });
     },
     onError: (error: Error) => {
-      if (error.message.includes("log in")) {
-        toast({
-          title: "Registration Required",
-          description: "Please log in to add items to your cart.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to add item to cart.",
-          variant: "destructive",
-        });
-      }
+      console.error("Cart add error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart.",
+        variant: "destructive",
+      });
     },
   });
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: number; quantity: number }) => {
-      if (!isAuthenticated) {
-        throw new Error("Please log in to update your cart");
-      }
       const response = await apiRequest("PATCH", `/api/cart/${id}`, { quantity });
       return response.json();
     },
@@ -59,27 +47,17 @@ export function useCart() {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
     },
     onError: (error: Error) => {
-      if (error.message.includes("log in")) {
-        toast({
-          title: "Registration Required",
-          description: "Please log in to update your cart.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to update cart item.",
-          variant: "destructive",
-        });
-      }
+      console.error("Cart update error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update cart item.",
+        variant: "destructive",
+      });
     },
   });
 
   const removeFromCartMutation = useMutation({
     mutationFn: async (id: number) => {
-      if (!isAuthenticated) {
-        throw new Error("Please log in to modify your cart");
-      }
       const response = await apiRequest("DELETE", `/api/cart/${id}`);
       return response.json();
     },
@@ -91,19 +69,12 @@ export function useCart() {
       });
     },
     onError: (error: Error) => {
-      if (error.message.includes("log in")) {
-        toast({
-          title: "Registration Required",
-          description: "Please log in to modify your cart.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to remove item from cart.",
-          variant: "destructive",
-        });
-      }
+      console.error("Cart remove error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove item from cart.",
+        variant: "destructive",
+      });
     },
   });
 
