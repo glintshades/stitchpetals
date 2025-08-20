@@ -28,6 +28,8 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
   );
+  const [imageError, setImageError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(product.imageUrl);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -94,21 +96,21 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
             </Badge>
           )}
           <div className="w-full h-48 sm:h-52 md:h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
-            {product.imageUrl && product.imageUrl !== '/system/marker' ? (
+            {imageSrc && imageSrc !== '/system/marker' && !imageError ? (
               <img
-                src={product.imageUrl}
+                src={imageSrc}
                 alt={product.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                onLoad={() => console.log(`Image loaded: ${product.imageUrl}`)}
-                onError={(e) => {
-                  console.error(`Image failed to load: ${product.imageUrl}`);
-                  console.error('Error:', e);
+                onError={() => {
+                  console.error(`Image failed to load: ${imageSrc}`);
+                  setImageError(true);
                 }}
               />
             ) : (
-              <div className="text-gray-400 text-center p-4">
-                <div className="text-sm">No image available</div>
+              <div className="text-gray-400 text-center p-4 bg-gradient-to-br from-soft-pink to-blush">
+                <div className="text-wine font-semibold text-lg">🌸</div>
+                <div className="text-sm text-wine mt-1">Crochet Flower</div>
               </div>
             )}
           </div>
