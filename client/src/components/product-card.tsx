@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { type Product, type Offer } from "@shared/schema";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import {
   Select,
@@ -21,6 +22,16 @@ interface ProductCardProps {
   className?: string;
 }
 
+interface ProductVariation {
+  id: number;
+  productId: number;
+  colorName: string;
+  colorCode?: string;
+  imageUrl: string;
+  stockQuantity: number;
+  isAvailable: boolean;
+}
+
 export default function ProductCard({ product, offer, className = "" }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
@@ -30,6 +41,35 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
   );
   const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState(product.imageUrl);
+  const [hoveredColor, setHoveredColor] = useState<string>("");
+
+  // Fetch product variations for color-specific images
+  const { data: variations = [] } = useQuery<ProductVariation[]>({
+    queryKey: [`/api/products/${product.id}/variations`],
+    queryFn: async () => {
+      const response = await fetch(`/api/products/${product.id}/variations`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+  });
+
+  // Update image source when color is hovered or selected
+  useEffect(() => {
+    const colorToShow = hoveredColor || selectedColor;
+    if (colorToShow && variations.length > 0) {
+      const variation = variations.find(v => 
+        v.colorName.toLowerCase() === colorToShow.toLowerCase()
+      );
+      if (variation && variation.imageUrl) {
+        setImageSrc(variation.imageUrl);
+        setImageError(false);
+        return;
+      }
+    }
+    // Fallback to default product image
+    setImageSrc(product.imageUrl);
+    setImageError(false);
+  }, [hoveredColor, selectedColor, variations, product.imageUrl]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -149,12 +189,16 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                     <Badge 
                       key={color} 
                       variant="outline" 
-                      className="border-wine text-wine hover:bg-wine hover:text-white transition-colors cursor-pointer text-xs interactive-element"
+                      className={`border-wine text-wine hover:bg-wine hover:text-white transition-colors cursor-pointer text-xs interactive-element ${
+                        selectedColor === color ? 'bg-wine text-white' : ''
+                      }`}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         setSelectedColor(color);
                       }}
+                      onMouseEnter={() => setHoveredColor(color)}
+                      onMouseLeave={() => setHoveredColor("")}
                     >
                       {color}
                     </Badge>
