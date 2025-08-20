@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 interface HeroBannerProps {
   title: string;
@@ -50,25 +51,27 @@ export function HeroBanner({
             {(ctaText || ctaSecondaryText) && (
               <div className="flex flex-col sm:flex-row gap-4">
                 {ctaText && ctaLink && (
-                  <a href={ctaLink}>
+                  <Link href={ctaLink}>
                     <Button 
                       size="lg" 
                       className="bg-white text-wine hover:bg-white/90 px-8 py-4 text-lg font-semibold shadow-lg transition-all"
+                      data-testid="hero-cta-button"
                     >
                       {ctaText}
                     </Button>
-                  </a>
+                  </Link>
                 )}
                 {ctaSecondaryText && ctaSecondaryLink && (
-                  <a href={ctaSecondaryLink}>
+                  <Link href={ctaSecondaryLink}>
                     <Button 
                       variant="outline" 
                       size="lg"
                       className="border-2 border-white text-white px-8 py-4 text-lg font-semibold hover:bg-white hover:text-[#3e0d57] transition-all shadow-lg backdrop-blur-sm bg-white/10"
+                      data-testid="hero-secondary-cta-button"
                     >
                       {ctaSecondaryText}
                     </Button>
-                  </a>
+                  </Link>
                 )}
               </div>
             )}

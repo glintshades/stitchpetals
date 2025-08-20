@@ -176,9 +176,9 @@ export default function Offers() {
         description="Discover incredible savings on our beautiful handcrafted crochet flowers. Don't miss out on these exclusive deals and limited-time offers."
         backgroundImage="/images/image-1753373640459-784026118.webp"
         ctaText="Shop Deals"
-        ctaLink="#deals"
-        ctaSecondaryText="View All"
-        ctaSecondaryLink="#featured-products"
+        ctaLink="/shop?filter=offers"
+        ctaSecondaryText="View All Products"
+        ctaSecondaryLink="/shop"
       />
 
       {/* Legacy Offers Slider for Actual Deals */}
