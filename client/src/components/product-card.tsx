@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, offer, className = "" }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
+  const [, setLocation] = useLocation();
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
   );
@@ -74,8 +75,9 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
       return;
     }
     
-    // Navigate to product page
-    window.location.href = `/product/${product.id}`;
+    // Navigate to product page using proper routing
+    console.log(`Navigating to product ID: ${product.id}`);
+    setLocation(`/product/${product.id}`);
   };
 
   return (
