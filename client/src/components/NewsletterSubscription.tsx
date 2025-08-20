@@ -11,12 +11,16 @@ export function NewsletterSubscription() {
 
   const subscriptionMutation = useMutation({
     mutationFn: async (email: string) => {
-      return apiRequest("POST", "/api/newsletter/subscribe", {
+      console.log("Attempting to subscribe email:", email);
+      const response = await apiRequest("POST", "/api/newsletter/subscribe", {
         email,
         source: "website"
       });
+      console.log("Subscription response:", response);
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      console.log("Subscription successful:", response);
       setIsSubmitted(true);
       setEmail("");
       toast({
@@ -26,6 +30,7 @@ export function NewsletterSubscription() {
       });
     },
     onError: (error: any) => {
+      console.error("Subscription error:", error);
       toast({
         title: "Subscription Error",
         description: error.message || "Failed to subscribe. Please try again.",
