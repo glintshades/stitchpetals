@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { isUnauthorizedError, redirectToLogin } from "@/lib/authUtils";
 import { type CartItem, type Product, type InsertCartItem } from "@shared/schema";
 
 type CartItemWithProduct = CartItem & { product: Product };
@@ -30,6 +31,15 @@ export function useCart() {
     },
     onError: (error: Error) => {
       console.error("Cart add error:", error);
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Sign in required",
+          description: "Please sign in to add items to your cart.",
+          variant: "destructive",
+        });
+        setTimeout(() => redirectToLogin(), 1000);
+        return;
+      }
       toast({
         title: "Error",
         description: "Failed to add item to cart.",

@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin - Create order from cart (checkout simulation)
-  app.post("/api/orders", async (req, res) => {
+  app.post("/api/orders", requireAuth, async (req, res) => {
     try {
       const validatedData = insertOrderSchema.parse(req.body);
       const order = await storage.createOrder(validatedData);
@@ -945,7 +945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Tokenize card data
-  app.post("/api/payment/tokenize", async (req, res) => {
+  app.post("/api/payment/tokenize", requireAuth, async (req, res) => {
     try {
       const { number, exp_month, exp_year, cvv, zip } = req.body;
       
@@ -972,7 +972,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Process payment with Clover
-  app.post("/api/payment/process", async (req, res) => {
+  app.post("/api/payment/process", requireAuth, async (req, res) => {
     try {
       const { paymentToken, amount, description, orderId } = req.body;
       
@@ -1415,7 +1415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Calculate shipping rates for checkout
-  app.post("/api/shipping/rates", async (req, res) => {
+  app.post("/api/shipping/rates", requireAuth, async (req, res) => {
     try {
       const { shippingAddress, items } = req.body;
       
