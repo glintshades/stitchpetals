@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { type Product, type Offer } from "@shared/schema";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/useAuth";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +28,7 @@ interface ProductVariation {
 
 export default function OfferProductCard({ product, offer, className = "" }: OfferProductCardProps) {
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
@@ -190,7 +192,7 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
                 className="bg-wine text-white hover:bg-dark-wine transition-colors w-full sm:w-auto text-sm px-4 py-2"
                 disabled={!product.inStock}
               >
-                {product.inStock ? "Add to Cart" : "Out of Stock"}
+                {!product.inStock ? "Out of Stock" : !isAuthenticated ? "Sign In to Purchase" : "Add to Cart"}
               </Button>
             </div>
           </CardContent>

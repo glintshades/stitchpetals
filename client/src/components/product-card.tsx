@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { type Product, type Offer } from "@shared/schema";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
@@ -35,6 +36,7 @@ interface ProductVariation {
 export default function ProductCard({ product, offer, className = "" }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
+  const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
@@ -239,7 +241,7 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
               disabled={!product.inStock}
               data-testid={`add-to-cart-${product.id}`}
             >
-              {product.inStock ? "Add to Cart" : "Out of Stock"}
+              {!product.inStock ? "Out of Stock" : !isAuthenticated ? "Sign In to Purchase" : "Add to Cart"}
             </Button>
           </div>
         </CardContent>

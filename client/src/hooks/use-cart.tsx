@@ -17,6 +17,9 @@ export function useCart() {
 
   const addToCartMutation = useMutation({
     mutationFn: async (item: Omit<InsertCartItem, "sessionId">) => {
+      if (!isAuthenticated) {
+        throw new Error("Please sign in to add items to your cart");
+      }
       console.log("Adding item to cart:", item);
       const response = await apiRequest("POST", "/api/cart", item);
       return response.json();
@@ -31,8 +34,8 @@ export function useCart() {
     onError: (error: Error) => {
       console.error("Cart add error:", error);
       toast({
-        title: "Error",
-        description: "Failed to add item to cart.",
+        title: "Sign in required",
+        description: error.message || "Please sign in to add items to your cart.",
         variant: "destructive",
       });
     },
