@@ -339,13 +339,13 @@ export default function CartPage() {
                         </div>
                         <div className="text-xs text-gray-500 pl-4">
                           {Object.entries(groupedItems).map(([addressKey, items], index) => {
-                            const shipmentSubtotal = items.reduce((sum, item) => sum + (parseFloat(item.product.price) * item.quantity), 0);
+                            const shipmentSubtotal = (items as any[]).reduce((sum: number, item: any) => sum + (parseFloat(item.product.price) * item.quantity), 0);
                             const shipmentCost = shipmentSubtotal > 75 && index === 0 ? 0 : baseShipping;
                             const addressName = addressKey === 'default' ? 'Main address' : 
                               savedAddresses.find(addr => addr.id.toString() === addressKey)?.recipientName || `Address ${addressKey}`;
                             return (
                               <div key={addressKey} className="flex justify-between">
-                                <span>• {addressName} ({items.length} items)</span>
+                                <span>• {addressName} ({(items as any[]).length} items)</span>
                                 <span>{shipmentCost === 0 ? 'FREE' : formatPrice(shipmentCost.toString())}</span>
                               </div>
                             );
