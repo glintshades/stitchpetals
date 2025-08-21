@@ -115,14 +115,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Setup session middleware
+  // Setup session middleware with better incognito mode support
   app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret-key',
     resave: false,
     saveUninitialized: true,
+    name: 'glintshades.sid', // Custom session name
     cookie: { 
       secure: false, // Set to true for HTTPS in production
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      httpOnly: true, // Prevent XSS attacks
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax' // Better cross-site compatibility
     }
   }));
 

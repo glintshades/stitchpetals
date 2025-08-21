@@ -102,9 +102,14 @@ function CategoriesSection() {
 }
 
 export default function Home() {
-  const { data: products = [], isLoading } = useQuery<Product[]>({
+  const { data: products = [], isLoading, error } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+    retry: 3,
+    retryDelay: 1000,
   });
+
+  // Debug logging for incognito mode issues
+  console.log("Products loading state:", { isLoading, error, productsCount: products.length });
 
   // Fetch active offers
   const { data: offers = [] } = useQuery({
