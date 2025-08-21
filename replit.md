@@ -3,8 +3,6 @@
 ## Overview
 GlintShades is a full-stack e-commerce web application specializing in handcrafted crochet flower arrangements. The platform showcases beautiful crochet bouquets, potted arrangements, and individual stems with a sophisticated design. It includes a complete e-commerce flow from product browsing, cart management, to checkout, along with a comprehensive admin panel for order, product, user, and category management. The project features user account registration with default shipping address options and clear address selection during checkout. A database backup system ensures data protection during deployments.
 
-**Authentication Requirements**: All purchase operations require user authentication - users must sign in or register before adding items to cart, proceeding to checkout, or completing purchases.
-
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
@@ -26,7 +24,7 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful API with JSON responses
 - **Session Management**: Express sessions with PostgreSQL session store
 - **Error Handling**: Centralized error handling middleware
-- **Core Features**: Authentication system with purchase protection, comprehensive admin panel for managing orders, products (with CRUD, image upload, inventory), users, and categories. Includes a wishlist system and contact message handling. All cart operations, checkout, payment processing, and order creation require authentication.
+- **Core Features**: Authentication system, comprehensive admin panel for managing orders, products (with CRUD, image upload, inventory), users, and categories. Includes a wishlist system and contact message handling.
 - **Shipping Integration**: FedEx API integration for shipping rate calculation, tracking, and label generation
 
 ### Database Layer

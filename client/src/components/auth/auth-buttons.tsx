@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,12 +8,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "wouter";
+import { LoginDialog } from "./login-dialog";
+import { RegisterDialog } from "./register-dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { User, LogOut, Settings, Package } from "lucide-react";
 
 export function AuthButtons() {
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -55,6 +60,16 @@ export function AuthButtons() {
     },
   });
 
+  const handleSwitchToRegister = () => {
+    setShowLogin(false);
+    setShowRegister(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowRegister(false);
+    setShowLogin(true);
+  };
+
   if (isLoading) {
     return (
       <Button variant="ghost" disabled>
@@ -76,17 +91,19 @@ export function AuthButtons() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/settings" className="cursor-pointer flex items-center">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
+            <DropdownMenuItem 
+              onClick={() => window.location.href = '/settings'}
+              className="cursor-pointer"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/my-orders" className="cursor-pointer flex items-center">
-                <Package className="mr-2 h-4 w-4" />
-                My Orders
-              </Link>
+            <DropdownMenuItem 
+              onClick={() => window.location.href = '/my-orders'}
+              className="cursor-pointer"
+            >
+              <Package className="mr-2 h-4 w-4" />
+              My Orders
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -103,24 +120,34 @@ export function AuthButtons() {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Link href="/login">
+    <>
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
+          onClick={() => setShowLogin(true)}
           className="text-sm text-white hover:text-light-pink hover:bg-white/10"
-          data-testid="button-signin"
         >
           Sign In
         </Button>
-      </Link>
-      <Link href="/register">
         <Button
+          onClick={() => setShowRegister(true)}
           className="text-sm bg-white hover:bg-gray-100 text-wine font-semibold border border-white/20"
-          data-testid="button-signup"
         >
           Sign Up
         </Button>
-      </Link>
-    </div>
+      </div>
+
+      <LoginDialog
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+
+      <RegisterDialog
+        isOpen={showRegister}
+        onClose={() => setShowRegister(false)}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
+    </>
   );
 }

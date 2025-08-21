@@ -200,8 +200,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cart API - Require authentication for all cart operations
-  app.get("/api/cart", requireAuth, async (req, res) => {
+  // Cart API - Allow guest access using session
+  app.get("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItems = await storage.getCartItems(sessionId);
@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart", requireAuth, async (req, res) => {
+  app.post("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItemData = { ...req.body, sessionId };
@@ -226,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/cart/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cart/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { quantity } = req.body;
@@ -240,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cart/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.removeFromCart(id);
@@ -253,7 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart", requireAuth, async (req, res) => {
+  app.delete("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       await storage.clearCart(sessionId);
@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin - Create order from cart (checkout simulation)
-  app.post("/api/orders", requireAuth, async (req, res) => {
+  app.post("/api/orders", async (req, res) => {
     try {
       const validatedData = insertOrderSchema.parse(req.body);
       const order = await storage.createOrder(validatedData);
@@ -945,7 +945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Tokenize card data
-  app.post("/api/payment/tokenize", requireAuth, async (req, res) => {
+  app.post("/api/payment/tokenize", async (req, res) => {
     try {
       const { number, exp_month, exp_year, cvv, zip } = req.body;
       
@@ -972,7 +972,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Process payment with Clover
-  app.post("/api/payment/process", requireAuth, async (req, res) => {
+  app.post("/api/payment/process", async (req, res) => {
     try {
       const { paymentToken, amount, description, orderId } = req.body;
       
@@ -1415,7 +1415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Calculate shipping rates for checkout
-  app.post("/api/shipping/rates", requireAuth, async (req, res) => {
+  app.post("/api/shipping/rates", async (req, res) => {
     try {
       const { shippingAddress, items } = req.body;
       

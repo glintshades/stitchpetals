@@ -25,8 +25,6 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsConditions from "@/pages/terms-conditions";
 import NotFound from "@/pages/not-found";
 import WishlistPage from "@/pages/wishlist";
-import Login from "@/pages/login";
-import Register from "@/pages/register";
 
 function Router() {
   return (
@@ -47,8 +45,6 @@ function Router() {
       <Route path="/shipping-returns" component={ShippingReturns} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-conditions" component={TermsConditions} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
       <Route path="/admin" component={AdminPanel} />
       <Route component={NotFound} />
     </Switch>
