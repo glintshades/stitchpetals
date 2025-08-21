@@ -45,12 +45,11 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
     },
   });
 
-  // Update image source when color is hovered or selected
+  // Update image source only when color is explicitly selected (not on hover)
   useEffect(() => {
-    const colorToShow = hoveredColor || selectedColor;
-    if (colorToShow && variations.length > 0) {
+    if (selectedColor && variations.length > 0) {
       const variation = variations.find(v => 
-        v.colorName.toLowerCase() === colorToShow.toLowerCase()
+        v.colorName.toLowerCase() === selectedColor.toLowerCase()
       );
       if (variation && variation.imageUrl) {
         setImageSrc(variation.imageUrl);
@@ -61,7 +60,7 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
     // Fallback to default product image
     setImageSrc(product.imageUrl);
     setImageError(false);
-  }, [hoveredColor, selectedColor, variations, product.imageUrl]);
+  }, [selectedColor, variations, product.imageUrl]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -166,8 +165,7 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
                           e.stopPropagation();
                           setSelectedColor(color);
                         }}
-                        onMouseEnter={() => setHoveredColor(color)}
-                        onMouseLeave={() => setHoveredColor("")}
+
                       >
                         {color}
                       </Badge>
