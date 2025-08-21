@@ -142,9 +142,20 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                 alt={product.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                onError={() => {
+                crossOrigin="anonymous"
+                onError={(e) => {
                   console.error(`Image failed to load: ${imageSrc}`);
-                  setImageError(true);
+                  // Try fallback URL without cache busting if the error is not a 404
+                  const img = e.target as HTMLImageElement;
+                  if (img.src.includes('?')) {
+                    img.src = img.src.split('?')[0];
+                  } else {
+                    setImageError(true);
+                  }
+                }}
+                onLoad={() => {
+                  // Reset error state on successful load
+                  setImageError(false);
                 }}
               />
             ) : (
