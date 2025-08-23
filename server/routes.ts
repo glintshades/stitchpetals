@@ -202,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cart API - Allow guest access using session
+  // Cart API - Require authentication for modifications, allow reading for guest checkout
   app.get("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
@@ -214,7 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart", async (req, res) => {
+  app.post("/api/cart", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItemData = { ...req.body, sessionId };
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/cart/:id", async (req, res) => {
+  app.patch("/api/cart/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { quantity } = req.body;
@@ -242,7 +242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/:id", async (req, res) => {
+  app.delete("/api/cart/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.removeFromCart(id);
@@ -255,7 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart", async (req, res) => {
+  app.delete("/api/cart", requireAuth, async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       await storage.clearCart(sessionId);
