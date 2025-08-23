@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { type Product, type Offer } from "@shared/schema";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
@@ -36,7 +35,6 @@ interface ProductVariation {
 export default function ProductCard({ product, offer, className = "" }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
-  const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
@@ -55,11 +53,12 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
     },
   });
 
-  // Update image source only when color is explicitly selected (not on hover)
+  // Update image source when color is hovered or selected
   useEffect(() => {
-    if (selectedColor && variations.length > 0) {
+    const colorToShow = hoveredColor || selectedColor;
+    if (colorToShow && variations.length > 0) {
       const variation = variations.find(v => 
-        v.colorName.toLowerCase() === selectedColor.toLowerCase()
+        v.colorName.toLowerCase() === colorToShow.toLowerCase()
       );
       if (variation && variation.imageUrl) {
         setImageSrc(variation.imageUrl);
@@ -70,7 +69,7 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
     // Fallback to default product image
     setImageSrc(product.imageUrl);
     setImageError(false);
-  }, [selectedColor, variations, product.imageUrl]);
+  }, [hoveredColor, selectedColor, variations, product.imageUrl]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -143,20 +142,9 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                 alt={product.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                crossOrigin="anonymous"
-                onError={(e) => {
+                onError={() => {
                   console.error(`Image failed to load: ${imageSrc}`);
-                  // Try fallback URL without cache busting if the error is not a 404
-                  const img = e.target as HTMLImageElement;
-                  if (img.src.includes('?')) {
-                    img.src = img.src.split('?')[0];
-                  } else {
-                    setImageError(true);
-                  }
-                }}
-                onLoad={() => {
-                  // Reset error state on successful load
-                  setImageError(false);
+                  setImageError(true);
                 }}
               />
             ) : (
@@ -209,7 +197,8 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
                         e.stopPropagation();
                         setSelectedColor(color);
                       }}
-
+                      onMouseEnter={() => setHoveredColor(color)}
+                      onMouseLeave={() => setHoveredColor("")}
                     >
                       {color}
                     </Badge>
@@ -241,7 +230,7 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
               disabled={!product.inStock}
               data-testid={`add-to-cart-${product.id}`}
             >
-              {!product.inStock ? "Out of Stock" : !isAuthenticated ? "Sign In to Purchase" : "Add to Cart"}
+              {product.inStock ? "Add to Cart" : "Out of Stock"}
             </Button>
           </div>
         </CardContent>

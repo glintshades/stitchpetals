@@ -16,7 +16,6 @@ import { useCart } from "@/hooks/use-cart";
 import { CloverPayment } from "@/components/payment/clover-payment";
 import { ArrowLeft, CreditCard, Package, Truck, MapPin, Phone, Mail, BookOpen, Check, AlertTriangle } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
@@ -35,7 +34,6 @@ const checkoutSchema = z.object({
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 export default function Checkout() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState<'shipping' | 'payment'>('shipping');
   const [paymentData, setPaymentData] = useState<any>(null);
@@ -50,18 +48,6 @@ export default function Checkout() {
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
   const queryClient = useQueryClient();
-
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to access checkout.",
-        variant: "destructive",
-      });
-      setLocation("/");
-    }
-  }, [isAuthenticated, authLoading, setLocation, toast]);
   
   // Fetch saved addresses
   const { data: savedAddressesData = [] } = useQuery<any[]>({

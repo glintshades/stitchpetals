@@ -5,7 +5,6 @@ GlintShades is a full-stack e-commerce web application specializing in handcraft
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-Image behavior: Images should not change automatically on hover; only change when colors are explicitly clicked/selected.
 
 ## System Architecture
 

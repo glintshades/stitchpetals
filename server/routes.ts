@@ -57,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const imagePath = (req.params as any)['0']; // Get the path after /images/
       const fullPath = path.join(process.cwd(), 'client/public/images', imagePath);
       
-      console.log(`[IMAGE] Request: ${req.url}, Full Path: ${fullPath}, User-Agent: ${req.get('User-Agent')?.substring(0, 50)}...`);
+      console.log(`[IMAGE] Request: ${req.url}, Full Path: ${fullPath}`);
       
       // Check if file exists
       if (!fs.existsSync(fullPath)) {
@@ -80,23 +80,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get file stats for proper Content-Length
       const stats = fs.statSync(fullPath);
       
-      // Set comprehensive CORS and caching headers for better browser compatibility
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Length', stats.size.toString());
       res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day cache
       res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.setHeader('Accept-Ranges', 'bytes');
-      
-      // Add Vary header for proper content negotiation
-      res.setHeader('Vary', 'Accept');
-      
-      // Handle preflight requests
-      if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-      }
       
       console.log(`[IMAGE] Serving: ${imagePath} as ${contentType}`);
       
@@ -115,17 +103,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Setup session middleware with better incognito mode support
+  // Setup session middleware
   app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret-key',
     resave: false,
     saveUninitialized: true,
-    name: 'glintshades.sid', // Custom session name
     cookie: { 
       secure: false, // Set to true for HTTPS in production
-      httpOnly: true, // Prevent XSS attacks
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax' // Better cross-site compatibility
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   }));
 

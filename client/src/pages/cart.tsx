@@ -1,5 +1,5 @@
-import { Link, useLocation } from "wouter";
-import { useState, useEffect } from "react";
+import { Link } from "wouter";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { type Product } from "@shared/schema";
 import { 
   ShoppingCart, 
@@ -25,8 +24,6 @@ import {
 import { formatPrice } from "@/lib/products";
 
 export default function CartPage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [, setLocation] = useLocation();
   const { data: cartItems = [], isLoading } = useQuery<(any & { product: Product })[]>({
     queryKey: ["/api/cart"],
   });
@@ -36,18 +33,6 @@ export default function CartPage() {
   });
   const { updateQuantity: updateCartQuantity, removeFromCart } = useCart();
   const { toast } = useToast();
-
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to view your cart.",
-        variant: "destructive",
-      });
-      setLocation("/");
-    }
-  }, [isAuthenticated, authLoading, setLocation, toast]);
   const [itemAddresses, setItemAddresses] = useState<{[key: number]: string}>({});
   const [showMultiShipping, setShowMultiShipping] = useState(false);
 
@@ -82,23 +67,6 @@ export default function CartPage() {
   const shipping = subtotal > 75 ? (numberOfShipments > 1 ? baseShipping * (numberOfShipments - 1) : 0) : baseShipping * numberOfShipments;
   const tax = subtotal * 0.0667; // 6.67% sales tax
   const total = subtotal + shipping + tax;
-
-  // Show loading state during authentication check
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-warm-gray flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-wine mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render content if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
 
   if (isLoading) {
     return (
@@ -339,13 +307,13 @@ export default function CartPage() {
                         </div>
                         <div className="text-xs text-gray-500 pl-4">
                           {Object.entries(groupedItems).map(([addressKey, items], index) => {
-                            const shipmentSubtotal = (items as any[]).reduce((sum: number, item: any) => sum + (parseFloat(item.product.price) * item.quantity), 0);
+                            const shipmentSubtotal = items.reduce((sum, item) => sum + (parseFloat(item.product.price) * item.quantity), 0);
                             const shipmentCost = shipmentSubtotal > 75 && index === 0 ? 0 : baseShipping;
                             const addressName = addressKey === 'default' ? 'Main address' : 
                               savedAddresses.find(addr => addr.id.toString() === addressKey)?.recipientName || `Address ${addressKey}`;
                             return (
                               <div key={addressKey} className="flex justify-between">
-                                <span>• {addressName} ({(items as any[]).length} items)</span>
+                                <span>• {addressName} ({items.length} items)</span>
                                 <span>{shipmentCost === 0 ? 'FREE' : formatPrice(shipmentCost.toString())}</span>
                               </div>
                             );

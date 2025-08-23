@@ -76,62 +76,45 @@ export default function Contact() {
         ctaText="Contact Form"
         ctaLink="#contact-form"
         ctaSecondaryText="Call Us"
-        ctaSecondaryLink="tel:+15551234567"
+        ctaSecondaryLink="#contact-info"
       />
 
       {/* Contact Information */}
-      <section id="contact-info" className="py-16 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {([
+            {[
               {
                 icon: <Mail className="h-6 w-6" />,
                 title: "Email Us",
                 details: "hello@glintshades.com",
-                description: "Send us a message anytime",
-                isClickable: true as const,
-                link: "mailto:hello@glintshades.com"
+                description: "Send us a message anytime"
               },
               {
                 icon: <Phone className="h-6 w-6" />,
                 title: "Call Us",
                 details: "+1 (555) 123-4567",
-                description: "Speak with our team",
-                isClickable: true as const,
-                link: "tel:+15551234567"
+                description: "Speak with our team"
               },
               {
                 icon: <Clock className="h-6 w-6" />,
                 title: "Business Hours",
                 details: "Mon-Fri: 9AM-6PM EST",
-                description: "We're here to help",
-                isClickable: false as const
+                description: "We're here to help"
               },
               {
                 icon: <MessageCircle className="h-6 w-6" />,
                 title: "Response Time",
                 details: "Within 24 hours",
-                description: "Quick and friendly service",
-                isClickable: false as const
+                description: "Quick and friendly service"
               }
-            ] as const).map((contact, index) => (
-              <Card key={index} className={`text-center ${contact.isClickable ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''}`}>
+            ].map((contact, index) => (
+              <Card key={index} className="text-center">
                 <CardContent className="p-6">
-                  {contact.isClickable ? (
-                    <a href={contact.link} className="block" data-testid={`contact-link-${contact.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                      <div className="wine mb-4 flex justify-center">{contact.icon}</div>
-                      <h3 className="font-playfair text-lg font-semibold wine mb-2">{contact.title}</h3>
-                      <p className="font-medium text-gray-800 mb-1 hover:text-wine transition-colors">{contact.details}</p>
-                      <p className="text-sm text-gray-600">{contact.description}</p>
-                    </a>
-                  ) : (
-                    <>
-                      <div className="wine mb-4 flex justify-center">{contact.icon}</div>
-                      <h3 className="font-playfair text-lg font-semibold wine mb-2">{contact.title}</h3>
-                      <p className="font-medium text-gray-800 mb-1">{contact.details}</p>
-                      <p className="text-sm text-gray-600">{contact.description}</p>
-                    </>
-                  )}
+                  <div className="wine mb-4 flex justify-center">{contact.icon}</div>
+                  <h3 className="font-playfair text-lg font-semibold wine mb-2">{contact.title}</h3>
+                  <p className="font-medium text-gray-800 mb-1">{contact.details}</p>
+                  <p className="text-sm text-gray-600">{contact.description}</p>
                 </CardContent>
               </Card>
             ))}
