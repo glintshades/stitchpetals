@@ -133,9 +133,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // User authentication middleware
   const requireAuth = (req: any, res: any, next: any) => {
+    console.log("[AUTH CHECK] Session:", req.session);
+    console.log("[AUTH CHECK] User in session:", req.session?.user);
     if (!req.session?.user) {
+      console.log("[AUTH CHECK] BLOCKED - No authenticated user");
       return res.status(401).json({ message: "Not authenticated" });
     }
+    console.log("[AUTH CHECK] ALLOWED - User authenticated:", req.session.user.username);
     next();
   };
 
