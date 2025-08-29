@@ -8,13 +8,10 @@ import fs from "fs";
 import { storage } from "./storage";
 import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { fedexService, type ShippingAddress } from './fedexService';
-import { Storage } from '@google-cloud/storage';
-
-// Initialize Google Cloud Storage for object storage
-const cloudStorage = new Storage();
+// Object storage configuration for Replit
 const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
 
-// Configure multer for memory storage (to upload to cloud)
+// Configure multer for memory storage (for processing before saving)
 const storage_config = multer.memoryStorage();
 
 const upload = multer({ 
@@ -776,67 +773,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload endpoint - now using cloud storage
+  // Image upload endpoint - temporarily back to local storage until object storage is properly configured
   app.post("/api/admin/upload-image", requireAdmin, upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      if (!bucketId) {
-        return res.status(500).json({ message: "Object storage not configured" });
-      }
-
       // Generate unique filename
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const filename = `public/image-${uniqueSuffix}${path.extname(req.file.originalname)}`;
+      const filename = `image-${uniqueSuffix}${path.extname(req.file.originalname)}`;
+      const filePath = path.join(process.cwd(), 'client/public/images', filename);
+
+      // Ensure directory exists
+      const imageDir = path.join(process.cwd(), 'client/public/images');
+      if (!fs.existsSync(imageDir)) {
+        fs.mkdirSync(imageDir, { recursive: true });
+      }
+
+      // Write file to local storage
+      fs.writeFileSync(filePath, req.file.buffer);
       
-      // Get the bucket
-      const bucket = cloudStorage.bucket(bucketId);
-      const file = bucket.file(filename);
-
-      // Create write stream to upload file
-      const stream = file.createWriteStream({
-        metadata: {
-          contentType: req.file.mimetype,
-        },
-        public: true, // Make file publicly accessible
-      });
-
-      // Handle upload completion
-      const uploadPromise = new Promise((resolve, reject) => {
-        stream.on('error', (error) => {
-          console.error('Cloud storage upload error:', error);
-          reject(error);
-        });
-
-        stream.on('finish', async () => {
-          try {
-            // Make the file public
-            await file.makePublic();
-            
-            // Get the public URL
-            const publicUrl = `https://storage.googleapis.com/${bucketId}/${filename}`;
-            
-            console.log(`✅ Image uploaded to cloud storage: ${publicUrl}`);
-            resolve(publicUrl);
-          } catch (error) {
-            console.error('Error making file public:', error);
-            reject(error);
-          }
-        });
-      });
-
-      // Write the file buffer to the stream
-      stream.end(req.file.buffer);
-
-      // Wait for upload to complete
-      const imageUrl = await uploadPromise;
+      const imageUrl = `/images/${filename}`;
+      console.log(`✅ Image uploaded locally: ${imageUrl}`);
       res.json({ imageUrl });
 
     } catch (error) {
       console.error('Image upload error:', error);
-      res.status(500).json({ message: "Failed to upload image to cloud storage" });
+      res.status(500).json({ message: "Failed to upload image" });
     }
   });
 
