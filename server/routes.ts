@@ -120,6 +120,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to serve image' });
     }
   });
+
+  // Serve public objects from object storage
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    
+    try {
+      // Get the bucket from environment
+      const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+      if (!bucketId) {
+        console.log('[CLOUD] Object storage not configured');
+        return res.status(500).json({ error: "Object storage not configured" });
+      }
+
+      // Initialize cloud storage
+      const cloudStorage = new Storage();
+      const bucket = cloudStorage.bucket(bucketId);
+      const file = bucket.file(`public/${filePath}`);
+
+      console.log(`[CLOUD] Request: /public-objects/${filePath}, Bucket: ${bucketId}`);
+
+      // Check if file exists
+      const [exists] = await file.exists();
+      if (!exists) {
+        console.log(`[CLOUD] File not found: public/${filePath}`);
+        return res.status(404).json({ error: "File not found" });
+      }
+
+      // Get file metadata
+      const [metadata] = await file.getMetadata();
+      
+      // Set appropriate headers
+      res.set({
+        'Content-Type': metadata.contentType || 'application/octet-stream',
+        'Content-Length': metadata.size,
+        'Cache-Control': 'public, max-age=3600',
+        'Access-Control-Allow-Origin': '*',
+        'Accept-Ranges': 'bytes'
+      });
+
+      console.log(`[CLOUD] Serving: ${filePath} as ${metadata.contentType}`);
+
+      // Stream the file to the response
+      const stream = file.createReadStream();
+      
+      stream.on('error', (err) => {
+        console.error('[CLOUD] Stream error:', err);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Error streaming file" });
+        }
+      });
+
+      stream.pipe(res);
+      
+    } catch (error) {
+      console.error("[CLOUD] Error serving public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
   
   // Setup session middleware
   app.use(session({
