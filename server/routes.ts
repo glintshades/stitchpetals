@@ -8,17 +8,14 @@ import fs from "fs";
 import { storage } from "./storage";
 import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { fedexService, type ShippingAddress } from './fedexService';
+import { Storage } from '@google-cloud/storage';
 
-// Configure multer for image uploads
-const storage_config = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'client/public/images/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Initialize Google Cloud Storage for object storage
+const cloudStorage = new Storage();
+const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+
+// Configure multer for memory storage (to upload to cloud)
+const storage_config = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage_config,
@@ -133,13 +130,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // User authentication middleware
   const requireAuth = (req: any, res: any, next: any) => {
-    console.log("[AUTH CHECK] Session:", req.session);
-    console.log("[AUTH CHECK] User in session:", req.session?.user);
     if (!req.session?.user) {
-      console.log("[AUTH CHECK] BLOCKED - No authenticated user");
       return res.status(401).json({ message: "Not authenticated" });
     }
-    console.log("[AUTH CHECK] ALLOWED - User authenticated:", req.session.user.username);
     next();
   };
 
@@ -783,17 +776,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload endpoint
+  // Image upload endpoint - now using cloud storage
   app.post("/api/admin/upload-image", requireAdmin, upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
       }
+
+      if (!bucketId) {
+        return res.status(500).json({ message: "Object storage not configured" });
+      }
+
+      // Generate unique filename
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const filename = `public/image-${uniqueSuffix}${path.extname(req.file.originalname)}`;
       
-      const imageUrl = `/images/${req.file.filename}`;
+      // Get the bucket
+      const bucket = cloudStorage.bucket(bucketId);
+      const file = bucket.file(filename);
+
+      // Create write stream to upload file
+      const stream = file.createWriteStream({
+        metadata: {
+          contentType: req.file.mimetype,
+        },
+        public: true, // Make file publicly accessible
+      });
+
+      // Handle upload completion
+      const uploadPromise = new Promise((resolve, reject) => {
+        stream.on('error', (error) => {
+          console.error('Cloud storage upload error:', error);
+          reject(error);
+        });
+
+        stream.on('finish', async () => {
+          try {
+            // Make the file public
+            await file.makePublic();
+            
+            // Get the public URL
+            const publicUrl = `https://storage.googleapis.com/${bucketId}/${filename}`;
+            
+            console.log(`✅ Image uploaded to cloud storage: ${publicUrl}`);
+            resolve(publicUrl);
+          } catch (error) {
+            console.error('Error making file public:', error);
+            reject(error);
+          }
+        });
+      });
+
+      // Write the file buffer to the stream
+      stream.end(req.file.buffer);
+
+      // Wait for upload to complete
+      const imageUrl = await uploadPromise;
       res.json({ imageUrl });
+
     } catch (error) {
-      res.status(500).json({ message: "Failed to upload image" });
+      console.error('Image upload error:', error);
+      res.status(500).json({ message: "Failed to upload image to cloud storage" });
     }
   });
 
