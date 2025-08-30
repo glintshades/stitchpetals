@@ -465,6 +465,7 @@ export class DatabaseStorage implements IStorage {
       productId: cartItems.productId,
       quantity: cartItems.quantity,
       selectedColor: cartItems.selectedColor,
+      variationId: cartItems.variationId,
       product: products
     })
     .from(cartItems)
@@ -477,6 +478,7 @@ export class DatabaseStorage implements IStorage {
       productId: item.productId,
       quantity: item.quantity,
       selectedColor: item.selectedColor,
+      variationId: item.variationId,
       product: item.product!
     }));
   }
@@ -735,9 +737,11 @@ export class DatabaseStorage implements IStorage {
     if (updates.isDefault) {
       const address = await db.select().from(savedAddresses).where(eq(savedAddresses.id, id));
       if (address.length > 0) {
-        await db.update(savedAddresses)
-          .set({ isDefault: false })
-          .where(eq(savedAddresses.sessionId, address[0].sessionId));
+        if (address[0].sessionId) {
+          await db.update(savedAddresses)
+            .set({ isDefault: false })
+            .where(eq(savedAddresses.sessionId, address[0].sessionId));
+        }
       }
     }
     
