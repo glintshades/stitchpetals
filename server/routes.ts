@@ -63,23 +63,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if file exists
       if (!fs.existsSync(fullPath)) {
         console.log(`[IMAGE] File not found: ${fullPath}`);
-        
-        // Try to serve a fallback image for missing product images
-        const fallbackImagePath = path.join(process.cwd(), 'client/public/images', 'S4A8283.webp');
-        if (fs.existsSync(fallbackImagePath)) {
-          console.log(`[IMAGE] Serving fallback image: S4A8283.webp`);
-          const fallbackStream = fs.createReadStream(fallbackImagePath);
-          const fallbackStats = fs.statSync(fallbackImagePath);
-          
-          res.setHeader('Content-Type', 'image/webp');
-          res.setHeader('Content-Length', fallbackStats.size.toString());
-          res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour cache for fallback
-          res.setHeader('X-Fallback-Image', 'true');
-          
-          fallbackStream.pipe(res);
-          return;
-        }
-        
         return res.status(404).json({ error: 'Image not found' });
       }
       
