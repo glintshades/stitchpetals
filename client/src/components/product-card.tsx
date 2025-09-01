@@ -39,7 +39,6 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
   const [selectedColor, setSelectedColor] = useState<string>(
     Array.isArray(product.colors) && product.colors.length > 0 ? product.colors[0] : ""
   );
-  const [imageError, setImageError] = useState(false);
   const [imageSrc, setImageSrc] = useState(product.imageUrl);
   const [hoveredColor, setHoveredColor] = useState<string>("");
 
@@ -136,16 +135,12 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
             </Badge>
           )}
           <div className="w-full h-48 sm:h-52 md:h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
-            {imageSrc && imageSrc !== '/system/marker' && !imageError ? (
+            {imageSrc && imageSrc !== '/system/marker' ? (
               <img
                 src={imageSrc}
                 alt={product.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                onError={() => {
-                  console.error(`Image failed to load: ${imageSrc}`);
-                  setImageError(true);
-                }}
               />
             ) : (
               <div className="text-gray-400 text-center p-4 bg-gradient-to-br from-soft-pink to-blush">

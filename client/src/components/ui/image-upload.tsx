@@ -164,10 +164,6 @@ export function ImageUpload({ onImageUpload, currentImageUrl, label = "Product I
               src={imageUrl}
               alt="Preview"
               className="w-full h-32 object-cover rounded"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
             />
           </div>
           <Button

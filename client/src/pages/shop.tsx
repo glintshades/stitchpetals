@@ -271,10 +271,6 @@ export default function Shop() {
                         src={category.image || "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"} 
                         alt={category.name}
                         className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
-                        onError={(e) => {
-                          const img = e.target as HTMLImageElement;
-                          img.src = "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
-                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                       <div className="absolute bottom-4 left-4">

@@ -431,14 +431,6 @@ export default function AdminProducts() {
                         src={product.imageUrl}
                         alt={product.name}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const img = e.target as HTMLImageElement;
-                          const parent = img.parentElement;
-                          if (parent) {
-                            img.style.display = 'none';
-                            parent.innerHTML = '<div class="text-gray-400 text-xs text-center p-2">No Image</div>';
-                          }
-                        }}
                       />
                     ) : (
                       <div className="text-gray-400 text-xs text-center p-2">No Image</div>
