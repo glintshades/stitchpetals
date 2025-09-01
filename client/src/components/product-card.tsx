@@ -61,13 +61,11 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
       );
       if (variation && variation.imageUrl) {
         setImageSrc(variation.imageUrl);
-        setImageError(false);
         return;
       }
     }
     // Fallback to default product image
     setImageSrc(product.imageUrl);
-    setImageError(false);
   }, [hoveredColor, selectedColor, variations, product.imageUrl]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
