@@ -735,6 +735,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/products", requireAdmin, async (req, res) => {
     try {
       const productData = insertProductSchema.parse(req.body);
+      
+      // Validate image URL if provided
+      if (productData.imageUrl && productData.imageUrl.startsWith('/images/')) {
+        const imagePath = path.join(process.cwd(), 'client/public', productData.imageUrl);
+        if (!fs.existsSync(imagePath)) {
+          console.log(`[VALIDATION] New product image not found: ${productData.imageUrl}, using fallback`);
+          productData.imageUrl = '/images/S4A8283.webp';
+        }
+      }
+      
       const product = await storage.createProduct(productData);
       res.status(201).json(product);
     } catch (error) {
@@ -746,6 +756,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
+      
+      // Validate image URL if it's being updated
+      if (updates.imageUrl && updates.imageUrl.startsWith('/images/')) {
+        const imagePath = path.join(process.cwd(), 'client/public', updates.imageUrl);
+        if (!fs.existsSync(imagePath)) {
+          console.log(`[VALIDATION] Image not found: ${updates.imageUrl}, using fallback`);
+          updates.imageUrl = '/images/S4A8283.webp';
+        }
+      }
+      
       const product = await storage.updateProduct(id, updates);
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
@@ -783,11 +803,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/products/:id/variations", requireAdmin, async (req, res) => {
     try {
       const productId = parseInt(req.params.id);
-      console.log("Creating variation with data:", { ...req.body, productId });
-      const variation = await storage.createProductVariation({
-        ...req.body,
-        productId
-      });
+      const variationData = { ...req.body, productId };
+      
+      // Validate image URL if provided
+      if (variationData.imageUrl && variationData.imageUrl.startsWith('/images/')) {
+        const imagePath = path.join(process.cwd(), 'client/public', variationData.imageUrl);
+        if (!fs.existsSync(imagePath)) {
+          console.log(`[VALIDATION] New variation image not found: ${variationData.imageUrl}, using fallback`);
+          variationData.imageUrl = '/images/S4A8283.webp';
+        }
+      }
+      
+      console.log("Creating variation with data:", variationData);
+      const variation = await storage.createProductVariation(variationData);
       res.status(201).json(variation);
     } catch (error: any) {
       console.error("Variation creation error:", error);
@@ -798,7 +826,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/admin/variations/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const variation = await storage.updateProductVariation(id, req.body);
+      const updates = req.body;
+      
+      // Validate image URL if it's being updated
+      if (updates.imageUrl && updates.imageUrl.startsWith('/images/')) {
+        const imagePath = path.join(process.cwd(), 'client/public', updates.imageUrl);
+        if (!fs.existsSync(imagePath)) {
+          console.log(`[VALIDATION] Variation image not found: ${updates.imageUrl}, using fallback`);
+          updates.imageUrl = '/images/S4A8283.webp';
+        }
+      }
+      
+      const variation = await storage.updateProductVariation(id, updates);
       if (!variation) {
         return res.status(404).json({ message: "Variation not found" });
       }
