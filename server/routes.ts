@@ -843,9 +843,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             req.file.buffer
           );
           
-          const cloudUrl = `https://storage.googleapis.com/${bucketId}/${cloudPath}`;
-          console.log(`✅ Image uploaded to persistent storage: ${cloudUrl}`);
-          res.json({ imageUrl: cloudUrl });
+          // Return a server route URL instead of direct cloud URL
+          const serverImageUrl = `/api/images/${req.file.filename}`;
+          console.log(`✅ Image uploaded to persistent storage: ${cloudPath}`);
+          res.json({ imageUrl: serverImageUrl });
           return;
           
         } catch (cloudError) {
@@ -882,6 +883,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Contact submission deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete contact submission" });
+    }
+  });
+
+  // Serve images from App Storage
+  app.get("/api/images/:filename", async (req, res) => {
+    try {
+      const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+      const filename = req.params.filename;
+      
+      if (bucketId) {
+        try {
+          const client = new Client({ bucketId });
+          const cloudPath = `images/${filename}`;
+          
+          const result = await client.downloadAsBytes(cloudPath);
+          if (result.ok) {
+            const [buffer] = result.value;
+            
+            // Set appropriate content type
+            const ext = path.extname(filename).toLowerCase();
+            const contentType = ext === '.webp' ? 'image/webp' :
+                               ext === '.png' ? 'image/png' :
+                               ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
+                               ext === '.gif' ? 'image/gif' : 'application/octet-stream';
+                               
+            res.set('Content-Type', contentType);
+            res.send(buffer);
+            return;
+          }
+        } catch (cloudError) {
+          console.log(`Cloud storage fetch failed for ${filename}, trying local...`);
+        }
+      }
+      
+      // Fallback to local file system
+      const localPath = path.join(process.cwd(), 'client/public/images', filename);
+      res.sendFile(localPath);
+      
+    } catch (error) {
+      console.error('Image serve error:', error);
+      res.status(404).json({ message: "Image not found" });
     }
   });
 
