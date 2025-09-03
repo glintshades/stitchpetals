@@ -834,20 +834,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bucketId) {
         // Primary: Upload to persistent Replit App Storage
         try {
+          console.log(`🔍 DEBUG: Starting upload to App Storage...`);
+          console.log(`🔍 DEBUG: Bucket ID: ${bucketId}`);
+          console.log(`🔍 DEBUG: File buffer size: ${req.file.buffer.length} bytes`);
+          
           const client = new Client({ bucketId });
+          console.log(`🔍 DEBUG: Created client`);
           
           const cloudPath = `images/${req.file.filename}`;
+          console.log(`🔍 DEBUG: Upload path: ${cloudPath}`);
           
-          await client.uploadFromBytes(
+          const uploadResult = await client.uploadFromBytes(
             cloudPath,
             req.file.buffer
           );
           
-          // Return a server route URL instead of direct cloud URL
-          const serverImageUrl = `/api/images/${req.file.filename}`;
-          console.log(`✅ Image uploaded to persistent storage: ${cloudPath}`);
-          res.json({ imageUrl: serverImageUrl });
-          return;
+          console.log(`🔍 DEBUG: Upload result:`, uploadResult);
+          
+          if (uploadResult.ok) {
+            // Return a server route URL instead of direct cloud URL
+            const serverImageUrl = `/api/images/${req.file.filename}`;
+            console.log(`✅ Image uploaded to persistent storage: ${cloudPath}`);
+            res.json({ imageUrl: serverImageUrl });
+            return;
+          } else {
+            console.error(`❌ Upload failed:`, uploadResult.error);
+            return res.status(500).json({ message: "Upload to cloud storage failed", error: uploadResult.error });
+          }
           
         } catch (cloudError) {
           console.error('App Storage upload failed:', cloudError);
