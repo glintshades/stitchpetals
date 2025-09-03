@@ -11,19 +11,9 @@ import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
 import { Client } from '@replit/object-storage';
 
-// Configure multer for local storage (working solution)
-const storage_config = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'client/public/images/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+// Configure multer for memory storage (needed for App Storage)
 const upload = multer({ 
-  storage: storage_config,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
@@ -838,10 +828,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`🔍 DEBUG: Bucket ID: ${bucketId}`);
           console.log(`🔍 DEBUG: File buffer size: ${req.file.buffer.length} bytes`);
           
+          // Generate filename since we're using memory storage
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          const filename = req.file.fieldname + '-' + uniqueSuffix + path.extname(req.file.originalname);
+          
           const client = new Client({ bucketId });
           console.log(`🔍 DEBUG: Created client`);
           
-          const cloudPath = `images/${req.file.filename}`;
+          const cloudPath = `images/${filename}`;
           console.log(`🔍 DEBUG: Upload path: ${cloudPath}`);
           
           const uploadResult = await client.uploadFromBytes(
@@ -853,7 +847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (uploadResult.ok) {
             // Return a server route URL instead of direct cloud URL
-            const serverImageUrl = `/api/images/${req.file.filename}`;
+            const serverImageUrl = `/api/images/${filename}`;
             console.log(`✅ Image uploaded to persistent storage: ${cloudPath}`);
             res.json({ imageUrl: serverImageUrl });
             return;
