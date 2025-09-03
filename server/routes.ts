@@ -850,15 +850,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return;
           
         } catch (cloudError) {
-          console.error('App Storage failed:', cloudError);
-          // Fallback to local storage if cloud fails
+          console.error('App Storage upload failed:', cloudError);
+          return res.status(500).json({ message: "Cloud storage upload failed" });
         }
+      } else {
+        return res.status(500).json({ message: "App Storage not configured" });
       }
-      
-      // Fallback: Save to local (will be lost on restart)
-      const localImageUrl = `/images/${req.file.filename}`;
-      console.log(`⚠️ Using temporary local storage: ${localImageUrl} (will be lost on restart)`);
-      res.json({ imageUrl: localImageUrl });
       
     } catch (error) {
       console.error('Image upload error:', error);
@@ -883,6 +880,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Contact submission deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete contact submission" });
+    }
+  });
+
+  // Debug: List App Storage contents  
+  app.get("/api/debug/storage", async (req, res) => {
+    try {
+      const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
+      console.log("🔍 DEBUG: App Storage bucket ID:", bucketId);
+      
+      if (!bucketId) {
+        console.log("❌ App Storage not configured");
+        return res.json({ error: "App Storage not configured" });
+      }
+      
+      const client = new Client({ bucketId });
+      console.log("🔍 DEBUG: Created App Storage client");
+      
+      const result = await client.list();
+      console.log("🔍 DEBUG: List result:", result);
+      
+      if (result.ok) {
+        console.log("✅ App Storage contents:", result.value);
+        res.json({ 
+          bucketId,
+          objects: result.value,
+          message: "App Storage contents listed successfully"
+        });
+      } else {
+        console.log("❌ Failed to list storage:", result.error);
+        res.json({ 
+          error: "Failed to list storage contents",
+          details: result.error 
+        });
+      }
+    } catch (error) {
+      console.log("❌ Storage debug error:", error);
+      res.json({ error: "Storage debug failed", details: error });
     }
   });
 
@@ -913,13 +947,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return;
           }
         } catch (cloudError) {
-          console.log(`Cloud storage fetch failed for ${filename}, trying local...`);
+          console.error(`Cloud storage fetch failed for ${filename}:`, cloudError);
+          return res.status(404).json({ message: "Image not found in cloud storage" });
         }
+      } else {
+        return res.status(500).json({ message: "App Storage not configured" });
       }
-      
-      // Fallback to local file system
-      const localPath = path.join(process.cwd(), 'client/public/images', filename);
-      res.sendFile(localPath);
       
     } catch (error) {
       console.error('Image serve error:', error);
