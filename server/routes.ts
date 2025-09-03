@@ -821,33 +821,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload endpoint - hybrid: local + object storage backup
+  // Image upload endpoint - uses persistent object storage
   app.post("/api/admin/upload-image", requireAdmin, upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
       }
       
-      // Primary: Return local URL (this always works)
-      const localImageUrl = `/images/${req.file.filename}`;
+      const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
       
-      // Secondary: Try to backup to object storage (optional, won't break if it fails)
-      try {
-        const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
-        if (bucketId) {
-          // Copy the uploaded file to object storage as backup
-          const cloudPath = `public/${req.file.filename}`;
-          console.log(`📁 Backing up image to object storage: ${cloudPath}`);
+      if (bucketId) {
+        // Primary: Upload to persistent object storage
+        try {
+          const { Storage } = require('@google-cloud/storage');
+          const storage = new Storage();
+          const bucket = storage.bucket(bucketId);
           
-          // For now, we'll save to local and you can manually copy to object storage
-          // This ensures uploads never fail
+          const cloudPath = `images/${req.file.filename}`;
+          const file = bucket.file(cloudPath);
+          
+          await file.save(req.file.buffer, {
+            metadata: {
+              contentType: req.file.mimetype,
+            },
+          });
+          
+          const cloudUrl = `https://storage.googleapis.com/${bucketId}/${cloudPath}`;
+          console.log(`✅ Image uploaded to persistent storage: ${cloudUrl}`);
+          res.json({ imageUrl: cloudUrl });
+          return;
+          
+        } catch (cloudError) {
+          console.error('Object storage failed:', cloudError);
+          // Fallback to local storage if cloud fails
         }
-      } catch (backupError) {
-        // Backup failed, but that's OK - main upload still works
-        console.log('⚠️ Object storage backup failed (not critical):', (backupError as Error).message);
       }
       
-      console.log(`✅ Image uploaded successfully: ${localImageUrl}`);
+      // Fallback: Save to local (will be lost on restart)
+      const localImageUrl = `/images/${req.file.filename}`;
+      console.log(`⚠️ Using temporary local storage: ${localImageUrl} (will be lost on restart)`);
       res.json({ imageUrl: localImageUrl });
       
     } catch (error) {
