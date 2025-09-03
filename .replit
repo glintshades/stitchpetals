@@ -42,4 +42,4 @@ waitForPort = 5000
 [agent]
 
 [objectStorage]
-defaultBucketID = "replit-objstore-af244df6-3b3d-4a2d-a242-2f4142d811e1"
+defaultBucketID = "replit-objstore-01a4fce8-7d17-466e-a040-0ad930eb5e72"
