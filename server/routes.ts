@@ -831,28 +831,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bucketId = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID;
       
       if (bucketId) {
-        // Primary: Upload to persistent object storage
+        // Primary: Upload to persistent Replit App Storage
         try {
-          const { Storage } = require('@google-cloud/storage');
-          const storage = new Storage();
-          const bucket = storage.bucket(bucketId);
+          const { Client } = require('@replit/object-storage');
+          const client = new Client();
           
           const cloudPath = `images/${req.file.filename}`;
-          const file = bucket.file(cloudPath);
           
-          await file.save(req.file.buffer, {
-            metadata: {
+          await client.uploadFromBuffer(
+            cloudPath,
+            req.file.buffer,
+            {
+              bucketId: bucketId,
               contentType: req.file.mimetype,
-            },
-          });
+            }
+          );
           
-          const cloudUrl = `https://storage.googleapis.com/${bucketId}/${cloudPath}`;
+          const cloudUrl = client.getDownloadUrl(cloudPath, { bucketId });
           console.log(`✅ Image uploaded to persistent storage: ${cloudUrl}`);
           res.json({ imageUrl: cloudUrl });
           return;
           
         } catch (cloudError) {
-          console.error('Object storage failed:', cloudError);
+          console.error('App Storage failed:', cloudError);
           // Fallback to local storage if cloud fails
         }
       }
