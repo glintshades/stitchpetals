@@ -9,6 +9,7 @@ import { storage } from "./storage";
 import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
 import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
+import { Client } from '@replit/object-storage';
 
 // Configure multer for local storage (working solution)
 const storage_config = multer.diskStorage({
@@ -833,21 +834,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bucketId) {
         // Primary: Upload to persistent Replit App Storage
         try {
-          const { Client } = require('@replit/object-storage');
-          const client = new Client();
+          const client = new Client({ bucketId });
           
           const cloudPath = `images/${req.file.filename}`;
           
-          await client.uploadFromBuffer(
+          await client.uploadFromBytes(
             cloudPath,
-            req.file.buffer,
-            {
-              bucketId: bucketId,
-              contentType: req.file.mimetype,
-            }
+            req.file.buffer
           );
           
-          const cloudUrl = client.getDownloadUrl(cloudPath, { bucketId });
+          const cloudUrl = `https://storage.googleapis.com/${bucketId}/${cloudPath}`;
           console.log(`✅ Image uploaded to persistent storage: ${cloudUrl}`);
           res.json({ imageUrl: cloudUrl });
           return;
