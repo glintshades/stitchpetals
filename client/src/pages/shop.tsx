@@ -263,7 +263,7 @@ export default function Shop() {
                   >
                     <div className="relative overflow-hidden rounded-xl">
                       <img 
-                        src={category.image || "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"} 
+                        src={category.imageUrl || "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300"} 
                         alt={category.name}
                         className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" 
                       />
