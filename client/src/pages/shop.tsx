@@ -313,15 +313,88 @@ export default function Shop() {
                 </Button>
               )}
             </div>
+          ) : selectedCategory === "all" && !searchTerm ? (
+            /* Group products by category when showing all products */
+            <div className="space-y-16">
+              {adminCategories
+                .filter((cat: any) => cat.isActive)
+                .map((category: any) => {
+                  const categoryProducts = sortedProducts.filter(p => p.category === category.slug);
+                  
+                  if (categoryProducts.length === 0) return null;
+                  
+                  return (
+                    <div key={category.slug} className="space-y-8">
+                      {/* Category Header */}
+                      <div className="text-center">
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-wine/30"></div>
+                          <div className="px-6">
+                            <h2 className="font-playfair text-3xl lg:text-4xl font-bold wine">
+                              {category.name}
+                            </h2>
+                          </div>
+                          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-wine/30"></div>
+                        </div>
+                        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                          {category.description}
+                        </p>
+                        <div className="mt-2">
+                          <Badge variant="secondary" className="bg-wine/10 text-wine border-wine/20">
+                            {categoryProducts.length} {categoryProducts.length === 1 ? 'Product' : 'Products'}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Category Products Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {categoryProducts.map((product: Product) => (
+                          <ProductCard 
+                            key={product.id} 
+                            product={product} 
+                            offer={getApplicableOffer(product)}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* View Category Button */}
+                      <div className="text-center">
+                        <Button 
+                          onClick={() => setSelectedCategory(category.slug)}
+                          variant="outline"
+                          className="border-wine text-wine hover:bg-wine hover:text-white"
+                        >
+                          View All {category.name} →
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {sortedProducts.map((product: Product) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
-                  offer={getApplicableOffer(product)}
-                />
-              ))}
+            /* Regular grid when filtering by category or searching */
+            <div>
+              {selectedCategory !== "all" && (
+                <div className="text-center mb-12">
+                  <h2 className="font-playfair text-3xl lg:text-4xl font-bold wine mb-4">
+                    {getCategoryDisplayName(selectedCategory)}
+                  </h2>
+                  <p className="text-gray-600 text-lg">
+                    {adminCategories.find((cat: any) => cat.slug === selectedCategory)?.description || 
+                     `Browse our ${getCategoryDisplayName(selectedCategory).toLowerCase()} collection`}
+                  </p>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {sortedProducts.map((product: Product) => (
+                  <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    offer={getApplicableOffer(product)}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>
