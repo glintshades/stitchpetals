@@ -247,7 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart", requireAuth, async (req, res) => {
+  app.post("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const cartItemData = { ...req.body, sessionId };
@@ -261,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/cart/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cart/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { quantity } = req.body;
@@ -275,7 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cart/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.removeFromCart(id);
@@ -824,26 +824,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bucketId) {
         // Primary: Upload to persistent Replit App Storage
         try {
-          console.log(`🔍 DEBUG: Starting upload to App Storage...`);
-          console.log(`🔍 DEBUG: Bucket ID: ${bucketId}`);
-          console.log(`🔍 DEBUG: File buffer size: ${req.file.buffer.length} bytes`);
-          
           // Generate filename since we're using memory storage
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
           const filename = req.file.fieldname + '-' + uniqueSuffix + path.extname(req.file.originalname);
           
           const client = new Client({ bucketId });
-          console.log(`🔍 DEBUG: Created client`);
-          
           const cloudPath = `images/${filename}`;
-          console.log(`🔍 DEBUG: Upload path: ${cloudPath}`);
           
           const uploadResult = await client.uploadFromBytes(
             cloudPath,
             req.file.buffer
           );
-          
-          console.log(`🔍 DEBUG: Upload result:`, uploadResult);
           
           if (uploadResult.ok) {
             // Return a server route URL instead of direct cloud URL
