@@ -225,11 +225,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public Categories API
+  // Public Categories API - Only return active categories for guests
   app.get("/api/categories", async (req, res) => {
     try {
       const categories = await storage.getAllCategories();
-      res.json(categories);
+      // Only return active categories for public API
+      const activeCategories = categories.filter(cat => cat.isActive);
+      res.json(activeCategories);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch categories" });
     }

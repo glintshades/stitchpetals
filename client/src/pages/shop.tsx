@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { HeroBanner } from "@/components/hero-banner";
-import { type Product, type Offer } from "@shared/schema";
+import { type Product, type Offer, type ProductCategory } from "@shared/schema";
 import { Search, Filter } from "lucide-react";
 
 export default function Shop() {
@@ -22,14 +22,9 @@ export default function Shop() {
     queryKey: ["/api/products"],
   });
 
-  // Fetch categories from admin panel
-  const { data: adminCategories = [] } = useQuery({
-    queryKey: ["/api/admin/categories"],
-    queryFn: async () => {
-      const response = await fetch("/api/admin/categories");
-      if (!response.ok) throw new Error('Failed to fetch categories');
-      return response.json();
-    },
+  // Fetch categories for filtering
+  const { data: adminCategories = [] } = useQuery<ProductCategory[]>({
+    queryKey: ["/api/categories"],
   });
 
   // Fetch active offers
