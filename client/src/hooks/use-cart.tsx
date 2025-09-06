@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { type CartItem, type Product, type InsertCartItem } from "@shared/schema";
 
 type CartItemWithProduct = CartItem & { product: Product };
@@ -9,7 +8,6 @@ type CartItemWithProduct = CartItem & { product: Product };
 export function useCart() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
 
   const { data: cartItems = [], isLoading } = useQuery<CartItemWithProduct[]>({
     queryKey: ["/api/cart"],
