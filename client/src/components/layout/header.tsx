@@ -53,9 +53,11 @@ export default function Header({ onCartClick }: HeaderProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="text-white hover:text-light-pink hover:bg-white/10">
-              <Search className="h-5 w-5" />
-            </Button>
+            <Link href="/shop">
+              <Button variant="ghost" size="icon" className="text-white hover:text-light-pink hover:bg-white/10">
+                <Search className="h-5 w-5" />
+              </Button>
+            </Link>
             <div className="flex items-center space-x-1">
               <Link href="/wishlist">
                 <Button
