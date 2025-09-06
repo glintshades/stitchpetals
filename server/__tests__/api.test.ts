@@ -22,7 +22,7 @@ const createTestApp = async () => {
 describe('API Endpoints', () => {
   let app: express.Express
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = await createTestApp()
   })
 
