@@ -290,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart", requireAuth, async (req, res) => {
+  app.delete("/api/cart", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       await storage.clearCart(sessionId);
@@ -302,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wishlist API
-  app.get("/api/wishlist", requireAuth, async (req, res) => {
+  app.get("/api/wishlist", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const items = await storage.getWishlistItems(sessionId);
@@ -312,7 +312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wishlist", requireAuth, async (req, res) => {
+  app.post("/api/wishlist", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const result = insertWishlistItemSchema.safeParse({
@@ -334,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wishlist/:productId", requireAuth, async (req, res) => {
+  app.delete("/api/wishlist/:productId", async (req, res) => {
     try {
       const sessionId = (req as any).sessionID || 'default-session';
       const productId = parseInt(req.params.productId);
