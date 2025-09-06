@@ -3,6 +3,7 @@ import { ShoppingBag, Search, Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { AuthButtons } from "@/components/auth/auth-buttons";
+import { SearchModal } from "@/components/search-modal";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -13,6 +14,7 @@ export default function Header({ onCartClick }: HeaderProps) {
   const [location] = useLocation();
   const { cartItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -53,11 +55,15 @@ export default function Header({ onCartClick }: HeaderProps) {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/shop">
-              <Button variant="ghost" size="icon" className="text-white hover:text-light-pink hover:bg-white/10">
-                <Search className="h-5 w-5" />
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-white hover:text-light-pink hover:bg-white/10"
+              onClick={() => setSearchModalOpen(true)}
+              data-testid="button-search"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
             <div className="flex items-center space-x-1">
               <Link href="/wishlist">
                 <Button
@@ -121,6 +127,11 @@ export default function Header({ onCartClick }: HeaderProps) {
           </div>
         )}
       </nav>
+      
+      <SearchModal 
+        open={searchModalOpen} 
+        onOpenChange={setSearchModalOpen} 
+      />
     </header>
   );
 }
