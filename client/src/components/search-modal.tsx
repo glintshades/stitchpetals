@@ -166,15 +166,6 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
               className="border-0 text-lg focus-visible:ring-0 px-0 h-12 placeholder:text-gray-400"
               data-testid="input-search"
             />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 hover:bg-gray-100"
-              data-testid="button-close-search"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
           
           {searchTerm && (
