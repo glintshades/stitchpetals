@@ -583,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin - Create order from cart (checkout simulation)
-  app.post("/api/orders", async (req, res) => {
+  app.post("/api/orders", requireAuth, async (req, res) => {
     try {
       const validatedData = insertOrderSchema.parse(req.body);
       const order = await storage.createOrder(validatedData);
