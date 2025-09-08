@@ -1763,7 +1763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { code, state, error } = req.query;
 
       if (error) {
-        return res.redirect(`/?auth_error=${encodeURIComponent(error)}`);
+        return res.redirect(`/?auth_error=${encodeURIComponent(String(error))}`);
       }
 
       if (!code) {

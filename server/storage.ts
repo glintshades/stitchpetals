@@ -42,7 +42,11 @@ import { eq, ne, and } from "drizzle-orm";
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserBySocialId(provider: string, socialId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  createSocialUser(socialData: any): Promise<User>;
+  linkSocialAccount(userId: number, provider: string, socialId: string): Promise<void>;
   
   getAllProducts(): Promise<Product[]>;
   getVisibleProducts(): Promise<Product[]>; // For public listings - only visible products
@@ -329,6 +333,40 @@ export class DatabaseStorage implements IStorage {
   async updateUserEmail(userId: number, email: string): Promise<void> {
     await db.update(users)
       .set({ email } as any)
+      .where(eq(users.id, userId));
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async getUserBySocialId(provider: string, socialId: string): Promise<User | undefined> {
+    // For social logins, we'll use username pattern: provider_socialId
+    const socialUsername = `${provider}_${socialId}`;
+    const [user] = await db.select().from(users).where(eq(users.username, socialUsername));
+    return user || undefined;
+  }
+
+  async createSocialUser(socialData: any): Promise<User> {
+    const userData = {
+      username: socialData.username,
+      password: 'social_login', // placeholder for social accounts
+      email: socialData.email || null,
+      role: "user",
+      isActive: true,
+      createdAt: new Date().toISOString()
+    };
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async linkSocialAccount(userId: number, provider: string, socialId: string): Promise<void> {
+    // For this implementation, we'll update the username to include social info
+    // In a production app, you'd want a separate social_accounts table
+    const socialUsername = `${provider}_${socialId}`;
+    await db.update(users)
+      .set({ username: socialUsername })
       .where(eq(users.id, userId));
   }
 
