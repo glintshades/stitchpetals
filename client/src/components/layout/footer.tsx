@@ -53,7 +53,7 @@ export default function Footer() {
                 variant="ghost" 
                 size="icon" 
                 className="text-white/80 hover:text-white"
-                onClick={() => window.open('mailto:contact@glintshades.com', '_self')}
+                onClick={() => window.open('mailto:sreeni@glintshades.com', '_self')}
                 data-testid="link-email"
               >
                 <Mail className="h-5 w-5" />
