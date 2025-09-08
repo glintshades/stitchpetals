@@ -35,7 +35,7 @@ export default function Footer() {
                 variant="ghost" 
                 size="icon" 
                 className="text-white/80 hover:text-white"
-                onClick={() => window.open('https://facebook.com/glintshades', '_blank')}
+                onClick={() => window.open('https://www.facebook.com/profile.php?id=61579912582195', '_blank')}
                 data-testid="link-facebook"
               >
                 <Facebook className="h-5 w-5" />
