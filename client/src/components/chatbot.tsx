@@ -30,11 +30,14 @@ export default function Chatbot() {
 
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
-      const response = await apiRequest("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         body: JSON.stringify({ message }),
         headers: { "Content-Type": "application/json" },
       });
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
       return response.json();
     },
     onSuccess: (data) => {

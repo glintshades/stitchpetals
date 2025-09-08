@@ -1707,6 +1707,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat API for AI-powered customer support
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Import the chat service
+      const { generateChatResponse } = await import('./chatService');
+      const response = await generateChatResponse(message);
+      
+      res.json({ response });
+    } catch (error) {
+      console.error('Chat API error:', error);
+      res.status(500).json({ 
+        error: "Failed to generate response",
+        response: "I'm sorry, I'm having trouble responding right now. Please try again in a moment or browse our beautiful crochet flower collection on the website."
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
