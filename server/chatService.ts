@@ -51,7 +51,11 @@ Keep responses concise, friendly, and focused on helping the customer with their
       ],
     });
 
-    return response.content[0].text;
+    const content = response.content[0];
+    if (content.type === 'text') {
+      return content.text;
+    }
+    return "I'm sorry, I couldn't generate a proper response. Please try again.";
   } catch (error) {
     console.error('Error generating chat response:', error);
     

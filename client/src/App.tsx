@@ -7,6 +7,7 @@ import { useState } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import CartSidebar from "@/components/cart-sidebar";
+import Chatbot from "@/components/chatbot";
 import Home from "@/pages/home";
 import About from "@/pages/about";
 import Bouquets from "@/pages/bouquets";
@@ -64,6 +65,7 @@ function App() {
           </main>
           <Footer />
           <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
+          <Chatbot />
         </div>
         <Toaster />
       </TooltipProvider>
