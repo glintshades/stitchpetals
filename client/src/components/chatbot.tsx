@@ -84,7 +84,7 @@ export default function Chatbot() {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg z-50"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-purple-300 hover:bg-purple-400 text-purple-900 shadow-lg z-50"
         data-testid="button-open-chat"
       >
         <MessageCircle className="w-6 h-6" />
@@ -94,7 +94,7 @@ export default function Chatbot() {
 
   return (
     <Card className="fixed bottom-6 right-6 w-80 h-96 shadow-xl z-50 bg-white">
-      <CardHeader className="bg-primary text-primary-foreground p-4 rounded-t-lg">
+      <CardHeader className="bg-purple-300 text-purple-900 p-4 rounded-t-lg">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Bot className="w-5 h-5" />
@@ -104,7 +104,7 @@ export default function Chatbot() {
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-primary-foreground hover:bg-primary-foreground/20"
+            className="text-purple-900 hover:bg-purple-900/20"
             data-testid="button-close-chat"
           >
             <X className="w-4 h-4" />
@@ -130,8 +130,8 @@ export default function Chatbot() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
                       message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
+                        ? "bg-purple-300 text-purple-900"
+                        : "bg-purple-100 text-purple-800"
                     }`}
                   >
                     {message.role === "user" ? (
@@ -143,8 +143,8 @@ export default function Chatbot() {
                   <div
                     className={`p-3 rounded-lg ${
                       message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
+                        ? "bg-purple-300 text-purple-900"
+                        : "bg-purple-100 text-purple-800"
                     }`}
                   >
                     <p className="text-sm">{message.content}</p>
@@ -155,10 +155,10 @@ export default function Chatbot() {
             {chatMutation.isPending && (
               <div className="flex gap-2 justify-start">
                 <div className="flex gap-2 max-w-[70%]">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary text-secondary-foreground">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-purple-100 text-purple-800">
                     <Bot className="w-4 h-4" />
                   </div>
-                  <div className="p-3 rounded-lg bg-secondary text-secondary-foreground">
+                  <div className="p-3 rounded-lg bg-purple-100 text-purple-800">
                     <p className="text-sm">Typing...</p>
                   </div>
                 </div>
