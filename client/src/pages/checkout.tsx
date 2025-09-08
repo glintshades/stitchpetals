@@ -13,8 +13,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginDialog } from "@/components/auth/login-dialog";
+import { RegisterDialog } from "@/components/auth/register-dialog";
 import { CloverPayment } from "@/components/payment/clover-payment";
-import { ArrowLeft, CreditCard, Package, Truck, MapPin, Phone, Mail, BookOpen, Check, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CreditCard, Package, Truck, MapPin, Phone, Mail, BookOpen, Check, AlertTriangle, UserX, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const checkoutSchema = z.object({
@@ -47,9 +50,23 @@ export default function Checkout() {
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("US");
   const [selectedState, setSelectedState] = useState<string>("");
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+
+  // Handle login/register dialog switching
+  const handleSwitchToRegister = () => {
+    setShowLogin(false);
+    setShowRegister(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowRegister(false);
+    setShowLogin(true);
+  };
 
   // States/Provinces data for each country
   const statesByCountry: Record<string, string[]> = {
@@ -426,6 +443,79 @@ export default function Checkout() {
             </Button>
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  // Show authentication required message for guest users
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-ivory py-16">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <UserX className="h-16 w-16 mx-auto text-wine mb-4" />
+          <h2 className="text-2xl font-playfair wine mb-4">Sign In Required</h2>
+          <p className="text-gray-600 mb-8">
+            Please create an account or sign in to complete your checkout. Don't worry - your cart items are saved!
+          </p>
+          
+          <div className="space-y-4 max-w-sm mx-auto mb-8">
+            <Button 
+              onClick={() => setShowRegister(true)}
+              className="w-full bg-wine hover:bg-dark-pink text-white"
+              data-testid="button-signup-checkout"
+            >
+              Create Account
+            </Button>
+            <Button 
+              onClick={() => setShowLogin(true)}
+              variant="outline"
+              className="w-full border-wine text-wine hover:bg-wine/5"
+              data-testid="button-login-checkout"
+            >
+              Sign In
+            </Button>
+            <Button 
+              asChild
+              variant="ghost"
+              className="w-full text-gray-600 hover:text-wine"
+            >
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Continue Shopping
+              </Link>
+            </Button>
+          </div>
+          
+          <div className="p-4 bg-blue-50 rounded-lg max-w-md mx-auto">
+            <div className="flex items-center gap-2 text-blue-700 mb-3">
+              <ShoppingCart className="h-4 w-4" />
+              <span className="font-medium">Your Cart ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})</span>
+            </div>
+            <div className="space-y-2">
+              {cartItems.slice(0, 3).map((item) => (
+                <div key={item.id} className="flex justify-between items-center text-sm">
+                  <span className="text-gray-700">{item.product.name}</span>
+                  <span className="text-blue-700 font-medium">${(parseFloat(item.product.price) * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+              {cartItems.length > 3 && (
+                <p className="text-sm text-gray-500">and {cartItems.length - 3} more items...</p>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <LoginDialog
+          isOpen={showLogin}
+          onClose={() => setShowLogin(false)}
+          onSwitchToRegister={handleSwitchToRegister}
+        />
+
+        <RegisterDialog
+          isOpen={showRegister}
+          onClose={() => setShowRegister(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
       </div>
     );
   }
