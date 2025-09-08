@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +55,7 @@ import { getCategoryDisplayName, formatPrice } from "@/lib/products";
 export default function ProductPage() {
   const params = useParams();
   const productId = parseInt(params.id || "0");
+  const [, setLocation] = useLocation();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
   const { toast } = useToast();
@@ -263,12 +264,8 @@ export default function ProductPage() {
       variationId: selectedVariation?.id,
     });
 
-    // Show checkout message (since we don't have a full checkout system)
-    toast({
-      title: "Ready for Checkout!",
-      description: "Item added to cart. Check your cart to proceed with purchase.",
-      duration: 3000,
-    });
+    // Navigate directly to checkout page for immediate purchase
+    setLocation("/checkout");
   };
 
   if (isLoading) {
