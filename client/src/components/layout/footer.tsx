@@ -31,13 +31,31 @@ export default function Footer() {
               Creating beautiful, lasting memories through handcrafted crochet artistry.
             </p>
             <div className="flex space-x-4">
-              <Button variant="ghost" size="icon" className="text-white/80 hover:text-white">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white/80 hover:text-white"
+                onClick={() => window.open('https://facebook.com/glintshades', '_blank')}
+                data-testid="link-facebook"
+              >
                 <Facebook className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-white/80 hover:text-white">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white/80 hover:text-white"
+                onClick={() => window.open('https://instagram.com/glintshades', '_blank')}
+                data-testid="link-instagram"
+              >
                 <Instagram className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-white/80 hover:text-white">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white/80 hover:text-white"
+                onClick={() => window.open('mailto:contact@glintshades.com', '_self')}
+                data-testid="link-email"
+              >
                 <Mail className="h-5 w-5" />
               </Button>
             </div>
