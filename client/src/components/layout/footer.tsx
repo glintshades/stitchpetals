@@ -44,7 +44,7 @@ export default function Footer() {
                 variant="ghost" 
                 size="icon" 
                 className="text-white/80 hover:text-white"
-                onClick={() => window.open('https://instagram.com/glintshades', '_blank')}
+                onClick={() => window.open('https://www.instagram.com/glintshadesllc/', '_blank')}
                 data-testid="link-instagram"
               >
                 <Instagram className="h-5 w-5" />
