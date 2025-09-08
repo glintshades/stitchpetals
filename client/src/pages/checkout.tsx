@@ -45,9 +45,61 @@ export default function Checkout() {
   const [isValidatingAddress, setIsValidatingAddress] = useState(false);
   const [addressValidation, setAddressValidation] = useState<any>(null);
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("US");
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
   const queryClient = useQueryClient();
+
+  // Cities data for each country
+  const citiesByCountry: Record<string, string[]> = {
+    US: [
+      "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
+      "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville",
+      "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis",
+      "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville",
+      "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville",
+      "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Sacramento",
+      "Kansas City", "Long Beach", "Mesa", "Atlanta", "Colorado Springs", "Virginia Beach",
+      "Raleigh", "Omaha", "Miami", "Oakland", "Minneapolis", "Tulsa", "Wichita",
+      "New Orleans", "Arlington"
+    ],
+    CA: [
+      "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Winnipeg",
+      "Quebec City", "Hamilton", "Kitchener", "London", "Victoria", "Halifax",
+      "Oshawa", "Windsor", "Saskatoon", "St. Catharines", "Regina", "St. John's",
+      "Barrie", "Kelowna", "Sherbrooke", "Abbotsford", "Kingston", "Trois-Rivières",
+      "Guelph", "Cambridge", "Whitby", "Brantford", "Ajax", "Pickering", "Moncton",
+      "Thunder Bay", "Saint John", "Sudbury", "Peterborough", "Lethbridge",
+      "Vaughan", "Waterloo", "Burlington", "Oakville", "Richmond", "Laval"
+    ],
+    MX: [
+      "Mexico City", "Guadalajara", "Monterrey", "Puebla", "Toluca", "Tijuana",
+      "León", "Juárez", "Torreón", "Querétaro", "San Luis Potosí", "Mérida",
+      "Mexicali", "Aguascalientes", "Cuernavaca", "Saltillo", "Hermosillo",
+      "Culiacán", "Chimalhuacán", "Chihuahua", "Morelia", "Cancún", "Xalapa",
+      "Reynosa", "Tlalnepantla", "Acapulco", "Veracruz", "Villahermosa",
+      "Tampico", "Pachuca", "Oaxaca", "Tuxtla Gutiérrez", "Mazatlán",
+      "Coatzacoalcos", "Matamoros", "Irapuato", "Ensenada", "Durango"
+    ],
+    GB: [
+      "London", "Birmingham", "Manchester", "Glasgow", "Liverpool", "Newcastle",
+      "Sheffield", "Bristol", "Edinburgh", "Leeds", "Leicester", "Coventry",
+      "Cardiff", "Belfast", "Nottingham", "Hull", "Plymouth", "Stoke-on-Trent",
+      "Wolverhampton", "Derby", "Southampton", "Portsmouth", "Aberdeen",
+      "Brighton", "Swindon", "Huddersfield", "Poole", "Oxford", "Middlesbrough",
+      "Blackpool", "Bolton", "Ipswich", "Preston", "Stockport", "Norwich",
+      "Rotherham", "Cambridge", "Watford", "Exeter", "Slough", "Crawley"
+    ],
+    AU: [
+      "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast",
+      "Newcastle", "Canberra", "Central Coast", "Wollongong", "Logan City",
+      "Geelong", "Hobart", "Townsville", "Cairns", "Darwin", "Toowoomba",
+      "Ballarat", "Bendigo", "Albury", "Launceston", "Mackay", "Rockhampton",
+      "Bunbury", "Bundaberg", "Coffs Harbour", "Wagga Wagga", "Hervey Bay",
+      "Mildura", "Shepparton", "Port Macquarie", "Gladstone", "Tamworth",
+      "Traralgon", "Orange", "Bowral", "Geraldton", "Dubbo", "Nowra"
+    ]
+  };
   
   // Fetch saved addresses
   const { data: savedAddressesData = [] } = useQuery<any[]>({
@@ -519,11 +571,25 @@ export default function Checkout() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="city">City *</Label>
-                        <Input
-                          id="city"
-                          {...form.register("city")}
-                          placeholder="New York"
-                        />
+                        <Select
+                          value={form.watch("city") || ""}
+                          onValueChange={(value) => form.setValue("city", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select city" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {citiesByCountry[selectedCountry]?.map((city) => (
+                              <SelectItem key={city} value={city}>
+                                {city}
+                              </SelectItem>
+                            )) || (
+                              <SelectItem value="" disabled>
+                                No cities available
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
                         {form.formState.errors.city && (
                           <p className="text-sm text-red-600 mt-1">
                             {form.formState.errors.city.message}
@@ -562,7 +628,15 @@ export default function Checkout() {
 
                     <div>
                       <Label htmlFor="country">Country *</Label>
-                      <Select defaultValue="US" onValueChange={(value) => form.setValue("country", value)}>
+                      <Select 
+                        value={selectedCountry} 
+                        onValueChange={(value) => {
+                          setSelectedCountry(value);
+                          form.setValue("country", value);
+                          // Clear city selection when country changes
+                          form.setValue("city", "");
+                        }}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select country" />
                         </SelectTrigger>
