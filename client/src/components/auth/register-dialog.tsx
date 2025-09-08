@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { MapPin, User } from "lucide-react";
+import { MapPin, User, Facebook, Instagram, Mail } from "lucide-react";
 
 interface RegisterDialogProps {
   isOpen: boolean;
@@ -97,6 +97,34 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
     },
   });
 
+  const socialLoginMutation = useMutation({
+    mutationFn: async (provider: string) => {
+      const response = await fetch(`/api/auth/oauth/${provider}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Social login failed");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.authUrl) {
+        // Redirect to OAuth provider
+        window.location.href = data.authUrl;
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Social Login Failed",
+        description: error.message || "Failed to connect with social media account",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -167,9 +195,60 @@ export function RegisterDialog({ isOpen, onClose, onSwitchToLogin }: RegisterDia
         <DialogHeader>
           <DialogTitle>Create Account</DialogTitle>
           <DialogDescription>
-            Join GlintShades to track your orders and save your preferences.
+            Join GlintShades using your preferred method to track orders and save preferences.
           </DialogDescription>
         </DialogHeader>
+        
+        {/* Social Registration Options */}
+        <div className="space-y-3 px-6 pb-4">
+          <div className="grid grid-cols-3 gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => socialLoginMutation.mutate('facebook')}
+              disabled={socialLoginMutation.isPending}
+              className="flex items-center gap-2"
+              data-testid="button-facebook-register"
+            >
+              <Facebook className="h-4 w-4 text-blue-600" />
+              Facebook
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => socialLoginMutation.mutate('instagram')}
+              disabled={socialLoginMutation.isPending}
+              className="flex items-center gap-2"
+              data-testid="button-instagram-register"
+            >
+              <Instagram className="h-4 w-4 text-pink-600" />
+              Instagram
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => socialLoginMutation.mutate('google')}
+              disabled={socialLoginMutation.isPending}
+              className="flex items-center gap-2"
+              data-testid="button-google-register"
+            >
+              <Mail className="h-4 w-4 text-gray-600" />
+              Google
+            </Button>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or create account manually
+              </span>
+            </div>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="max-h-[80vh] overflow-y-auto">
           {/* Account Information */}
           <Card className="mb-4">

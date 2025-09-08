@@ -1730,6 +1730,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // OAuth authentication routes
+  app.post("/api/auth/oauth/:provider", async (req, res) => {
+    try {
+      const { provider } = req.params;
+      const { getAuthUrl, isProviderConfigured } = await import('./oauthService');
+      
+      if (!isProviderConfigured(provider)) {
+        return res.status(400).json({ 
+          error: `${provider} OAuth is not configured`,
+          message: `To enable ${provider} login, please configure the OAuth settings in your environment variables.`
+        });
+      }
+
+      const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/oauth/${provider}/callback`;
+      const authUrl = getAuthUrl(provider, redirectUri);
+      
+      res.json({ authUrl });
+    } catch (error) {
+      console.error('OAuth initiation error:', error);
+      res.status(500).json({ 
+        error: "Failed to initiate OAuth",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // OAuth callback routes
+  app.get("/api/auth/oauth/:provider/callback", async (req, res) => {
+    try {
+      const { provider } = req.params;
+      const { code, state, error } = req.query;
+
+      if (error) {
+        return res.redirect(`/?auth_error=${encodeURIComponent(error)}`);
+      }
+
+      if (!code) {
+        return res.redirect('/?auth_error=missing_code');
+      }
+
+      const { exchangeCodeForToken, getUserInfo } = await import('./oauthService');
+      const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/oauth/${provider}/callback`;
+      
+      // Exchange code for access token
+      const tokenData = await exchangeCodeForToken(provider, code as string, redirectUri);
+      const userInfo = await getUserInfo(provider, tokenData.access_token);
+      
+      // Create or find user account
+      const socialUser = {
+        id: userInfo.id,
+        email: userInfo.email,
+        name: userInfo.name,
+        provider: provider
+      };
+      
+      // Check if user exists by social ID or email
+      let user = await storage.getUserBySocialId(provider, socialUser.id);
+      
+      if (!user && socialUser.email) {
+        // Try to find by email
+        user = await storage.getUserByEmail(socialUser.email);
+        if (user) {
+          // Link social account to existing user
+          await storage.linkSocialAccount(user.id, provider, socialUser.id);
+        }
+      }
+      
+      if (!user) {
+        // Create new user account
+        const username = socialUser.name?.replace(/\s+/g, '').toLowerCase() || `${provider}_user_${Date.now()}`;
+        user = await storage.createSocialUser({
+          username,
+          email: socialUser.email,
+          provider,
+          socialId: socialUser.id,
+          socialData: userInfo
+        });
+      }
+      
+      // Set session
+      (req as any).session.userId = user.id;
+      (req as any).session.user = user;
+      
+      // Redirect to home with success
+      res.redirect('/?auth_success=1');
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      res.redirect(`/?auth_error=${encodeURIComponent('authentication_failed')}`);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
