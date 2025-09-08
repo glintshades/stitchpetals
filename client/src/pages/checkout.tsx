@@ -46,59 +46,87 @@ export default function Checkout() {
   const [addressValidation, setAddressValidation] = useState<any>(null);
   const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("US");
+  const [selectedState, setSelectedState] = useState<string>("");
   const { toast } = useToast();
   const { cartItems, clearCart } = useCart();
   const queryClient = useQueryClient();
 
-  // Cities data for each country
-  const citiesByCountry: Record<string, string[]> = {
+  // States/Provinces data for each country
+  const statesByCountry: Record<string, string[]> = {
     US: [
-      "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
-      "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville",
-      "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis",
-      "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville",
-      "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville",
-      "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Sacramento",
-      "Kansas City", "Long Beach", "Mesa", "Atlanta", "Colorado Springs", "Virginia Beach",
-      "Raleigh", "Omaha", "Miami", "Oakland", "Minneapolis", "Tulsa", "Wichita",
-      "New Orleans", "Arlington"
+      "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+      "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+      "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
+      "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+      "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+      "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+      "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia",
+      "Wisconsin", "Wyoming"
     ],
     CA: [
-      "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Winnipeg",
-      "Quebec City", "Hamilton", "Kitchener", "London", "Victoria", "Halifax",
-      "Oshawa", "Windsor", "Saskatoon", "St. Catharines", "Regina", "St. John's",
-      "Barrie", "Kelowna", "Sherbrooke", "Abbotsford", "Kingston", "Trois-Rivières",
-      "Guelph", "Cambridge", "Whitby", "Brantford", "Ajax", "Pickering", "Moncton",
-      "Thunder Bay", "Saint John", "Sudbury", "Peterborough", "Lethbridge",
-      "Vaughan", "Waterloo", "Burlington", "Oakville", "Richmond", "Laval"
+      "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador",
+      "Northwest Territories", "Nova Scotia", "Nunavut", "Ontario", "Prince Edward Island",
+      "Quebec", "Saskatchewan", "Yukon"
     ],
     MX: [
-      "Mexico City", "Guadalajara", "Monterrey", "Puebla", "Toluca", "Tijuana",
-      "León", "Juárez", "Torreón", "Querétaro", "San Luis Potosí", "Mérida",
-      "Mexicali", "Aguascalientes", "Cuernavaca", "Saltillo", "Hermosillo",
-      "Culiacán", "Chimalhuacán", "Chihuahua", "Morelia", "Cancún", "Xalapa",
-      "Reynosa", "Tlalnepantla", "Acapulco", "Veracruz", "Villahermosa",
-      "Tampico", "Pachuca", "Oaxaca", "Tuxtla Gutiérrez", "Mazatlán",
-      "Coatzacoalcos", "Matamoros", "Irapuato", "Ensenada", "Durango"
+      "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas",
+      "Chihuahua", "Coahuila", "Colima", "Durango", "Guanajuato", "Guerrero", "Hidalgo",
+      "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca",
+      "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora",
+      "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
     ],
     GB: [
-      "London", "Birmingham", "Manchester", "Glasgow", "Liverpool", "Newcastle",
-      "Sheffield", "Bristol", "Edinburgh", "Leeds", "Leicester", "Coventry",
-      "Cardiff", "Belfast", "Nottingham", "Hull", "Plymouth", "Stoke-on-Trent",
-      "Wolverhampton", "Derby", "Southampton", "Portsmouth", "Aberdeen",
-      "Brighton", "Swindon", "Huddersfield", "Poole", "Oxford", "Middlesbrough",
-      "Blackpool", "Bolton", "Ipswich", "Preston", "Stockport", "Norwich",
-      "Rotherham", "Cambridge", "Watford", "Exeter", "Slough", "Crawley"
+      "England", "Scotland", "Wales", "Northern Ireland"
     ],
     AU: [
-      "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast",
-      "Newcastle", "Canberra", "Central Coast", "Wollongong", "Logan City",
-      "Geelong", "Hobart", "Townsville", "Cairns", "Darwin", "Toowoomba",
-      "Ballarat", "Bendigo", "Albury", "Launceston", "Mackay", "Rockhampton",
-      "Bunbury", "Bundaberg", "Coffs Harbour", "Wagga Wagga", "Hervey Bay",
-      "Mildura", "Shepparton", "Port Macquarie", "Gladstone", "Tamworth",
-      "Traralgon", "Orange", "Bowral", "Geraldton", "Dubbo", "Nowra"
+      "New South Wales", "Victoria", "Queensland", "Western Australia", "South Australia",
+      "Tasmania", "Northern Territory", "Australian Capital Territory"
     ]
+  };
+
+  // Cities data organized by country and state
+  const citiesByCountryAndState: Record<string, Record<string, string[]>> = {
+    US: {
+      "California": ["Los Angeles", "San Francisco", "San Diego", "San Jose", "Sacramento", "Fresno", "Long Beach", "Oakland", "Stockton", "Anaheim"],
+      "Texas": ["Houston", "San Antonio", "Dallas", "Austin", "Fort Worth", "El Paso", "Arlington", "Corpus Christi", "Plano", "Lubbock"],
+      "New York": ["New York", "Buffalo", "Rochester", "Yonkers", "Syracuse", "Albany", "New Rochelle", "Mount Vernon", "Schenectady", "Utica"],
+      "Florida": ["Jacksonville", "Miami", "Tampa", "Orlando", "St. Petersburg", "Hialeah", "Tallahassee", "Fort Lauderdale", "Port St. Lucie", "Cape Coral"],
+      "Illinois": ["Chicago", "Aurora", "Rockford", "Joliet", "Naperville", "Springfield", "Peoria", "Elgin", "Waukegan", "Cicero"],
+      "Pennsylvania": ["Philadelphia", "Pittsburgh", "Allentown", "Erie", "Reading", "Scranton", "Bethlehem", "Lancaster", "Levittown", "Harrisburg"],
+      "Ohio": ["Columbus", "Cleveland", "Cincinnati", "Toledo", "Akron", "Dayton", "Parma", "Canton", "Lorain", "Hamilton"],
+      "Georgia": ["Atlanta", "Augusta", "Columbus", "Savannah", "Athens", "Sandy Springs", "Roswell", "Macon", "Johns Creek", "Albany"],
+      "North Carolina": ["Charlotte", "Raleigh", "Greensboro", "Durham", "Winston-Salem", "Fayetteville", "Cary", "Wilmington", "High Point", "Asheville"],
+      "Michigan": ["Detroit", "Grand Rapids", "Warren", "Sterling Heights", "Lansing", "Ann Arbor", "Flint", "Dearborn", "Livonia", "Westland"]
+    },
+    CA: {
+      "Ontario": ["Toronto", "Ottawa", "Hamilton", "London", "Kitchener", "Windsor", "Oshawa", "Kingston", "Guelph", "Cambridge"],
+      "Quebec": ["Montreal", "Quebec City", "Laval", "Gatineau", "Sherbrooke", "Trois-Rivières", "Saguenay", "Lévis", "Terrebonne", "Saint-Jean-sur-Richelieu"],
+      "British Columbia": ["Vancouver", "Victoria", "Surrey", "Burnaby", "Richmond", "Abbotsford", "Coquitlam", "Kelowna", "Saanich", "Delta"],
+      "Alberta": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "St. Albert", "Medicine Hat", "Grande Prairie", "Airdrie", "Spruce Grove", "Leduc"],
+      "Manitoba": ["Winnipeg", "Brandon", "Steinbach", "Thompson", "Portage la Prairie", "Winkler", "Selkirk", "Morden", "Dauphin", "The Pas"],
+      "Saskatchewan": ["Saskatoon", "Regina", "Prince Albert", "Moose Jaw", "Swift Current", "Yorkton", "North Battleford", "Estevan", "Weyburn", "Lloydminster"]
+    },
+    MX: {
+      "México": ["Mexico City", "Toluca", "Ecatepec", "Naucalpan", "Tlalnepantla", "Chimalhuacán", "Cuautitlán Izcalli", "Atizapán de Zaragoza", "Nezahualcóyotl", "Tultitlán"],
+      "Jalisco": ["Guadalajara", "Zapopan", "Tlaquepaque", "Tonalá", "Puerto Vallarta", "Tlajomulco de Zúñiga", "El Salto", "Tepatitlán", "Ocotlán", "Lagos de Moreno"],
+      "Nuevo León": ["Monterrey", "Guadalupe", "San Nicolás de los Garza", "Apodaca", "General Escobedo", "Santa Catarina", "San Pedro Garza García", "Cadereyta Jiménez", "Carmen", "Juárez"],
+      "Puebla": ["Puebla", "Tehuacán", "San Martín Texmelucan", "Atlixco", "San Pedro Cholula", "Amozoc", "Huauchinango", "San Andrés Cholula", "Teziutlán", "Cuautlancingo"],
+      "Baja California": ["Tijuana", "Mexicali", "Ensenada", "Rosarito", "Tecate", "San Felipe", "Vicente Guerrero", "Guadalupe Victoria", "El Rosario", "Ejido Eréndira"]
+    },
+    GB: {
+      "England": ["London", "Birmingham", "Manchester", "Liverpool", "Newcastle", "Sheffield", "Bristol", "Leeds", "Leicester", "Coventry"],
+      "Scotland": ["Glasgow", "Edinburgh", "Aberdeen", "Dundee", "Stirling", "Perth", "Inverness", "Paisley", "East Kilbride", "Livingston"],
+      "Wales": ["Cardiff", "Swansea", "Newport", "Wrexham", "Barry", "Caerphilly", "Bridgend", "Neath", "Port Talbot", "Cwmbran"],
+      "Northern Ireland": ["Belfast", "Derry", "Lisburn", "Newtownabbey", "Bangor", "Craigavon", "Castlereagh", "Ballymena", "Newry", "Carrickfergus"]
+    },
+    AU: {
+      "New South Wales": ["Sydney", "Newcastle", "Central Coast", "Wollongong", "Albury", "Wagga Wagga", "Port Macquarie", "Tamworth", "Orange", "Dubbo"],
+      "Victoria": ["Melbourne", "Geelong", "Ballarat", "Bendigo", "Shepparton", "Traralgon", "Warrnambool", "Horsham", "Sale", "Wangaratta"],
+      "Queensland": ["Brisbane", "Gold Coast", "Townsville", "Cairns", "Toowoomba", "Mackay", "Rockhampton", "Bundaberg", "Hervey Bay", "Gladstone"],
+      "Western Australia": ["Perth", "Bunbury", "Geraldton", "Kalgoorlie", "Mandurah", "Albany", "Port Hedland", "Broome", "Busselton", "Esperance"],
+      "South Australia": ["Adelaide", "Mount Gambier", "Whyalla", "Murray Bridge", "Port Lincoln", "Port Augusta", "Victor Harbor", "Gawler", "Port Pirie", "Kadina"],
+      "Tasmania": ["Hobart", "Launceston", "Devonport", "Burnie", "Ulverstone", "Kingston", "Glenorchy", "Clarence", "Wynyard", "Sorell"]
+    }
   };
   
   // Fetch saved addresses
@@ -572,22 +600,19 @@ export default function Checkout() {
                       <div>
                         <Label htmlFor="city">City *</Label>
                         <Select
-                          value={form.watch("city") || ""}
+                          value={form.watch("city") || undefined}
                           onValueChange={(value) => form.setValue("city", value)}
+                          disabled={!selectedState}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select city" />
+                            <SelectValue placeholder={selectedState ? "Select city" : "Select state first"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {citiesByCountry[selectedCountry]?.map((city) => (
+                            {selectedState && citiesByCountryAndState[selectedCountry]?.[selectedState]?.map((city) => (
                               <SelectItem key={city} value={city}>
                                 {city}
                               </SelectItem>
-                            )) || (
-                              <SelectItem value="" disabled>
-                                No cities available
-                              </SelectItem>
-                            )}
+                            )) || null}
                           </SelectContent>
                         </Select>
                         {form.formState.errors.city && (
@@ -599,11 +624,26 @@ export default function Checkout() {
 
                       <div>
                         <Label htmlFor="state">State/Province *</Label>
-                        <Input
-                          id="state"
-                          {...form.register("state")}
-                          placeholder="NY"
-                        />
+                        <Select
+                          value={selectedState}
+                          onValueChange={(value) => {
+                            setSelectedState(value);
+                            form.setValue("state", value);
+                            // Clear city selection when state changes
+                            form.setValue("city", "");
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select state/province" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statesByCountry[selectedCountry]?.map((state) => (
+                              <SelectItem key={state} value={state}>
+                                {state}
+                              </SelectItem>
+                            )) || null}
+                          </SelectContent>
+                        </Select>
                         {form.formState.errors.state && (
                           <p className="text-sm text-red-600 mt-1">
                             {form.formState.errors.state.message}
@@ -632,8 +672,10 @@ export default function Checkout() {
                         value={selectedCountry} 
                         onValueChange={(value) => {
                           setSelectedCountry(value);
+                          setSelectedState("");
                           form.setValue("country", value);
-                          // Clear city selection when country changes
+                          // Clear state and city selection when country changes
+                          form.setValue("state", "");
                           form.setValue("city", "");
                         }}
                       >
