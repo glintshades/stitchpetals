@@ -1,20 +1,35 @@
+import { useEffect } from "react";
+
 export default function ProProfsChat() {
-  return (
-    <div
-      dangerouslySetInnerHTML={{
-        __html: `
-          <script>
-            (function(){
-              var pp=document.createElement('script'), ppr=document.getElementsByTagName('script')[0]; 
-              stid='Q2tKdkxOcmcxZnhDaEdlUGgxSjR6Zz09';
-              pp.type='text/javascript'; 
-              pp.async=true; 
-              pp.src=('https:' == document.location.protocol ? 'https://' : 'http://') + 's01.live2support.com/dashboardv2/chatwindow/'; 
-              ppr.parentNode.insertBefore(pp, ppr);
-            })();
-          </script>
-        `
-      }}
-    />
-  );
+  useEffect(() => {
+    // Check if already loaded
+    if (document.querySelector('script[src*="live2support.com"]')) {
+      return;
+    }
+
+    // Add script directly to head
+    const script = document.createElement('script');
+    script.async = true;
+    script.type = 'text/javascript';
+    script.src = 'https://s01.live2support.com/dashboardv2/chatwindow/';
+    
+    // Set the required global variable
+    (window as any).stid = 'Q2tKdkxOcmcxZnhDaEdlUGgxSjR6Zz09';
+    
+    // Add to document head
+    document.head.appendChild(script);
+    
+    // Log for debugging
+    console.log('ProProfs Chat: Script loaded');
+    
+    return () => {
+      // Cleanup
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      delete (window as any).stid;
+    };
+  }, []);
+
+  return null;
 }
