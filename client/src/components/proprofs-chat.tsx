@@ -1,35 +1,58 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
+
+declare global {
+  interface Window {
+    stid: string;
+  }
+}
 
 export default function ProProfsChat() {
   useEffect(() => {
-    // Check if already loaded
-    if (document.querySelector('script[src*="live2support.com"]')) {
+    // Check if script is already loaded
+    if (document.getElementById('proprofs-chat-script')) {
       return;
     }
 
-    // Add script directly to head
-    const script = document.createElement('script');
-    script.async = true;
-    script.type = 'text/javascript';
-    script.src = 'https://s01.live2support.com/dashboardv2/chatwindow/';
-    
-    // Set the required global variable
-    (window as any).stid = 'Q2tKdkxOcmcxZnhDaEdlUGgxSjR6Zz09';
-    
-    // Add to document head
-    document.head.appendChild(script);
-    
-    // Log for debugging
-    console.log('ProProfs Chat: Script loaded');
-    
+    try {
+      // Set the global stid variable first
+      window.stid = 'Q2tKdkxOcmgxZnhDaEdlUGgxSjR6Zz09';
+      
+      // Create and inject the ProProfs script exactly as provided
+      const script = document.createElement('script');
+      script.id = 'proprofs-chat-script';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.src = (window.location.protocol === 'https:' ? 'https://' : 'http://') + 
+                   's01.live2support.com/dashboardv2/chatwindow/';
+      
+      // Add error handling
+      script.onerror = () => {
+        console.warn('ProProfs chat script failed to load');
+      };
+      
+      script.onload = () => {
+        console.log('ProProfs chat loaded successfully');
+      };
+      
+      // Append to head for better compatibility
+      document.head.appendChild(script);
+      
+    } catch (error) {
+      console.warn('Error loading ProProfs chat:', error);
+    }
+
+    // Cleanup function
     return () => {
-      // Cleanup
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
+      const existingScript = document.getElementById('proprofs-chat-script');
+      if (existingScript) {
+        existingScript.remove();
       }
-      delete (window as any).stid;
+      if (window.stid) {
+        delete window.stid;
+      }
     };
   }, []);
 
+  // This component doesn't render anything visible
   return null;
 }
