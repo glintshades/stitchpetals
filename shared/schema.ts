@@ -231,6 +231,18 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   paymentId: true,
   paymentStatus: true,
   paymentMethod: true,
+}).extend({
+  // Additional fields for guest checkout
+  shippingAddress: z.string(),
+  shippingCost: z.string(),
+  shippingMethod: z.string(),
+  orderItems: z.array(z.object({
+    productId: z.number(),
+    productName: z.string(),
+    quantity: z.number(),
+    selectedColor: z.string().optional(),
+    price: z.string(),
+  })),
 });
 
 export const insertAdminUserSchema = createInsertSchema(adminUsers).pick({
