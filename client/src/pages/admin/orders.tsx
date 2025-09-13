@@ -14,11 +14,11 @@ type Order = {
   customerEmail: string;
   customerPhone: string;
   shippingAddress: string;
-  items: Array<{
+  orderItems: Array<{
     productName: string;
     quantity: number;
     selectedColor: string;
-    price: string;
+    price: number;
   }>;
   subtotalAmount?: string;
   taxAmount?: string;
@@ -259,7 +259,7 @@ export default function AdminOrders() {
                     Order Items
                   </h4>
                   <div className="space-y-3">
-                    {selectedOrder.items.map((item, index) => (
+                    {selectedOrder.orderItems?.map((item, index) => (
                       <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                         <div>
                           <p className="font-medium">{item.productName}</p>
@@ -270,7 +270,7 @@ export default function AdminOrders() {
                         <div className="text-right">
                           <p className="font-semibold">${item.price}</p>
                           <p className="text-sm text-gray-600">
-                            ${(parseFloat(item.price) * item.quantity).toFixed(2)} total
+                            ${(item.price * item.quantity).toFixed(2)} total
                           </p>
                         </div>
                       </div>
