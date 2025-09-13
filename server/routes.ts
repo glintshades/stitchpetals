@@ -10,6 +10,7 @@ import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmission
 import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
 import { Client } from '@replit/object-storage';
+import { whatsappManager } from './providers/whatsapp/index';
 
 // Configure multer for memory storage (needed for App Storage)
 const upload = multer({ 
@@ -1018,6 +1019,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       res.status(500).json({ message: "Failed to resubscribe user" });
+    }
+  });
+
+  // WhatsApp webhook endpoints
+  // GET endpoint for webhook verification
+  app.get("/api/whatsapp/webhook", (req, res) => {
+    try {
+      const mode = req.query['hub.mode'] as string;
+      const verifyToken = req.query['hub.verify_token'] as string;
+      const challenge = req.query['hub.challenge'] as string;
+
+      if (!whatsappManager.isConfigured()) {
+        return res.status(503).json({ error: "WhatsApp provider not configured" });
+      }
+
+      const provider = whatsappManager.getProvider();
+      
+      if (provider.verifyChallenge(mode as string, verifyToken as string)) {
+        res.status(200).send(challenge);
+      } else {
+        res.status(403).send('Forbidden');
+      }
+    } catch (error) {
+      console.error('WhatsApp webhook verification error:', error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST endpoint for receiving messages (raw body parsing handled globally for signature verification)
+  app.post("/api/whatsapp/webhook", async (req, res) => {
+    try {
+      if (!whatsappManager.isConfigured()) {
+        return res.status(503).json({ error: "WhatsApp provider not configured" });
+      }
+
+      const provider = whatsappManager.getProvider();
+      const signature = req.headers['x-hub-signature-256'] as string;
+      const rawBody = req.body.toString();
+
+      // Verify webhook signature
+      if (!signature || !provider.verifyWebhook(rawBody, signature)) {
+        console.warn('WhatsApp webhook signature verification failed');
+        return res.status(403).json({ error: "Forbidden - invalid signature" });
+      }
+
+      // Parse the webhook event
+      const body = JSON.parse(rawBody);
+      const event = provider.parseWebhookEvent(body);
+
+      if (event && event.type === 'message') {
+        // TODO: Handle incoming message - will be implemented in chat router task
+        console.log('WhatsApp message received:', event.data);
+        
+        // For now, just acknowledge receipt
+        res.status(200).json({ status: "received" });
+      } else {
+        // Acknowledge other event types
+        res.status(200).json({ status: "acknowledged" });
+      }
+    } catch (error) {
+      console.error('WhatsApp webhook processing error:', error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
