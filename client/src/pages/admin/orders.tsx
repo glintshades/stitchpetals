@@ -67,14 +67,7 @@ export default function AdminOrders() {
 
   const createShipmentMutation = useMutation({
     mutationFn: async ({ orderId, serviceType }: { orderId: number; serviceType?: string }) => {
-      const response = await apiRequest("/api/shipping/create", {
-        method: "POST",
-        body: JSON.stringify({ orderId, serviceType }),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer admin-token"
-        },
-      });
+      const response = await apiRequest("POST", "/api/shipping/create", { orderId, serviceType });
       return response;
     },
     onSuccess: () => {
