@@ -1021,84 +1021,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Chat endpoint using HuggingFace (completely free!)
-  app.post('/api/ai-chat', async (req, res) => {
+  // Product Search Chat endpoint
+  app.post('/api/search-products', async (req, res) => {
     try {
-      const { message } = req.body;
+      const { query } = req.body;
       
-      if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: 'Message is required' });
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: 'Search query is required' });
       }
 
-      // Create a contextual prompt about crochet flowers
-      const contextualPrompt = `You are a friendly customer service assistant for GlintShades, a company that sells beautiful handcrafted crochet flowers and arrangements. Our products include:
-- Crochet flower bouquets (lasting forever, no water needed)
-- Potted crochet flowers (perfect home decor)
-- Individual crochet stems
-- Custom arrangements for special occasions
+      const searchQuery = query.toLowerCase().trim();
+      
+      // Get all products and categories for search
+      const products = await storage.getAllProducts();
+      const categories = await storage.getAllCategories();
+      
+      // Smart search logic
+      let matchedProducts = [];
+      let responseMessage = "";
 
-Customer question: ${message}
+      // Keyword mapping for better search
+      const keywords = {
+        'sunflower': ['sunflower', 'sun flower'],
+        'rose': ['rose', 'roses'],
+        'bouquet': ['bouquet', 'bouquets', 'arrangement', 'arrangements'],
+        'pot': ['pot', 'potted', 'planter', 'container'],
+        'crochet': ['crochet', 'crocheted', 'handmade', 'handcrafted'],
+        'flower': ['flower', 'flowers', 'floral'],
+        'price': ['price', 'cost', 'how much', 'expensive', 'cheap'],
+        'care': ['care', 'maintenance', 'clean', 'wash', 'maintain'],
+        'gift': ['gift', 'present', 'surprise']
+      };
 
-Please provide a helpful, friendly response about our crochet flower products:`;
+      // Handle specific queries
+      if (searchQuery.includes('price') || searchQuery.includes('cost') || searchQuery.includes('how much')) {
+        // Price inquiry
+        const cheapest = products.reduce((min, p) => p.price < min.price ? p : min, products[0]);
+        const mostExpensive = products.reduce((max, p) => p.price > max.price ? p : max, products[0]);
+        
+        responseMessage = `Our crochet flowers range from $${cheapest?.price} to $${mostExpensive?.price}. Here are some options:`;
+        matchedProducts = products.slice(0, 3);
+      }
+      else if (searchQuery.includes('care') || searchQuery.includes('clean') || searchQuery.includes('maintenance')) {
+        // Care instructions
+        responseMessage = `Great news! Our crochet flowers are very low maintenance:\n\n• No watering needed - they last forever!\n• Dust gently with a soft brush\n• Store in a dry place\n• Machine washable on gentle cycle if needed\n\nHere are some of our popular items:`;
+        matchedProducts = products.slice(0, 3);
+      }
+      else {
+        // Product search
+        matchedProducts = products.filter(product => {
+          const productText = `${product.name} ${product.description}`.toLowerCase();
+          
+          // Direct keyword match
+          if (productText.includes(searchQuery)) {
+            return true;
+          }
+          
+          // Keyword mapping match
+          for (const [key, synonyms] of Object.entries(keywords)) {
+            if (synonyms.some(synonym => searchQuery.includes(synonym))) {
+              if (productText.includes(key) || synonyms.some(syn => productText.includes(syn))) {
+                return true;
+              }
+            }
+          }
+          
+          return false;
+        });
 
-      // Use HuggingFace free inference API
-      const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inputs: contextualPrompt,
-          parameters: {
-            max_length: 150,
-            temperature: 0.7,
-            do_sample: true,
-          },
-        }),
+        // Category-based search
+        const matchedCategory = categories.find(cat => 
+          cat.name.toLowerCase().includes(searchQuery) ||
+          searchQuery.includes(cat.name.toLowerCase())
+        );
+
+        if (matchedCategory && matchedProducts.length === 0) {
+          matchedProducts = products.filter(p => p.categoryId === matchedCategory.id);
+        }
+
+        // Generate appropriate message
+        if (matchedProducts.length > 0) {
+          responseMessage = `Found ${matchedProducts.length} product(s) matching "${query}":`;
+        } else {
+          responseMessage = `I couldn't find specific products for "${query}". Here are some popular crochet flowers you might like:`;
+          matchedProducts = products.slice(0, 3);
+        }
+      }
+
+      // Prepare product results with category info
+      const productResults = matchedProducts.slice(0, 5).map(product => {
+        const category = categories.find(c => c.id === product.categoryId);
+        return {
+          id: product.id,
+          name: product.name,
+          description: product.description || 'Beautiful handcrafted crochet flower',
+          price: product.price,
+          category: category?.name || 'Crochet Flowers',
+          image: product.imageUrl
+        };
       });
 
-      if (!response.ok) {
-        // Fallback to a simple contextual response
-        const fallbackResponses = [
-          "Thank you for your interest in our beautiful crochet flowers! Our handmade arrangements are perfect for any occasion and last forever. What specific type of arrangement are you looking for?",
-          "I'd love to help you find the perfect crochet flower arrangement! Our flowers are lovingly handcrafted and never need water. Are you interested in bouquets, potted arrangements, or individual stems?",
-          "Our crochet flowers make wonderful gifts and home decorations! They're eco-friendly, allergy-free, and beautifully crafted. What would you like to know about our collection?",
-          "Welcome to GlintShades! Our crochet flowers are perfect for anyone who loves beautiful, lasting floral arrangements. How can I help you today?",
-        ];
-        
-        const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-        return res.json({ response: randomResponse });
-      }
-
-      const aiData = await response.json();
-      let aiResponse = '';
-
-      // Handle different response formats from HuggingFace
-      if (Array.isArray(aiData) && aiData[0]?.generated_text) {
-        aiResponse = aiData[0].generated_text.replace(contextualPrompt, '').trim();
-      } else if (aiData.generated_text) {
-        aiResponse = aiData.generated_text.replace(contextualPrompt, '').trim();
-      }
-
-      // Clean up the response and ensure it's relevant
-      if (!aiResponse || aiResponse.length < 10) {
-        const contextualFallbacks = [
-          "I'd be happy to help you with our crochet flower collection! Our handmade arrangements are perfect for gifts, home decor, or special occasions. What specific information are you looking for?",
-          "Thank you for asking about our crochet flowers! Each piece is carefully handcrafted and designed to last forever. Would you like to know about our bouquets, potted flowers, or custom arrangements?",
-          "Our crochet flowers are a wonderful alternative to fresh flowers - they're beautiful, sustainable, and require no maintenance! How can I assist you in finding the perfect arrangement?"
-        ];
-        
-        aiResponse = contextualFallbacks[Math.floor(Math.random() * contextualFallbacks.length)];
-      }
-
-      res.json({ response: aiResponse });
+      res.json({
+        message: responseMessage,
+        products: productResults
+      });
     } catch (error) {
-      console.error('AI Chat error:', error);
+      console.error('Product search error:', error);
       
-      // Provide helpful fallback response
-      const fallbackMessage = "I'm here to help with any questions about our beautiful crochet flowers! Our collection includes lasting bouquets, potted arrangements, and custom pieces. Feel free to browse our products or contact us directly for personalized assistance!";
-      
-      res.json({ response: fallbackMessage });
+      // Fallback response
+      res.json({
+        message: "I'm having trouble searching right now, but I'd love to help! Our collection includes beautiful crochet flower bouquets, potted arrangements, and individual stems. All handcrafted and lasting forever!",
+        products: []
+      });
     }
   });
 

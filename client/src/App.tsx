@@ -7,7 +7,7 @@ import { useState } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import CartSidebar from "@/components/cart-sidebar";
-import AIChatbot from "@/components/ai-chatbot";
+import ProductSearchChat from "@/components/product-search-chat";
 import Home from "@/pages/home";
 import About from "@/pages/about";
 import Bouquets from "@/pages/bouquets";
@@ -65,7 +65,7 @@ function App() {
           </main>
           <Footer />
           <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
-          <AIChatbot />
+          <ProductSearchChat />
         </div>
         <Toaster />
       </TooltipProvider>
