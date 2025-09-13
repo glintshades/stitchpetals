@@ -388,10 +388,8 @@ export default function Checkout() {
     setCurrentStep('payment');
   };
 
-  const handlePaymentSuccess = (payment: any) => {
-    setPaymentData(payment);
-    setIsProcessingPayment(true);
-    
+  // Helper function to create order data
+  const createOrderData = (payment?: any, isFailure = false) => {
     const formData = form.getValues();
     const orderItems = cartItems.map(item => ({
       productId: item.productId,
@@ -404,7 +402,22 @@ export default function Checkout() {
     // Combine address fields for storage
     const fullShippingAddress = `${formData.addressLine1}${formData.addressLine2 ? ', ' + formData.addressLine2 : ''}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`;
     
-    const orderData = {
+    // Normalize payment status from different providers
+    const normalizePaymentStatus = (status?: string) => {
+      if (!status) return isFailure ? 'failed' : 'pending';
+      const successStatuses = ['succeeded', 'approved', 'completed', 'paid'];
+      const failureStatuses = ['failed', 'declined', 'error', 'cancelled'];
+      
+      const statusLower = status.toLowerCase();
+      if (successStatuses.includes(statusLower)) return 'succeeded';
+      if (failureStatuses.includes(statusLower)) return 'failed';
+      return 'pending';
+    };
+
+    const normalizedPaymentStatus = normalizePaymentStatus(payment?.status);
+    const isPaymentSuccess = normalizedPaymentStatus === 'succeeded';
+    
+    return {
       ...formData,
       shippingAddress: fullShippingAddress,
       subtotalAmount: subtotalAmount.toFixed(2),
@@ -413,16 +426,51 @@ export default function Checkout() {
       shippingMethod: selectedShippingRate?.serviceName || 'Standard Shipping',
       totalAmount: totalAmount.toFixed(2),
       orderItems,
-      paymentId: payment.paymentId,
-      paymentStatus: payment.status,
+      paymentId: payment?.paymentId || null,
+      paymentStatus: normalizedPaymentStatus,
       paymentMethod: 'clover',
+      status: isPaymentSuccess ? 'pending' : 'cancelled',
     };
+  };
 
+  // Separate mutation for failed payment orders (no success side effects)
+  const createFailedOrderMutation = useMutation({
+    mutationFn: async (orderData: any) => {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to log failed order");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      // Do NOT clear cart or redirect for failed orders
+      console.log("Failed order logged for admin tracking");
+    },
+    onError: (error) => {
+      console.error("Failed to log failed order:", error);
+    },
+  });
+
+  const handlePaymentSuccess = (payment: any) => {
+    setPaymentData(payment);
+    setIsProcessingPayment(true);
+    
+    const orderData = createOrderData(payment, false);
     createOrderMutation.mutate(orderData);
   };
 
   const handlePaymentError = (error: string) => {
     setIsProcessingPayment(false);
+    
+    // Log failed order for admin tracking without success side effects
+    const orderData = createOrderData(null, true);
+    createFailedOrderMutation.mutate(orderData);
+    
     toast({
       title: "Payment Failed",
       description: error,
