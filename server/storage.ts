@@ -11,6 +11,9 @@ import {
   offers,
   savedAddresses,
   newsletterSubscriptions,
+  chatSessions,
+  chatMessages,
+  agentAssignments,
   type User, 
   type InsertUser, 
   type Product, 
@@ -34,10 +37,16 @@ import {
   type SavedAddress,
   type InsertSavedAddress,
   type NewsletterSubscription,
-  type InsertNewsletterSubscription
+  type InsertNewsletterSubscription,
+  type ChatSession,
+  type InsertChatSession,
+  type ChatMessage,
+  type InsertChatMessage,
+  type AgentAssignment,
+  type InsertAgentAssignment
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, ne, and } from "drizzle-orm";
+import { eq, ne, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -110,6 +119,20 @@ export interface IStorage {
   createNewsletterSubscription(subscription: InsertNewsletterSubscription): Promise<NewsletterSubscription>;
   unsubscribeNewsletter(email: string): Promise<boolean>;
   resubscribeNewsletter(email: string): Promise<boolean>;
+
+  // Chat management methods
+  getChatSession(externalUserId: string, channel: string): Promise<ChatSession | undefined>;
+  createChatSession(session: InsertChatSession): Promise<ChatSession>;
+  updateChatSession(id: number, updates: Partial<ChatSession>): Promise<ChatSession | undefined>;
+  getChatMessages(sessionId: number, limit?: number): Promise<ChatMessage[]>;
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  
+  // Agent assignment methods
+  getPendingChatSessions(): Promise<ChatSession[]>;
+  getAgentChatSessions(agentUserId: number): Promise<ChatSession[]>;
+  createAgentAssignment(assignment: InsertAgentAssignment): Promise<AgentAssignment>;
+  updateAgentAssignment(id: number, updates: Partial<AgentAssignment>): Promise<AgentAssignment | undefined>;
+  getAgentAssignment(sessionId: number): Promise<AgentAssignment | undefined>;
 
   // Backup methods
   getAllUsers(): Promise<User[]>;
@@ -911,6 +934,156 @@ export class DatabaseStorage implements IStorage {
 
   async getAllAdminUsers(): Promise<AdminUser[]> {
     return db.select().from(adminUsers);
+  }
+
+  // Chat management methods
+  async getChatSession(externalUserId: string, channel: string): Promise<ChatSession | undefined> {
+    const [session] = await db.select().from(chatSessions)
+      .where(and(
+        eq(chatSessions.externalUserId, externalUserId),
+        eq(chatSessions.channel, channel)
+      ));
+    return session || undefined;
+  }
+
+  async createChatSession(session: InsertChatSession): Promise<ChatSession> {
+    // Check for existing session first
+    const existing = await this.getChatSession(session.externalUserId, session.channel);
+    if (existing) {
+      // Return existing session if found
+      return existing;
+    }
+
+    // Create new session with get-or-create pattern (handle race conditions)
+    try {
+      const [newSession] = await db.insert(chatSessions).values(session).returning();
+      return newSession;
+    } catch (error: any) {
+      // Handle unique constraint violation - return existing session
+      if (error.code === '23505') { // PostgreSQL unique violation
+        const existing = await this.getChatSession(session.externalUserId, session.channel);
+        if (existing) return existing;
+      }
+      throw error;
+    }
+  }
+
+  async updateChatSession(id: number, updates: Partial<ChatSession>): Promise<ChatSession | undefined> {
+    const [updatedSession] = await db
+      .update(chatSessions)
+      .set({ ...updates, updatedAt: sql`now()` })
+      .where(eq(chatSessions.id, id))
+      .returning();
+    return updatedSession || undefined;
+  }
+
+  async getChatMessages(sessionId: number, limit: number = 50): Promise<ChatMessage[]> {
+    return await db.select().from(chatMessages)
+      .where(eq(chatMessages.sessionId, sessionId))
+      .orderBy(chatMessages.createdAt)
+      .limit(limit);
+  }
+
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    // Handle deduplication for messages with external IDs
+    if (message.externalMessageId) {
+      // Check for existing message first
+      const [existing] = await db.select().from(chatMessages)
+        .where(and(
+          eq(chatMessages.sessionId, message.sessionId),
+          eq(chatMessages.externalMessageId, message.externalMessageId)
+        ));
+      if (existing) return existing;
+      
+      try {
+        const [newMessage] = await db.insert(chatMessages).values(message).returning();
+        
+        // Update session last activity (using SQL now() for timestamp)
+        await db.update(chatSessions)
+          .set({ 
+            lastActivityAt: sql`now()`,
+            updatedAt: sql`now()`
+          })
+          .where(eq(chatSessions.id, message.sessionId));
+        
+        return newMessage;
+      } catch (error: any) {
+        // Handle unique constraint violation - return existing message
+        if (error.code === '23505') { // PostgreSQL unique violation
+          const [existing] = await db.select().from(chatMessages)
+            .where(and(
+              eq(chatMessages.sessionId, message.sessionId),
+              eq(chatMessages.externalMessageId, message.externalMessageId)
+            ));
+          if (existing) return existing;
+        }
+        throw error;
+      }
+    }
+
+    // For messages without external IDs, create normally
+    const [newMessage] = await db.insert(chatMessages).values(message).returning();
+    
+    // Update session last activity (using SQL now() for timestamp)
+    await db.update(chatSessions)
+      .set({ 
+        lastActivityAt: sql`now()`,
+        updatedAt: sql`now()`
+      })
+      .where(eq(chatSessions.id, message.sessionId));
+    
+    return newMessage;
+  }
+
+  // Agent assignment methods
+  async getPendingChatSessions(): Promise<ChatSession[]> {
+    return await db.select().from(chatSessions)
+      .where(eq(chatSessions.mode, "agent_pending"))
+      .orderBy(chatSessions.lastActivityAt);
+  }
+
+  async getAgentChatSessions(agentUserId: number): Promise<ChatSession[]> {
+    const activeSessions = await db
+      .select({
+        id: chatSessions.id,
+        channel: chatSessions.channel,
+        externalUserId: chatSessions.externalUserId,
+        mode: chatSessions.mode,
+        lastActivityAt: chatSessions.lastActivityAt,
+        createdAt: chatSessions.createdAt,
+        updatedAt: chatSessions.updatedAt,
+      })
+      .from(chatSessions)
+      .innerJoin(agentAssignments, eq(chatSessions.id, agentAssignments.sessionId))
+      .where(and(
+        eq(agentAssignments.agentUserId, agentUserId),
+        eq(agentAssignments.status, "active")
+      ));
+    
+    return activeSessions;
+  }
+
+  async createAgentAssignment(assignment: InsertAgentAssignment): Promise<AgentAssignment> {
+    const [newAssignment] = await db.insert(agentAssignments).values(assignment).returning();
+    return newAssignment;
+  }
+
+  async updateAgentAssignment(id: number, updates: Partial<AgentAssignment>): Promise<AgentAssignment | undefined> {
+    const [updatedAssignment] = await db
+      .update(agentAssignments)
+      .set({ ...updates, updatedAt: sql`now()` })
+      .where(eq(agentAssignments.id, id))
+      .returning();
+    return updatedAssignment || undefined;
+  }
+
+  async getAgentAssignment(sessionId: number): Promise<AgentAssignment | undefined> {
+    const [assignment] = await db.select().from(agentAssignments)
+      .where(and(
+        eq(agentAssignments.sessionId, sessionId),
+        eq(agentAssignments.status, "active")
+      ));
+    return assignment || undefined;
   }
 }
 

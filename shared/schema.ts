@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, boolean, decimal, jsonb, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, jsonb, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { sql } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -339,8 +340,84 @@ export type Offer = typeof offers.$inferSelect;
 export type InsertOffer = z.infer<typeof insertOfferSchema>;
 export type SavedAddress = typeof savedAddresses.$inferSelect;
 export type InsertSavedAddress = z.infer<typeof insertSavedAddressSchema>;
+// WhatsApp Chat tables
+export const chatSessions = pgTable("chat_sessions", {
+  id: serial("id").primaryKey(),
+  channel: text("channel").notNull(), // "whatsapp", "web", etc.
+  externalUserId: text("external_user_id").notNull(), // phone number for WhatsApp
+  mode: text("mode").notNull().default("bot"), // "bot" | "agent_pending" | "agent"
+  lastActivityAt: text("last_activity_at").notNull().default(sql`now()`),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  // Unique constraint to prevent duplicate sessions for same user/channel
+  channelUserUnique: uniqueIndex("ux_session_channel_user").on(table.channel, table.externalUserId),
+  // Indexes for performance
+  modeIndex: index("ix_chat_sessions_mode").on(table.mode),
+}));
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => chatSessions.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // "user" | "assistant" | "agent"
+  content: text("content").notNull(),
+  mediaUrl: text("media_url"), // optional media attachment
+  externalMessageId: text("external_message_id"), // WhatsApp message ID for deduplication
+  createdAt: text("created_at").notNull().default(sql`now()`),
+}, (table) => ({
+  // Unique constraint for message deduplication (only when external ID exists)
+  externalMessageUnique: uniqueIndex("ux_msg_external_id").on(table.sessionId, table.externalMessageId).where(sql`${table.externalMessageId} IS NOT NULL`),
+  // Index for querying messages by session
+  sessionIndex: index("ix_chat_messages_session").on(table.sessionId),
+}));
+
+export const agentAssignments = pgTable("agent_assignments", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => chatSessions.id, { onDelete: "cascade" }),
+  agentUserId: integer("agent_user_id").notNull().references(() => adminUsers.id),
+  status: text("status").notNull().default("pending"), // "pending" | "active" | "closed"
+  assignedAt: text("assigned_at").notNull().default(sql`now()`),
+  closedAt: text("closed_at"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+}, (table) => ({
+  // Unique constraint to prevent multiple active assignments per session
+  activeAssignmentUnique: uniqueIndex("ux_active_assignment").on(table.sessionId).where(sql`${table.status} IN ('pending', 'active')`),
+  // Index for agent lookups
+  agentIndex: index("ix_agent_assignments_agent").on(table.agentUserId),
+}));
+
+// Chat schemas
+export const insertChatSessionSchema = createInsertSchema(chatSessions).pick({
+  channel: true,
+  externalUserId: true,
+  mode: true,
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
+  sessionId: true,
+  role: true,
+  content: true,
+  mediaUrl: true,
+  externalMessageId: true,
+});
+
+export const insertAgentAssignmentSchema = createInsertSchema(agentAssignments).pick({
+  sessionId: true,
+  agentUserId: true,
+  status: true,
+});
+
 export type InsertUserWithShipping = z.infer<typeof insertUserWithShippingSchema>;
 export type NewsletterSubscription = typeof newsletterSubscriptions.$inferSelect;
 export type InsertNewsletterSubscription = z.infer<typeof insertNewsletterSubscriptionSchema>;
 export type ProductVariation = typeof productVariations.$inferSelect;
 export type InsertProductVariation = z.infer<typeof insertProductVariationSchema>;
+
+// Chat types
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type AgentAssignment = typeof agentAssignments.$inferSelect;
+export type InsertAgentAssignment = z.infer<typeof insertAgentAssignmentSchema>;
