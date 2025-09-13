@@ -133,6 +133,9 @@ export interface IStorage {
   createAgentAssignment(assignment: InsertAgentAssignment): Promise<AgentAssignment>;
   updateAgentAssignment(id: number, updates: Partial<AgentAssignment>): Promise<AgentAssignment | undefined>;
   getAgentAssignment(sessionId: number): Promise<AgentAssignment | undefined>;
+  
+  // Chat session by ID - needed for outbound messages
+  getChatSessionById(id: number): Promise<ChatSession | undefined>;
 
   // Backup methods
   getAllUsers(): Promise<User[]>;
@@ -975,6 +978,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(chatSessions.id, id))
       .returning();
     return updatedSession || undefined;
+  }
+
+  async getChatSessionById(id: number): Promise<ChatSession | undefined> {
+    const [session] = await db.select().from(chatSessions)
+      .where(eq(chatSessions.id, id));
+    return session || undefined;
   }
 
   async getChatMessages(sessionId: number, limit: number = 50): Promise<ChatMessage[]> {

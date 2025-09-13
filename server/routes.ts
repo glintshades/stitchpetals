@@ -1069,11 +1069,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const event = provider.parseWebhookEvent(body);
 
       if (event && event.type === 'message') {
-        // TODO: Handle incoming message - will be implemented in chat router task
-        console.log('WhatsApp message received:', event.data);
-        
-        // For now, just acknowledge receipt
+        // Acknowledge receipt immediately (required for WhatsApp webhook reliability)
         res.status(200).json({ status: "received" });
+        
+        // Process message asynchronously to avoid webhook timeouts
+        setImmediate(async () => {
+          try {
+            const { ChatRouter } = await import('./chatRouter');
+            const chatRouter = new ChatRouter(storage);
+            
+            await chatRouter.processMessage({
+              fromNumber: event.data.from,
+              messageText: event.data.text || '',
+              messageId: event.data.messageId,
+              timestamp: new Date(),
+              messageType: 'text'
+            });
+          } catch (error) {
+            console.error('Async chat processing error:', error);
+          }
+        });
       } else {
         // Acknowledge other event types
         res.status(200).json({ status: "acknowledged" });
