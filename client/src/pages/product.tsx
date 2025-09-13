@@ -28,7 +28,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useToast } from "@/hooks/use-toast";
 import ProductCard from "@/components/product-card";
-import { type Product, type ProductVariation } from "@shared/schema";
+import { type Product, type ProductVariation, type Offer } from "@shared/schema";
 import { 
   ArrowLeft, 
   Heart, 
@@ -71,6 +71,30 @@ export default function ProductPage() {
     queryKey: ["/api/products", productId],
     enabled: !!productId,
   });
+
+  // Fetch active offers to check if this product has any offers
+  const { data: offers = [] } = useQuery<Offer[]>({
+    queryKey: ["/api/offers"],
+  });
+
+  // Find applicable offer for this product
+  const applicableOffer = offers.find(offer => {
+    if (!offer.isActive || !product) return false;
+    
+    // Check if offer applies to all products or this specific product
+    const applicableProducts = Array.isArray(offer.applicableProducts) ? offer.applicableProducts : [];
+    return applicableProducts.includes('all') || applicableProducts.includes(product.id.toString());
+  });
+
+  // Calculate discounted price if offer exists
+  const originalPrice = product ? parseFloat(product.price.toString()) : 0;
+  const discountedPrice = applicableOffer ? (() => {
+    const discountValue = parseFloat(applicableOffer.discountValue.toString());
+    const discountAmount = applicableOffer.discountType === "percentage" 
+      ? (originalPrice * discountValue) / 100
+      : discountValue;
+    return Math.max(0, originalPrice - discountAmount);
+  })() : null;
 
   // Fetch product variations
   const { data: variations = [] } = useQuery<ProductVariation[]>({
@@ -543,8 +567,32 @@ export default function ProductPage() {
                 {product.description}
               </p>
 
-              <div className="text-3xl font-bold dark-pink mb-8">
-                {formatPrice(product.price)}
+              {/* Price Section */}
+              <div className="mb-8">
+                {applicableOffer && discountedPrice !== null ? (
+                  <div className="flex items-center gap-4">
+                    <div className="text-3xl font-bold text-green-600">
+                      ${discountedPrice.toFixed(2)}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="text-lg text-gray-500 line-through">
+                        {formatPrice(product.price)}
+                      </div>
+                      <div className="text-sm text-green-600 font-medium">
+                        Save {applicableOffer.discountType === "percentage" 
+                          ? `${applicableOffer.discountValue}%` 
+                          : `$${applicableOffer.discountValue}`}
+                      </div>
+                    </div>
+                    <Badge variant="destructive" className="bg-red-500 text-white">
+                      {applicableOffer.title}
+                    </Badge>
+                  </div>
+                ) : (
+                  <div className="text-3xl font-bold dark-pink">
+                    {formatPrice(product.price)}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -656,7 +704,10 @@ export default function ProductPage() {
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
                     Total: <span className="font-semibold dark-pink">
-                      {formatPrice((parseFloat(product.price) * quantity).toString())}
+                      {applicableOffer && discountedPrice !== null 
+                        ? `$${(discountedPrice * quantity).toFixed(2)}`
+                        : formatPrice((parseFloat(product.price) * quantity).toString())
+                      }
                     </span>
                   </p>
                 </div>
