@@ -6,7 +6,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema, insertAgentAssignmentSchema, insertChatMessageSchema } from "@shared/schema";
+import { z } from "zod";
 import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
 import { Client } from '@replit/object-storage';
@@ -2011,6 +2012,222 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('OAuth callback error:', error);
       res.redirect(`/?auth_error=${encodeURIComponent('authentication_failed')}`);
+    }
+  });
+
+  // ========== AGENT CHAT MANAGEMENT APIs ==========
+  
+  // Get pending chat sessions awaiting agent assignment
+  app.get('/api/admin/chat/queue', requireAdmin, async (req, res) => {
+    try {
+      const sessions = await storage.getPendingChatSessions();
+      res.json(sessions);
+    } catch (error) {
+      console.error('Error fetching chat queue:', error);
+      res.status(500).json({ error: "Failed to fetch pending chat sessions" });
+    }
+  });
+
+  // Get chat sessions assigned to a specific agent
+  app.get('/api/admin/chat/agent/:agentId', requireAdmin, async (req, res) => {
+    try {
+      const agentId = parseInt(req.params.agentId);
+      if (isNaN(agentId)) {
+        return res.status(400).json({ error: "Invalid agent ID" });
+      }
+      
+      const sessions = await storage.getAgentChatSessions(agentId);
+      res.json(sessions);
+    } catch (error) {
+      console.error('Error fetching agent chat sessions:', error);
+      res.status(500).json({ error: "Failed to fetch agent sessions" });
+    }
+  });
+
+  // Assign an agent to a chat session
+  app.post('/api/admin/chat/assign', requireAdmin, async (req, res) => {
+    try {
+      // Validate request body with Zod
+      const assignmentData = insertAgentAssignmentSchema.parse(req.body);
+      const { sessionId, agentUserId } = assignmentData;
+      
+      // Check if session exists and is in valid state for assignment
+      const session = await storage.getChatSessionById(sessionId);
+      if (!session) {
+        return res.status(404).json({ error: "Chat session not found" });
+      }
+      
+      if (session.mode !== 'agent_pending') {
+        return res.status(400).json({ error: "Session must be in agent_pending mode for assignment" });
+      }
+      
+      // Check if assignment already exists
+      const existingAssignment = await storage.getAgentAssignment(sessionId);
+      if (existingAssignment) {
+        return res.status(400).json({ error: "Session already has an agent assignment" });
+      }
+      
+      // Update session mode to agent_assigned
+      const updatedSession = await storage.updateChatSession(sessionId, { 
+        mode: 'agent_assigned' 
+      });
+      
+      if (!updatedSession) {
+        return res.status(500).json({ error: "Failed to update session" });
+      }
+      
+      // Create agent assignment
+      const assignment = await storage.createAgentAssignment({
+        sessionId,
+        agentUserId,
+        assignedAt: new Date(),
+        status: 'active'
+      });
+      
+      res.json({ session: updatedSession, assignment });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      }
+      console.error('Error assigning agent:', error);
+      res.status(500).json({ error: "Failed to assign agent" });
+    }
+  });
+
+  // Get conversation history for a chat session
+  app.get('/api/admin/chat/:sessionId/messages', requireAdmin, async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      if (isNaN(sessionId)) {
+        return res.status(400).json({ error: "Invalid session ID" });
+      }
+      
+      // Verify session exists
+      const session = await storage.getChatSessionById(sessionId);
+      if (!session) {
+        return res.status(404).json({ error: "Chat session not found" });
+      }
+      
+      // Get messages with optional limit for pagination
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      const messages = await storage.getChatMessages(sessionId, limit);
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      res.status(500).json({ error: "Failed to fetch conversation history" });
+    }
+  });
+
+  // Send message as agent
+  app.post('/api/admin/chat/:sessionId/send', requireAdmin, async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      if (isNaN(sessionId)) {
+        return res.status(400).json({ error: "Invalid session ID" });
+      }
+      
+      // Validate request body with Zod
+      const messageData = insertChatMessageSchema.extend({
+        agentUserId: z.number()
+      }).parse({
+        ...req.body,
+        sessionId,
+        role: 'assistant',
+        externalMessageId: `agent_${Date.now()}_${Math.random().toString(36).substring(2)}`
+      });
+      
+      // Get session info and validate
+      const session = await storage.getChatSessionById(sessionId);
+      if (!session) {
+        return res.status(404).json({ error: "Chat session not found" });
+      }
+      
+      if (session.mode !== 'agent_assigned') {
+        return res.status(400).json({ error: "Session must be assigned to an agent to send messages" });
+      }
+      
+      // Verify agent is assigned to this session
+      const assignment = await storage.getAgentAssignment(sessionId);
+      if (!assignment || assignment.agentUserId !== messageData.agentUserId) {
+        return res.status(403).json({ error: "Agent not assigned to this session" });
+      }
+      
+      // Store the message from agent
+      const chatMessage = await storage.createChatMessage({
+        sessionId: messageData.sessionId,
+        role: messageData.role,
+        content: messageData.content,
+        externalMessageId: messageData.externalMessageId,
+        timestamp: new Date()
+      });
+      
+      // Send via WhatsApp if session is WhatsApp channel
+      if (session.channel === 'whatsapp' && whatsappManager.isConfigured()) {
+        try {
+          const provider = whatsappManager.getProvider();
+          await provider.sendMessage({
+            to: session.externalUserId,
+            text: messageData.content
+          });
+        } catch (providerError) {
+          console.error('WhatsApp send error:', providerError);
+          return res.status(500).json({ error: "Failed to send message via WhatsApp" });
+        }
+      }
+      
+      res.json({ message: chatMessage });
+    } catch (error) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      }
+      console.error('Error sending agent message:', error);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  // Update chat session status
+  app.put('/api/admin/chat/:sessionId/status', requireAdmin, async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      if (isNaN(sessionId)) {
+        return res.status(400).json({ error: "Invalid session ID" });
+      }
+      
+      const { mode } = req.body;
+      const validModes = ['bot', 'agent_pending', 'agent_assigned', 'closed'];
+      
+      if (!mode || !validModes.includes(mode)) {
+        return res.status(400).json({ error: "Valid mode is required (bot, agent_pending, agent_assigned, closed)" });
+      }
+      
+      // Get current session to validate state transition
+      const currentSession = await storage.getChatSessionById(sessionId);
+      if (!currentSession) {
+        return res.status(404).json({ error: "Chat session not found" });
+      }
+      
+      // Validate allowed state transitions
+      const currentMode = currentSession.mode;
+      const invalidTransitions = {
+        'closed': ['bot', 'agent_pending', 'agent_assigned'], // Can't reopen closed sessions
+        'agent_assigned': mode === 'agent_pending' ? ['agent_pending'] : [] // Can't go back to pending if assigned
+      };
+      
+      if (invalidTransitions[currentMode]?.includes(mode)) {
+        return res.status(400).json({ 
+          error: `Invalid state transition from ${currentMode} to ${mode}` 
+        });
+      }
+      
+      const updatedSession = await storage.updateChatSession(sessionId, { mode });
+      if (!updatedSession) {
+        return res.status(500).json({ error: "Failed to update session" });
+      }
+      
+      res.json(updatedSession);
+    } catch (error) {
+      console.error('Error updating session status:', error);
+      res.status(500).json({ error: "Failed to update session status" });
     }
   });
 
