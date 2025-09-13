@@ -167,22 +167,27 @@ export class ChatRouter {
       if (matchedProducts.length > 0) {
         responseMessage = `🌸 I found ${matchedProducts.length} beautiful crochet flower${matchedProducts.length > 1 ? 's' : ''} for you:\n\n`;
         
-        // Show top 3 products
+        // Show top 3 products with clickable links
         const topProducts = matchedProducts.slice(0, 3);
+        const baseUrl = process.env.REPLIT_DOMAIN_NAME 
+          ? `https://${process.env.REPLIT_DOMAIN_NAME}` 
+          : 'https://your-domain.replit.app'; // fallback
+        
         topProducts.forEach((product, index) => {
+          const productUrl = `${baseUrl}/product/${product.id}`;
           responseMessage += `${index + 1}. **${product.name}**\n`;
           responseMessage += `   💰 $${product.price}\n`;
           if (product.description) {
-            responseMessage += `   📝 ${product.description.substring(0, 100)}...\n`;
+            responseMessage += `   📝 ${product.description.substring(0, 80)}...\n`;
           }
-          responseMessage += '\n';
+          responseMessage += `   🔗 ${productUrl}\n\n`;
         });
 
         if (matchedProducts.length > 3) {
-          responseMessage += `...and ${matchedProducts.length - 3} more! 🌻\n\n`;
+          responseMessage += `...and ${matchedProducts.length - 3} more! Browse our full collection: ${baseUrl}/shop 🌻\n\n`;
         }
         
-        responseMessage += "Visit our website to see full details and place an order! 🛒\n";
+        responseMessage += "Click the links above to view details and place your order! 🛒\n";
         responseMessage += "Need help choosing? Just ask me anything! 😊";
       } else {
         responseMessage = 
