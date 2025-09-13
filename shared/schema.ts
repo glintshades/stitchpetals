@@ -85,14 +85,21 @@ export const orders = pgTable("orders", {
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone"),
+  shippingAddress: text("shipping_address").notNull(),
   subtotalAmount: decimal("subtotal_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
   taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }),
+  shippingMethod: text("shipping_method"),
+  trackingNumber: text("tracking_number"),
+  shippingLabelUrl: text("shipping_label_url"),
+  shippedAt: text("shipped_at"),
+  estimatedDelivery: text("estimated_delivery"),
   status: text("status").notNull().default("pending"), // pending, processing, shipped, delivered, cancelled
+  orderItems: jsonb("order_items").notNull(), // array of items in the order
   paymentId: text("payment_id"), // Clover payment/charge ID
   paymentStatus: text("payment_status"), // payment status from Clover
   paymentMethod: text("payment_method").default("clover"), // payment method used
-  hasMultipleShipments: boolean("has_multiple_shipments").default(false),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
@@ -231,17 +238,22 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   paymentId: true,
   paymentStatus: true,
   paymentMethod: true,
+  shippingAddress: true,
+  shippingCost: true,
+  shippingMethod: true,
+  orderItems: true,
 }).extend({
-  // Additional fields for guest checkout
-  shippingAddress: z.string(),
-  shippingCost: z.string(),
-  shippingMethod: z.string(),
+  // Convert string fields to proper types for validation
+  subtotalAmount: z.string(),
+  taxAmount: z.string(), 
+  totalAmount: z.string(),
+  shippingCost: z.string().optional(),
   orderItems: z.array(z.object({
     productId: z.number(),
     productName: z.string(),
     quantity: z.number(),
     selectedColor: z.string().optional(),
-    price: z.string(),
+    price: z.number(),
   })),
 });
 
