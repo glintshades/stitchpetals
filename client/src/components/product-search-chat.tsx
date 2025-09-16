@@ -170,7 +170,7 @@ export default function ProductSearchChat() {
     queryKey: ["live-chat-messages", liveChatSession?.sessionId],
     queryFn: async () => {
       if (!liveChatSession) return { messages: [] };
-      const response = await apiRequest("GET", `/api/live-chat/messages?sessionId=${liveChatSession.sessionId}`, {});
+      const response = await apiRequest("GET", `/api/live-chat/messages?sessionId=${liveChatSession.sessionId}`);
       return response.json();
     },
     enabled: !!liveChatSession,
