@@ -14,7 +14,11 @@ export async function apiRequest(
 ): Promise<Response> {
   const headers: Record<string, string> = {};
   
-  if (data) {
+  // Only add content-type and body for methods that support it
+  const methodsWithBody = ['POST', 'PUT', 'PATCH'];
+  const hasBody = methodsWithBody.includes(method.toUpperCase()) && data;
+  
+  if (hasBody) {
     headers["Content-Type"] = "application/json";
   }
   
@@ -29,7 +33,7 @@ export async function apiRequest(
   const res = await fetch(url, {
     method,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
+    body: hasBody ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
