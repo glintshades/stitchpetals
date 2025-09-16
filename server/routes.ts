@@ -6,7 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
-import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema, insertAgentAssignmentSchema, insertChatMessageSchema } from "@shared/schema";
+import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema, insertAgentAssignmentSchema, insertChatMessageSchema, liveChatSessionResponseSchema, liveChatSendMessageSchema, liveChatGetMessagesSchema } from "@shared/schema";
 import { z } from "zod";
 import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
@@ -1920,6 +1920,140 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to generate response",
         response: "I'm sorry, I'm having trouble responding right now. Please try again in a moment or browse our beautiful crochet flower collection on the website."
+      });
+    }
+  });
+
+  // Live Chat API endpoints - Routes messages to owner's WhatsApp
+  app.post("/api/live-chat/session", async (req, res) => {
+    try {
+      // Create or get existing live chat session for web channel
+      const sessionId = req.session.id || `web_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const externalUserId = sessionId;
+      
+      // Check if session already exists
+      let chatSession = await storage.getChatSession(externalUserId, "web");
+      
+      if (!chatSession) {
+        // Create new session
+        chatSession = await storage.createChatSession({
+          channel: "web",
+          externalUserId,
+          mode: "agent_pending",
+        });
+      }
+      
+      // Return response matching frontend interface expectations
+      const response = {
+        id: chatSession.id,
+        sessionId: chatSession.id.toString(),
+        status: chatSession.mode 
+      };
+      
+      res.json(response);
+    } catch (error) {
+      console.error('Live chat session creation error:', error);
+      res.status(500).json({ 
+        error: "Failed to create live chat session" 
+      });
+    }
+  });
+
+  app.get("/api/live-chat/messages", async (req, res) => {
+    try {
+      // Validate query parameters using Zod
+      const validationResult = liveChatGetMessagesSchema.safeParse(req.query);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid request parameters",
+          details: validationResult.error.issues
+        });
+      }
+
+      const sessionIdNumber = parseInt(validationResult.data.sessionId);
+      
+      // Get chat session to verify it exists and is a web session
+      const chatSession = await storage.getChatSessionById(sessionIdNumber);
+      if (!chatSession || chatSession.channel !== "web") {
+        return res.status(404).json({ error: "Session not found" });
+      }
+
+      // Get messages for the session
+      const messages = await storage.getChatMessages(sessionIdNumber, 100);
+      
+      res.json({ 
+        messages: messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.createdAt
+        }))
+      });
+    } catch (error) {
+      console.error('Live chat messages retrieval error:', error);
+      res.status(500).json({ 
+        error: "Failed to retrieve messages" 
+      });
+    }
+  });
+
+  app.post("/api/live-chat/send", async (req, res) => {
+    try {
+      // Validate request body using Zod
+      const validationResult = liveChatSendMessageSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid request data",
+          details: validationResult.error.issues
+        });
+      }
+
+      const { sessionId, message } = validationResult.data;
+
+      // Get chat session
+      const chatSession = await storage.getChatSessionById(sessionId);
+      if (!chatSession || chatSession.channel !== "web") {
+        return res.status(404).json({ error: "Session not found" });
+      }
+
+      // Save user message to database
+      const userMessage = await storage.createChatMessage({
+        sessionId: chatSession.id,
+        role: "user", 
+        content: message,
+      });
+
+      // Forward message to owner's WhatsApp if configured
+      const ownerWhatsAppId = process.env.OWNER_WHATSAPP_ID;
+      if (ownerWhatsAppId && whatsappManager.isConfigured()) {
+        try {
+          // Format message for WhatsApp with session identifier
+          const whatsappMessage = `🌸 New Live Chat Message [SID:${chatSession.id}]\n\nFrom: Website Customer\nMessage: ${message}\n\nReply to this message to respond to the customer.`;
+          
+          const provider = whatsappManager.getProvider();
+          await provider.sendMessage({
+            to: ownerWhatsAppId,
+            text: whatsappMessage
+          });
+          
+          // Update session mode to indicate message sent to agent
+          await storage.updateChatSession(chatSession.id, { 
+            mode: "agent_pending" 
+          });
+        } catch (whatsappError) {
+          console.error('Failed to forward message to WhatsApp:', whatsappError);
+          // Don't fail the request - message is saved in database
+        }
+      }
+
+      res.json({ 
+        success: true,
+        messageId: userMessage.id 
+      });
+    } catch (error) {
+      console.error('Live chat send error:', error);
+      res.status(500).json({ 
+        error: "Failed to send message" 
       });
     }
   });

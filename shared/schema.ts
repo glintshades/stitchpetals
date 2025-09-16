@@ -408,6 +408,22 @@ export const insertAgentAssignmentSchema = createInsertSchema(agentAssignments).
   status: true,
 });
 
+// Live chat validation schemas
+export const liveChatSessionResponseSchema = z.object({
+  id: z.number(),
+  sessionId: z.string(),
+  status: z.string(),
+});
+
+export const liveChatSendMessageSchema = z.object({
+  sessionId: z.union([z.string(), z.number()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  message: z.string().min(1, "Message cannot be empty"),
+});
+
+export const liveChatGetMessagesSchema = z.object({
+  sessionId: z.string().refine((val) => !isNaN(parseInt(val)), "Session ID must be a valid number"),
+});
+
 export type InsertUserWithShipping = z.infer<typeof insertUserWithShippingSchema>;
 export type NewsletterSubscription = typeof newsletterSubscriptions.$inferSelect;
 export type InsertNewsletterSubscription = z.infer<typeof insertNewsletterSubscriptionSchema>;
@@ -421,3 +437,8 @@ export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type AgentAssignment = typeof agentAssignments.$inferSelect;
 export type InsertAgentAssignment = z.infer<typeof insertAgentAssignmentSchema>;
+
+// Live chat types
+export type LiveChatSessionResponse = z.infer<typeof liveChatSessionResponseSchema>;
+export type LiveChatSendMessage = z.infer<typeof liveChatSendMessageSchema>;
+export type LiveChatGetMessages = z.infer<typeof liveChatGetMessagesSchema>;

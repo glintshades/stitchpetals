@@ -15,6 +15,16 @@ export class ChatRouter {
 
   async processMessage(message: IncomingMessage): Promise<void> {
     try {
+      // Check if this is a live chat reply from the owner
+      const ownerWhatsAppId = process.env.OWNER_WHATSAPP_ID;
+      if (ownerWhatsAppId && message.fromNumber === ownerWhatsAppId) {
+        const liveChatReply = this.parseLiveChatReply(message.messageText);
+        if (liveChatReply) {
+          await this.handleOwnerReply(liveChatReply, message);
+          return;
+        }
+      }
+
       // Get or create chat session
       let session = await this.storage.getChatSession(message.fromNumber, 'whatsapp');
       if (!session) {
@@ -222,6 +232,56 @@ export class ChatRouter {
     }
     
     return false;
+  }
+
+  /**
+   * Parse live chat reply from owner - detects [SID:xxx] pattern
+   */
+  private parseLiveChatReply(messageText: string): { sessionId: number; reply: string } | null {
+    // Look for [SID:number] pattern in the message
+    const sidMatch = messageText.match(/\[SID:(\d+)\]/);
+    if (sidMatch) {
+      const sessionId = parseInt(sidMatch[1]);
+      // Extract the reply content (everything after the SID pattern and any following newlines)
+      const reply = messageText.replace(/.*\[SID:\d+\][^\n]*\n*/s, '').trim();
+      return { sessionId, reply };
+    }
+    return null;
+  }
+
+  /**
+   * Handle owner reply to live chat session
+   */
+  private async handleOwnerReply(
+    liveChatReply: { sessionId: number; reply: string }, 
+    message: IncomingMessage
+  ): Promise<void> {
+    try {
+      // Get the live chat session
+      const session = await this.storage.getChatSessionById(liveChatReply.sessionId);
+      if (!session || session.channel !== 'web') {
+        console.log('Live chat session not found or not web channel:', liveChatReply.sessionId);
+        return;
+      }
+
+      // Save owner's reply as agent message
+      await this.storage.createChatMessage({
+        sessionId: session.id,
+        role: 'agent',
+        content: liveChatReply.reply,
+        externalMessageId: message.messageId
+      });
+
+      // Update session mode to indicate agent is now actively responding
+      await this.storage.updateChatSession(session.id, {
+        mode: 'agent_assigned'
+      });
+
+      console.log(`Owner replied to live chat session ${session.id}`);
+
+    } catch (error) {
+      console.error('Error handling owner reply:', error);
+    }
   }
 
   private async sendMessage(sessionId: number, content: string, role: 'assistant' | 'agent'): Promise<void> {
