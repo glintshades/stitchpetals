@@ -276,7 +276,7 @@ export default function ProductSearchChat() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-80 h-96 shadow-xl z-50 bg-white">
+    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-96 max-h-[calc(100vh-3rem)] shadow-xl z-50 bg-white">
       <CardHeader className="bg-wine text-white p-4 rounded-t-lg">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
