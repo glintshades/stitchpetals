@@ -186,7 +186,7 @@ export default function ProductSearchChat() {
                             variant="ghost"
                             size="sm"
                             className="p-1 h-6 w-6 text-wine hover:bg-wine hover:text-white"
-                            onClick={() => window.open(`/shop?product=${product.id}`, '_blank')}
+                            onClick={() => window.open(`/product/${product.id}`, '_blank')}
                             data-testid={`view-product-${product.id}`}
                           >
                             <ExternalLink className="w-3 h-3" />
