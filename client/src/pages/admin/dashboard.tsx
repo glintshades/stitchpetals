@@ -146,7 +146,14 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter((order: Order) => order.status === "pending").length;
   const totalProducts = products.length;
-  const totalRevenue = orders.reduce((sum: number, order: Order) => sum + parseFloat(order.totalAmount || "0"), 0);
+  // Only count revenue from orders with successful payment transfers
+  const totalRevenue = orders
+    .filter((order: Order) => 
+      order.paymentStatus === "succeeded" || 
+      order.paymentStatus === "paid" || 
+      order.paymentStatus === "captured"
+    )
+    .reduce((sum: number, order: Order) => sum + parseFloat(order.totalAmount || "0"), 0);
 
   return (
     <div className="min-h-screen bg-ivory">
