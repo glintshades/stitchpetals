@@ -278,7 +278,7 @@ export default function ProductSearchChat() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-[400px] max-h-[calc(100vh-3rem)] shadow-xl z-50 bg-white overflow-hidden">
+    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-[420px] max-h-[calc(100vh-3rem)] shadow-xl z-50 bg-white overflow-hidden">
       <CardHeader className="bg-wine text-white p-3 rounded-t-lg flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -406,7 +406,7 @@ export default function ProductSearchChat() {
                 )}
               </div>
             </ScrollArea>
-            <div className="p-3 border-t flex-shrink-0">
+            <div className="p-3 border-t bg-white flex-shrink-0" style={{ minHeight: "60px" }}>
               <div className="flex gap-2">
                 <Input
                   value={inputMessage}
@@ -415,12 +415,13 @@ export default function ProductSearchChat() {
                   placeholder="Search for flowers, bouquets, etc..."
                   disabled={searchMutation.isPending}
                   data-testid="input-search-message"
+                  className="h-10"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || searchMutation.isPending}
                   size="sm"
-                  className="bg-wine hover:bg-dark-pink"
+                  className="bg-wine hover:bg-dark-pink h-10 px-3"
                   data-testid="button-send-search"
                 >
                   <Send className="w-4 h-4" />
@@ -493,7 +494,7 @@ export default function ProductSearchChat() {
                 )}
               </div>
             </ScrollArea>
-            <div className="p-3 border-t flex-shrink-0">
+            <div className="p-3 border-t bg-white flex-shrink-0" style={{ minHeight: "60px" }}>
               <div className="flex gap-2">
                 <Input
                   value={liveChatInput}
@@ -502,12 +503,13 @@ export default function ProductSearchChat() {
                   placeholder="Type your message to our team..."
                   disabled={liveChatMutation.isPending || createSessionMutation.isPending}
                   data-testid="input-live-chat-message"
+                  className="h-10"
                 />
                 <Button
                   onClick={handleLiveChatSend}
                   disabled={!liveChatInput.trim() || liveChatMutation.isPending || createSessionMutation.isPending}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 h-10 px-3"
                   data-testid="button-send-live-chat"
                 >
                   <Send className="w-4 h-4" />
