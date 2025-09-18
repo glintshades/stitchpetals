@@ -278,7 +278,7 @@ export default function ProductSearchChat() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-[420px] max-h-[calc(100vh-3rem)] shadow-xl z-50 bg-white overflow-hidden">
+    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-[min(480px,calc(100vh-3rem))] shadow-xl z-50 bg-white overflow-hidden">
       <CardHeader className="bg-wine text-white p-3 rounded-t-lg flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -296,8 +296,8 @@ export default function ProductSearchChat() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0 flex flex-col flex-1 min-h-0">
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0">
+      <CardContent className="p-0 flex flex-col flex-1 min-h-0 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0 overflow-hidden">
           <TabsList className="grid w-full grid-cols-2 bg-gray-100 mx-2 mt-2 mb-0 flex-shrink-0">
             <TabsTrigger value="search" className="flex items-center gap-2" data-testid="tab-product-search">
               <Search className="w-4 h-4" />
@@ -309,7 +309,7 @@ export default function ProductSearchChat() {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="search" className="flex-1 flex flex-col m-0 min-h-0">
+          <TabsContent value="search" className="flex-1 flex flex-col m-0 min-h-0 overflow-hidden">
             <ScrollArea className="flex-1 px-3 py-2 min-h-0">
               <div className="space-y-4">
                 {messages.map((message) => (
@@ -430,7 +430,7 @@ export default function ProductSearchChat() {
             </div>
           </TabsContent>
 
-          <TabsContent value="live" className="flex-1 flex flex-col m-0 min-h-0">
+          <TabsContent value="live" className="flex-1 flex flex-col m-0 min-h-0 overflow-hidden">
             <ScrollArea className="flex-1 px-3 py-2 min-h-0">
               <div className="space-y-4">
                 {liveChatMessages.map((message) => (
