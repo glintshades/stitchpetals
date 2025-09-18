@@ -191,11 +191,13 @@ export default function ProductSearchChat() {
         // Keep welcome message and reconcile with server messages
         const welcomeMessage = currentMessages[0];
         const optimisticMessages = currentMessages.slice(1).filter(msg => msg.id.startsWith('temp-'));
-        const confirmedServerMessages = serverMessages.filter((serverMsg: LiveChatMessage) => 
-          !optimisticMessages.some(optMsg => optMsg.content === serverMsg.content)
+        
+        // Replace optimistic messages with confirmed server messages, or keep unconfirmed optimistic ones
+        const remainingOptimisticMessages = optimisticMessages.filter(optMsg => 
+          !serverMessages.some(serverMsg => serverMsg.content === optMsg.content)
         );
         
-        return [welcomeMessage, ...confirmedServerMessages, ...optimisticMessages];
+        return [welcomeMessage, ...serverMessages, ...remainingOptimisticMessages];
       });
     }
   }, [liveChatData?.messages, liveChatSession]);
