@@ -194,7 +194,7 @@ export default function ProductSearchChat() {
         
         // Replace optimistic messages with confirmed server messages, or keep unconfirmed optimistic ones
         const remainingOptimisticMessages = optimisticMessages.filter(optMsg => 
-          !serverMessages.some(serverMsg => serverMsg.content === optMsg.content)
+          !serverMessages.some((serverMsg: LiveChatMessage) => serverMsg.content === optMsg.content)
         );
         
         return [welcomeMessage, ...serverMessages, ...remainingOptimisticMessages];
