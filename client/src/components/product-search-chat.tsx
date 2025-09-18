@@ -278,8 +278,8 @@ export default function ProductSearchChat() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-96 max-h-[calc(100vh-3rem)] shadow-xl z-50 bg-white">
-      <CardHeader className="bg-wine text-white p-4 rounded-t-lg">
+    <Card className="fixed bottom-6 right-6 w-80 max-w-[calc(100vw-3rem)] h-[400px] max-h-[calc(100vh-3rem)] shadow-xl z-50 bg-white overflow-hidden">
+      <CardHeader className="bg-wine text-white p-3 rounded-t-lg flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
@@ -296,9 +296,9 @@ export default function ProductSearchChat() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0 flex flex-col h-80">
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col h-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-100 m-2 mb-0">
+      <CardContent className="p-0 flex flex-col flex-1 min-h-0">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col flex-1 min-h-0">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-100 mx-2 mt-2 mb-0 flex-shrink-0">
             <TabsTrigger value="search" className="flex items-center gap-2" data-testid="tab-product-search">
               <Search className="w-4 h-4" />
               Product Search
@@ -309,8 +309,8 @@ export default function ProductSearchChat() {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="search" className="flex-1 flex flex-col m-0">
-            <ScrollArea className="flex-1 p-4">
+          <TabsContent value="search" className="flex-1 flex flex-col m-0 min-h-0">
+            <ScrollArea className="flex-1 px-3 py-2 min-h-0">
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div key={message.id} className="space-y-2">
@@ -321,7 +321,7 @@ export default function ProductSearchChat() {
                       data-testid={`message-${message.role}-${message.id}`}
                     >
                       <div
-                        className={`flex gap-2 max-w-[85%] ${
+                        className={`flex gap-2 max-w-[80%] ${
                           message.role === "user" ? "flex-row-reverse" : "flex-row"
                         }`}
                       >
@@ -394,7 +394,7 @@ export default function ProductSearchChat() {
                 ))}
                 {searchMutation.isPending && (
                   <div className="flex gap-2 justify-start">
-                    <div className="flex gap-2 max-w-[85%]">
+                    <div className="flex gap-2 max-w-[80%]">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-wine">
                         <Search className="w-4 h-4 animate-spin" />
                       </div>
@@ -406,7 +406,7 @@ export default function ProductSearchChat() {
                 )}
               </div>
             </ScrollArea>
-            <div className="p-4 border-t">
+            <div className="p-3 border-t flex-shrink-0">
               <div className="flex gap-2">
                 <Input
                   value={inputMessage}
@@ -429,8 +429,8 @@ export default function ProductSearchChat() {
             </div>
           </TabsContent>
 
-          <TabsContent value="live" className="flex-1 flex flex-col m-0">
-            <ScrollArea className="flex-1 p-4">
+          <TabsContent value="live" className="flex-1 flex flex-col m-0 min-h-0">
+            <ScrollArea className="flex-1 px-3 py-2 min-h-0">
               <div className="space-y-4">
                 {liveChatMessages.map((message) => (
                   <div key={message.id} className="space-y-2">
@@ -441,7 +441,7 @@ export default function ProductSearchChat() {
                       data-testid={`live-message-${message.role}-${message.id}`}
                     >
                       <div
-                        className={`flex gap-2 max-w-[85%] ${
+                        className={`flex gap-2 max-w-[80%] ${
                           message.role === "user" ? "flex-row-reverse" : "flex-row"
                         }`}
                       >
@@ -475,7 +475,7 @@ export default function ProductSearchChat() {
                 ))}
                 {(liveChatMutation.isPending || createSessionMutation.isPending || pendingMessage) && (
                   <div className="flex gap-2 justify-start">
-                    <div className="flex gap-2 max-w-[85%]">
+                    <div className="flex gap-2 max-w-[80%]">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center bg-green-100 text-green-600">
                         <MessageSquare className="w-4 h-4 animate-pulse" />
                       </div>
@@ -493,7 +493,7 @@ export default function ProductSearchChat() {
                 )}
               </div>
             </ScrollArea>
-            <div className="p-4 border-t">
+            <div className="p-3 border-t flex-shrink-0">
               <div className="flex gap-2">
                 <Input
                   value={liveChatInput}
