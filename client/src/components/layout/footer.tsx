@@ -86,7 +86,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/shop?category=stems">
+                <Link href="/shop">
                   <span className="hover:text-white transition-colors cursor-pointer">
                     Single Stems
                   </span>
