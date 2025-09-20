@@ -12,6 +12,7 @@ import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
 import { Client } from '@replit/object-storage';
 import { whatsappManager } from './providers/whatsapp/index';
+import sharp from 'sharp';
 
 // Configure multer for memory storage (needed for App Storage)
 const upload = multer({ 
@@ -816,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload endpoint - uses persistent object storage
+  // Image upload endpoint - uses persistent object storage with compression
   app.post("/api/admin/upload-image", requireAdmin, upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
@@ -828,22 +829,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bucketId) {
         // Primary: Upload to persistent Replit App Storage
         try {
-          // Generate filename since we're using memory storage
+          // Compress image while maintaining quality
+          const originalSize = req.file.buffer.length;
+          console.log(`📷 Original image size: ${(originalSize / 1024).toFixed(2)} KB`);
+          
+          let compressedBuffer: Buffer;
+          let outputFormat: string;
+          
+          // Determine output format and compress accordingly
+          const inputFormat = req.file.mimetype;
+          
+          if (inputFormat.includes('png')) {
+            // For PNG images, convert to WebP for better compression
+            compressedBuffer = await sharp(req.file.buffer)
+              .webp({ quality: 85, effort: 6 })
+              .toBuffer();
+            outputFormat = '.webp';
+          } else if (inputFormat.includes('gif')) {
+            // For GIF, keep as GIF but optimize
+            compressedBuffer = await sharp(req.file.buffer, { animated: true })
+              .gif({ effort: 7 })
+              .toBuffer();
+            outputFormat = '.gif';
+          } else {
+            // For JPEG/WebP, optimize and maintain format or convert to WebP
+            if (inputFormat.includes('webp')) {
+              compressedBuffer = await sharp(req.file.buffer)
+                .webp({ quality: 85, effort: 6 })
+                .toBuffer();
+              outputFormat = '.webp';
+            } else {
+              // Convert JPEG to WebP for better compression
+              compressedBuffer = await sharp(req.file.buffer)
+                .webp({ quality: 85, effort: 6 })
+                .toBuffer();
+              outputFormat = '.webp';
+            }
+          }
+          
+          const compressedSize = compressedBuffer.length;
+          const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+          console.log(`🗜️ Compressed size: ${(compressedSize / 1024).toFixed(2)} KB (${compressionRatio}% reduction)`);
+          
+          // Generate filename with appropriate extension
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          const filename = req.file.fieldname + '-' + uniqueSuffix + path.extname(req.file.originalname);
+          const filename = req.file.fieldname + '-' + uniqueSuffix + outputFormat;
           
           const client = new Client({ bucketId });
           const cloudPath = `images/${filename}`;
           
           const uploadResult = await client.uploadFromBytes(
             cloudPath,
-            req.file.buffer
+            compressedBuffer
           );
           
           if (uploadResult.ok) {
             // Return a server route URL instead of direct cloud URL
             const serverImageUrl = `/api/images/${filename}`;
-            console.log(`✅ Image uploaded to persistent storage: ${cloudPath}`);
+            console.log(`✅ Compressed image uploaded to persistent storage: ${cloudPath}`);
             res.json({ imageUrl: serverImageUrl });
             return;
           } else {
