@@ -72,14 +72,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/bouquets">
+                <Link href="/shop?category=crochet-flower-bouquets">
                   <span className="hover:text-white transition-colors cursor-pointer">
                     Bouquets
                   </span>
                 </Link>
               </li>
               <li>
-                <Link href="/shop?category=potted">
+                <Link href="/shop?category=crochet-flower-pots">
                   <span className="hover:text-white transition-colors cursor-pointer">
                     Potted Flowers
                   </span>
