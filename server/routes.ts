@@ -32,15 +32,15 @@ const upload = multer({
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
     const fileExtension = path.extname(file.originalname).toLowerCase();
     
-    // Check both mimetype and file extension
+    // SECURITY: Require BOTH mimetype AND file extension to match (prevent spoofed uploads)
     const isValidMimeType = allowedMimeTypes.includes(file.mimetype);
     const isValidExtension = allowedExtensions.includes(fileExtension);
     
-    if (isValidMimeType || isValidExtension) {
+    if (isValidMimeType && isValidExtension) {
       cb(null, true);
     } else {
       console.log('Rejected file - mimetype:', file.mimetype, 'extension:', fileExtension);
-      cb(new Error('Only image files are allowed! Supported formats: JPEG, PNG, WebP, GIF'));
+      cb(new Error('Only image files are allowed! Both mimetype and extension must be valid. Supported formats: JPEG, PNG, WebP, GIF'));
     }
   }
 });
@@ -50,18 +50,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/images/*', async (req, res) => {
     try {
       const imagePath = (req.params as any)['0']; // Get the path after /images/
-      const fullPath = path.join(process.cwd(), 'client/public/images', imagePath);
       
-      console.log(`[IMAGE] Request: ${req.url}, Full Path: ${fullPath}`);
+      // SECURITY: Normalize path and ensure it stays within images directory
+      const baseDir = path.resolve(process.cwd(), 'client/public/images');
+      const resolvedPath = path.resolve(baseDir, imagePath);
+      
+      // Prevent path traversal attacks
+      if (!resolvedPath.startsWith(baseDir)) {
+        console.log(`[IMAGE] Path traversal attempt blocked: ${imagePath}`);
+        return res.status(400).json({ error: 'Invalid file path' });
+      }
+      
+      console.log(`[IMAGE] Request: ${req.url}, Resolved Path: ${resolvedPath}`);
       
       // Check if file exists
-      if (!fs.existsSync(fullPath)) {
-        console.log(`[IMAGE] File not found: ${fullPath}`);
+      if (!fs.existsSync(resolvedPath)) {
+        console.log(`[IMAGE] File not found: ${resolvedPath}`);
         return res.status(404).json({ error: 'Image not found' });
       }
       
       // Set proper headers for images
-      const ext = path.extname(fullPath).toLowerCase();
+      const ext = path.extname(resolvedPath).toLowerCase();
       const mimeTypes: { [key: string]: string } = {
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
@@ -72,21 +81,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const contentType = mimeTypes[ext] || 'application/octet-stream';
       
-      // Get file stats for proper Content-Length
-      const stats = fs.statSync(fullPath);
+      // Get file stats for proper Content-Length and Last-Modified
+      const stats = fs.statSync(resolvedPath);
       
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Length', stats.size.toString());
       res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day cache
+      res.setHeader('Last-Modified', stats.mtime.toUTCString());
+      res.setHeader('ETag', `"${stats.mtime.getTime()}-${stats.size}"`);
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Accept-Ranges', 'bytes');
       
       console.log(`[IMAGE] Serving: ${imagePath} as ${contentType}`);
       
       // Stream the file
-      const fileStream = fs.createReadStream(fullPath);
+      const fileStream = fs.createReadStream(resolvedPath);
       fileStream.on('error', (error) => {
-        console.error(`[IMAGE] Stream error for ${fullPath}:`, error);
+        console.error(`[IMAGE] Stream error for ${resolvedPath}:`, error);
         if (!res.headersSent) {
           res.status(500).json({ error: 'Failed to stream image' });
         }
@@ -829,47 +840,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bucketId) {
         // Primary: Upload to persistent Replit App Storage
         try {
-          // Compress image while maintaining quality
+          // Validate image buffer with Sharp metadata
+          let metadata;
+          try {
+            metadata = await sharp(req.file.buffer).metadata();
+          } catch (metadataError) {
+            console.error('Invalid image file - metadata extraction failed:', metadataError);
+            return res.status(400).json({ message: "Invalid image file format" });
+          }
+          
           const originalSize = req.file.buffer.length;
-          console.log(`📷 Original image size: ${(originalSize / 1024).toFixed(2)} KB`);
+          console.log(`📷 Original image: ${metadata.width}x${metadata.height}, ${metadata.format}, ${(originalSize / 1024).toFixed(2)} KB`);
           
           let compressedBuffer: Buffer;
           let outputFormat: string;
+          
+          // Set up Sharp with security limits and optimization
+          const sharpInstance = sharp(req.file.buffer, { 
+            animated: true,
+            limitInputPixels: 40e6 // Prevent decompression bomb attacks
+          })
+            .rotate() // Auto-rotate based on EXIF orientation
+            .resize({ 
+              width: 2000, 
+              height: 2000, 
+              fit: 'inside', 
+              withoutEnlargement: true 
+            }) // Limit max dimensions
+            .removeMetadata(); // Strip EXIF data to reduce size
           
           // Determine output format and compress accordingly
           const inputFormat = req.file.mimetype;
           
           if (inputFormat.includes('png')) {
             // For PNG images, convert to WebP for better compression
-            compressedBuffer = await sharp(req.file.buffer)
-              .webp({ quality: 85, effort: 6 })
+            compressedBuffer = await sharpInstance
+              .webp({ quality: 82, effort: 5, alphaQuality: 80 })
               .toBuffer();
             outputFormat = '.webp';
           } else if (inputFormat.includes('gif')) {
-            // For GIF, keep as GIF but optimize
+            // For GIF, preserve animation and optimize
             compressedBuffer = await sharp(req.file.buffer, { animated: true })
               .gif({ effort: 7 })
               .toBuffer();
             outputFormat = '.gif';
           } else {
-            // For JPEG/WebP, optimize and maintain format or convert to WebP
-            if (inputFormat.includes('webp')) {
-              compressedBuffer = await sharp(req.file.buffer)
-                .webp({ quality: 85, effort: 6 })
-                .toBuffer();
-              outputFormat = '.webp';
-            } else {
-              // Convert JPEG to WebP for better compression
-              compressedBuffer = await sharp(req.file.buffer)
-                .webp({ quality: 85, effort: 6 })
-                .toBuffer();
-              outputFormat = '.webp';
-            }
+            // For JPEG/WebP, optimize and convert to WebP for better compression
+            compressedBuffer = await sharpInstance
+              .webp({ quality: 82, effort: 5, alphaQuality: 80 })
+              .toBuffer();
+            outputFormat = '.webp';
           }
           
           const compressedSize = compressedBuffer.length;
           const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
-          console.log(`🗜️ Compressed size: ${(compressedSize / 1024).toFixed(2)} KB (${compressionRatio}% reduction)`);
+          console.log(`🗜️ Compressed: ${(compressedSize / 1024).toFixed(2)} KB (${compressionRatio}% reduction), format: ${outputFormat}`);
           
           // Generate filename with appropriate extension
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -988,6 +1013,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                                ext === '.gif' ? 'image/gif' : 'application/octet-stream';
                                
             res.set('Content-Type', contentType);
+            res.set('Cache-Control', 'public, max-age=86400'); // 1 day cache
+            res.set('Access-Control-Allow-Origin', '*');
             res.send(buffer);
             return;
           }
