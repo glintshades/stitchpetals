@@ -2435,6 +2435,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sitemap.xml - dynamically generated for better crawlability
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const BASE_URL = "https://glintshades.replit.app";
+      const products = await storage.getAllProducts();
+      const now = new Date().toISOString().split("T")[0];
+
+      const staticPages = [
+        { url: "/", priority: "1.0", changefreq: "daily" },
+        { url: "/shop", priority: "0.9", changefreq: "daily" },
+        { url: "/bouquets", priority: "0.9", changefreq: "daily" },
+        { url: "/offers", priority: "0.8", changefreq: "daily" },
+        { url: "/about", priority: "0.7", changefreq: "monthly" },
+        { url: "/contact", priority: "0.7", changefreq: "monthly" },
+        { url: "/shipping-returns", priority: "0.5", changefreq: "monthly" },
+        { url: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
+        { url: "/terms-conditions", priority: "0.3", changefreq: "yearly" },
+      ];
+
+      const productUrls = products
+        .filter((p: any) => p.isActive !== false)
+        .map((p: any) => `
+    <url>
+      <loc>${BASE_URL}/product/${p.id}</loc>
+      <lastmod>${now}</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>`).join("");
+
+      const staticUrls = staticPages.map(page => `
+    <url>
+      <loc>${BASE_URL}${page.url}</loc>
+      <lastmod>${now}</lastmod>
+      <changefreq>${page.changefreq}</changefreq>
+      <priority>${page.priority}</priority>
+    </url>`).join("");
+
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${staticUrls}${productUrls}
+</urlset>`;
+
+      res.setHeader("Content-Type", "application/xml");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.send(sitemap);
+    } catch (error) {
+      console.error("Error generating sitemap:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

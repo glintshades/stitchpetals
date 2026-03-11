@@ -51,6 +51,7 @@ import {
   Copy
 } from "lucide-react";
 import { getCategoryDisplayName, formatPrice } from "@/lib/products";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function ProductPage() {
   const params = useParams();
@@ -70,6 +71,57 @@ export default function ProductPage() {
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: ["/api/products", productId],
     enabled: !!productId,
+  });
+
+  const seoImages = product
+    ? Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : product.imageUrl
+      ? [product.imageUrl]
+      : []
+    : [];
+
+  useSEO({
+    title: product ? product.name : "Product",
+    description: product
+      ? `${product.description ? product.description.slice(0, 140) + "..." : `Shop ${product.name} at GlintShades.`} Handcrafted crochet flower available now.`
+      : "Handcrafted crochet flower arrangement at GlintShades.",
+    keywords: product
+      ? `${product.name}, crochet flowers, handcrafted bouquet, ${product.category || "crochet arrangement"}`
+      : "crochet flowers, handcrafted bouquet",
+    canonical: product ? `/product/${product.id}` : undefined,
+    ogType: "product",
+    ogImage: seoImages[0] || undefined,
+    ogTitle: product ? `${product.name} - GlintShades` : undefined,
+    ogDescription: product
+      ? `${product.description ? product.description.slice(0, 140) : `Buy ${product.name}`}. Handcrafted crochet flowers that last forever.`
+      : undefined,
+    structuredData: product
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.name,
+          description: product.description || `Handcrafted crochet flower - ${product.name}`,
+          image: seoImages,
+          url: `https://glintshades.replit.app/product/${product.id}`,
+          brand: {
+            "@type": "Brand",
+            name: "GlintShades"
+          },
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "USD",
+            price: product.price.toString(),
+            availability: (product.stock ?? 0) > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            seller: {
+              "@type": "Organization",
+              name: "GlintShades"
+            }
+          }
+        }
+      : undefined,
   });
 
   // Fetch active offers to check if this product has any offers

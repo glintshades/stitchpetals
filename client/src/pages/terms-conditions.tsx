@@ -1,8 +1,23 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Scale, AlertTriangle, CreditCard, Package, Shield } from "lucide-react";
 import { useEffect } from "react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function TermsConditions() {
+  useSEO({
+    title: "Terms & Conditions",
+    description: "Read GlintShades' terms and conditions covering purchase agreements, product policies, and your rights as a customer of our handcrafted crochet flower shop.",
+    keywords: "GlintShades terms, crochet flower shop terms, purchase conditions",
+    canonical: "/terms-conditions",
+    noindex: true,
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Terms & Conditions - GlintShades",
+      url: "https://glintshades.replit.app/terms-conditions"
+    }
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

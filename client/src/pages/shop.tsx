@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSEO } from "@/hooks/use-seo";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { HeroBanner } from "@/components/hero-banner";
@@ -10,6 +11,21 @@ import { type Product, type Offer, type ProductCategory } from "@shared/schema";
 import { Search, Filter } from "lucide-react";
 
 export default function Shop() {
+  useSEO({
+    title: "Shop All Crochet Flowers",
+    description: "Browse our full collection of handcrafted crochet flower arrangements. Shop crochet bouquets, potted flowers, and individual stems — gifts that last forever.",
+    keywords: "shop crochet flowers, buy handcrafted bouquets, crochet flower collection, artificial flower shop",
+    canonical: "/shop",
+    ogType: "website",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "GlintShades Shop",
+      url: "https://glintshades.replit.app/shop",
+      description: "Browse our full collection of handcrafted crochet flower arrangements."
+    }
+  });
+
   const [location] = useLocation();
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const urlCategory = urlParams.get('category');

@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSEO } from "@/hooks/use-seo";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,6 +19,19 @@ import { HeroBanner } from "@/components/hero-banner";
 import { Mail, Phone, Clock, MapPin, MessageCircle, Heart } from "lucide-react";
 
 export default function Contact() {
+  useSEO({
+    title: "Contact Us",
+    description: "Get in touch with GlintShades. Ask about custom crochet flower arrangements, place special orders, or get answers to your questions.",
+    keywords: "contact GlintShades, custom crochet flowers, crochet flower inquiry",
+    canonical: "/contact",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      name: "Contact GlintShades",
+      url: "https://glintshades.replit.app/contact"
+    }
+  });
+
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",

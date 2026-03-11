@@ -2,8 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product-card";
 import { type Product } from "@shared/schema";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function Bouquets() {
+  useSEO({
+    title: "Crochet Flower Bouquets",
+    description: "Shop our stunning handcrafted crochet flower bouquets. Beautiful, long-lasting arrangements perfect for weddings, anniversaries, birthdays, and home décor.",
+    keywords: "crochet bouquets, handcrafted bouquets, crochet flower bouquet, forever bouquet, wedding bouquet crochet",
+    canonical: "/bouquets",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Crochet Flower Bouquets",
+      url: "https://glintshades.replit.app/bouquets",
+      description: "Handcrafted crochet flower bouquets that last forever."
+    }
+  });
+
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
     select: (data) => data.filter(product => product.category === "bouquets"),

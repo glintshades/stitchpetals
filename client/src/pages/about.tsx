@@ -2,9 +2,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HeroBanner } from "@/components/hero-banner";
 import { Heart, Users, Award, Truck } from "lucide-react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function About() {
-
+  useSEO({
+    title: "About Us - Our Story & Mission",
+    description: "Learn about GlintShades, creators of premium handcrafted crochet flower arrangements. Discover our story, our passion for handmade art, and our commitment to quality.",
+    keywords: "about GlintShades, handcrafted flowers, crochet art, handmade flower story",
+    canonical: "/about",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About GlintShades",
+      url: "https://glintshades.replit.app/about",
+      description: "Learn about GlintShades and our handcrafted crochet flower arrangements."
+    }
+  });
 
   return (
     <div className="bg-ivory">

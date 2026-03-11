@@ -8,6 +8,7 @@ import HeroSlider from "@/components/hero-slider";
 import { NewsletterSubscription } from "@/components/NewsletterSubscription";
 import { type Product, type Offer } from "@shared/schema";
 import { Star, Heart, Clock, Award, Package } from "lucide-react";
+import { useSEO } from "@/hooks/use-seo";
 const bannerImage = "/images/il_1588xN.4851706578_21g4_1753286611661.webp";
 
 type ProductCategory = {
@@ -102,6 +103,41 @@ function CategoriesSection() {
 }
 
 export default function Home() {
+  useSEO({
+    title: "Handcrafted Crochet Flowers & Bouquets",
+    description: "Shop beautiful handcrafted crochet flower arrangements at GlintShades. Premium crochet bouquets, potted flowers, and stems that last forever. Perfect gifts for any occasion.",
+    keywords: "crochet flowers, handcrafted bouquets, crochet flower arrangements, artificial flowers, handmade gifts, crochet bouquet, potted crochet flowers, forever flowers",
+    canonical: "/",
+    ogType: "website",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "GlintShades",
+        url: "https://glintshades.replit.app",
+        logo: "https://glintshades.replit.app/og-image.jpg",
+        description: "Handcrafted crochet flower arrangements including bouquets, potted flowers, and stems.",
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer service",
+          availableLanguage: "English"
+        },
+        sameAs: []
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "GlintShades",
+        url: "https://glintshades.replit.app",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://glintshades.replit.app/shop?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  });
+
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });

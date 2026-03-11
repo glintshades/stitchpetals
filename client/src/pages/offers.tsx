@@ -6,6 +6,7 @@ import ProductCard from "@/components/product-card";
 import OfferProductCard from "@/components/offer-product-card";
 import { HeroBanner } from "@/components/hero-banner";
 import { type Product, type Offer } from "@shared/schema";
+import { useSEO } from "@/hooks/use-seo";
 import { Star, Clock, Percent, Gift, Package, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
@@ -141,6 +142,20 @@ function OffersSlider({ offers, products }: { offers: Offer[], products: Product
 }
 
 export default function Offers() {
+  useSEO({
+    title: "Special Offers & Deals on Crochet Flowers",
+    description: "Find the best deals on handcrafted crochet flower arrangements. Save on beautiful bouquets, potted flowers, and more with our limited-time special offers.",
+    keywords: "crochet flower deals, bouquet sale, handcrafted flower offers, discount crochet flowers",
+    canonical: "/offers",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "SpecialAnnouncement",
+      name: "GlintShades Special Offers",
+      url: "https://glintshades.replit.app/offers",
+      description: "Special deals and discounts on handcrafted crochet flower arrangements."
+    }
+  });
+
   const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });

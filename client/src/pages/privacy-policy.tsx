@@ -1,8 +1,23 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Eye, Lock, Users, Mail, Smartphone } from "lucide-react";
 import { useEffect } from "react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function PrivacyPolicy() {
+  useSEO({
+    title: "Privacy Policy",
+    description: "Read GlintShades' privacy policy to understand how we collect, use, and protect your personal information when you shop for handcrafted crochet flowers.",
+    keywords: "GlintShades privacy policy, data protection, crochet flower shop privacy",
+    canonical: "/privacy-policy",
+    noindex: true,
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Privacy Policy - GlintShades",
+      url: "https://glintshades.replit.app/privacy-policy"
+    }
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

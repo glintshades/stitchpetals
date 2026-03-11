@@ -1,8 +1,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Truck, RotateCcw, Clock, Shield, Package, CreditCard } from "lucide-react";
 import { useEffect } from "react";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function ShippingReturns() {
+  useSEO({
+    title: "Shipping & Returns Policy",
+    description: "Learn about GlintShades shipping options, delivery timelines, and our hassle-free returns policy for handcrafted crochet flower arrangements.",
+    keywords: "GlintShades shipping, crochet flower delivery, return policy, flower shop shipping",
+    canonical: "/shipping-returns",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Shipping & Returns Policy",
+      url: "https://glintshades.replit.app/shipping-returns"
+    }
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
