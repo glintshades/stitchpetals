@@ -165,10 +165,30 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p className="text-white/80">
-            &copy; 2024 GlintShades. All rights reserved.
-          </p>
+        <div className="border-t border-white/20 mt-8 pt-8">
+          <div className="mb-6">
+            <h6 className="font-semibold text-sm uppercase tracking-wide text-white/60 mb-3 text-center">Shop by Keyword</h6>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-white/75">
+              <Link href="/bouquets"><span className="hover:text-white transition-colors cursor-pointer">Handmade Crochet Flowers Bouquet</span></Link>
+              <span className="text-white/30">·</span>
+              <Link href="/bouquets"><span className="hover:text-white transition-colors cursor-pointer">Realistic Crochet Flower Bouquet</span></Link>
+              <span className="text-white/30">·</span>
+              <Link href="/bouquets"><span className="hover:text-white transition-colors cursor-pointer">Crochet Flower Bouquet for Gift</span></Link>
+              <span className="text-white/30">·</span>
+              <Link href="/shop?category=crochet-flower-pots"><span className="hover:text-white transition-colors cursor-pointer">Crochet Flower for Room Decor</span></Link>
+              <span className="text-white/30">·</span>
+              <Link href="/shop"><span className="hover:text-white transition-colors cursor-pointer">Crochet Handmade Tulips Flower</span></Link>
+              <span className="text-white/30">·</span>
+              <Link href="/shop"><span className="hover:text-white transition-colors cursor-pointer">Crochet Handmade Rose Flower</span></Link>
+              <span className="text-white/30">·</span>
+              <Link href="/shop"><span className="hover:text-white transition-colors cursor-pointer">Crochet Handmade Sunflower Flower</span></Link>
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-white/80">
+              &copy; 2024 GlintShades. All rights reserved.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -87,8 +87,8 @@ export default function ProductPage() {
       ? `${product.description ? product.description.slice(0, 140) + "..." : `Shop ${product.name} at GlintShades.`} Handcrafted crochet flower available now.`
       : "Handcrafted crochet flower arrangement at GlintShades.",
     keywords: product
-      ? `${product.name}, crochet flowers, handcrafted bouquet, ${product.category || "crochet arrangement"}`
-      : "crochet flowers, handcrafted bouquet",
+      ? `${product.name}, handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet flower for room decor, crochet handmade rose flower, crochet handmade tulips flower, crochet handmade sunflower flower, ${product.category || "crochet arrangement"}`
+      : "handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet handmade rose flower, crochet handmade tulips flower, crochet handmade sunflower flower",
     canonical: product ? `/product/${product.id}` : undefined,
     ogType: "product",
     ogImage: seoImages[0] || undefined,

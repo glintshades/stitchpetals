@@ -107,9 +107,9 @@ function CategoriesSection() {
 
 export default function Home() {
   useSEO({
-    title: "Handcrafted Crochet Flowers & Bouquets",
-    description: "Shop beautiful handcrafted crochet flower arrangements at GlintShades. Premium crochet bouquets, potted flowers, and stems that last forever. Perfect gifts for any occasion.",
-    keywords: "crochet flowers, handcrafted bouquets, crochet flower arrangements, artificial flowers, handmade gifts, crochet bouquet, potted crochet flowers, forever flowers",
+    title: "Handmade Crochet Flowers Bouquet – Realistic Crochet Rose, Tulip & Sunflower | GlintShades",
+    description: "Shop handmade crochet flowers bouquet at GlintShades. Realistic crochet flower bouquet for gift, room decor & weddings. Crochet handmade rose, tulip, sunflower flowers that last forever.",
+    keywords: "handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet flower for room decor, crochet handmade tulips flower, crochet handmade rose flower, crochet handmade sunflower flower, crochet bouquet, handcrafted flowers",
     canonical: "/",
     ogType: "website",
     structuredData: [
@@ -222,9 +222,10 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h3 className="font-playfair text-4xl font-bold wine mb-4">Explore Our Collections</h3>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Handmade Crochet Flowers Bouquet</h2>
+            <h3 className="font-playfair text-2xl font-semibold dark-pink mb-4">Explore Our Realistic Crochet Flower Collections</h3>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              From elegant bouquets to charming potted arrangements, discover the perfect crochet flowers for every occasion
+              From elegant <a href="/bouquets" className="text-wine font-medium hover:underline">crochet flower bouquets for gift</a> to charming <a href="/shop?category=crochet-flower-pots" className="text-wine font-medium hover:underline">crochet flower for room decor</a> — discover handmade arrangements that last forever
             </p>
           </div>
           
@@ -236,9 +237,9 @@ export default function Home() {
       <section className="py-16 bg-warm-gray">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h3 className="font-playfair text-4xl font-bold wine mb-4">Featured Products</h3>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Realistic Crochet Flower Bouquet – Best Sellers</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Handpicked favorites from our artisan collection
+              Handpicked favourites — from <a href="/shop" className="text-wine font-medium hover:underline">crochet handmade rose flowers</a> to vibrant <a href="/shop" className="text-wine font-medium hover:underline">crochet handmade sunflower bouquets</a>
             </p>
           </div>
           
@@ -286,7 +287,7 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h3 className="font-playfair text-4xl font-bold wine mb-4">Why Choose GlintShades?</h3>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Why Choose Our Handmade Crochet Flowers Bouquet?</h2>
           </div>
           <div className="grid md:grid-cols-4 gap-8">
             {[
@@ -325,7 +326,7 @@ export default function Home() {
       <section className="py-16 bg-blush">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h3 className="font-playfair text-4xl font-bold wine mb-4">What Our Customers Say</h3>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">What Customers Say About Our Crochet Flower Bouquet</h2>
             <p className="text-lg text-gray-600">Hear from those who've experienced our handcrafted beauty</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -401,9 +402,9 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">Perfect for Every Occasion</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Crochet Flower Bouquet for Gift & Every Occasion</h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Find the ideal crochet flower arrangement for life's special moments
+              Find the perfect <a href="/bouquets" className="text-wine font-medium hover:underline">handmade crochet flower bouquet</a> for life's special moments
             </p>
           </div>
 
@@ -436,8 +437,8 @@ export default function Home() {
               <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <span className="text-4xl">🏡</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Home Decor</h3>
-              <p className="text-gray-600">Beautiful accents to brighten any space</p>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Crochet Flower for Room Decor</h3>
+              <p className="text-gray-600">Beautiful handmade accents to brighten any living space</p>
             </div>
           </div>
         </div>
@@ -447,7 +448,7 @@ export default function Home() {
       <section className="py-16 bg-gradient-to-b from-pink-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">From Heart to Home</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">From Heart to Home – Crochet Handmade Flower, Made to Order</h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
               See how we create your beautiful crochet flowers with love and care
             </p>
@@ -502,7 +503,7 @@ export default function Home() {
       <section id="faq" className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">Frequently Asked Questions</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Frequently Asked Questions – Crochet Flower Bouquet for Gift &amp; Decor</h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
               Find answers to common questions about our handcrafted crochet flowers
             </p>
@@ -592,7 +593,7 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">Frequently Asked Questions</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Frequently Asked Questions – Crochet Flower Bouquet for Gift &amp; Decor</h2>
             <p className="text-gray-600 text-lg">
               Everything you need to know about our crochet flowers
             </p>
@@ -622,15 +623,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* SEO Keyword Content Block */}
+      <section className="py-12 bg-pink-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-playfair text-3xl font-bold wine mb-6 text-center">About Our Handmade Crochet Flowers Bouquet</h2>
+          <div className="grid md:grid-cols-2 gap-8 text-gray-700 leading-relaxed text-sm">
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Realistic Crochet Flower Bouquet</h3>
+              <p>
+                Every <a href="/bouquets" className="text-wine hover:underline font-medium">realistic crochet flower bouquet</a> at GlintShades is handcrafted by skilled artisans who use premium yarns to replicate the look of fresh flowers. Our bouquets never wilt, fade, or need water — making them a <a href="/bouquets" className="text-wine hover:underline font-medium">crochet flower bouquet for gift</a> that truly lasts forever.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Crochet Handmade Rose Flower &amp; Tulips</h3>
+              <p>
+                Our most loved styles include the classic <a href="/shop" className="text-wine hover:underline font-medium">crochet handmade rose flower</a>, the elegant <a href="/shop" className="text-wine hover:underline font-medium">crochet handmade tulips flower</a>, and the bright <a href="/shop" className="text-wine hover:underline font-medium">crochet handmade sunflower flower</a>. Each bloom is crafted petal by petal for breathtaking realism.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Crochet Flower for Room Decor</h3>
+              <p>
+                Transform any room with our <a href="/shop?category=crochet-flower-pots" className="text-wine hover:underline font-medium">crochet flower for room decor</a> collection. From potted arrangements for shelves and mantels to hanging bouquets for walls, our <a href="/shop" className="text-wine hover:underline font-medium">handmade crochet flowers</a> add warmth and character to any space.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Perfect Crochet Flower Bouquet for Gift</h3>
+              <p>
+                Looking for a unique, meaningful gift? A <a href="/bouquets" className="text-wine hover:underline font-medium">handmade crochet flowers bouquet</a> is the perfect alternative to fresh flowers. Our <a href="/bouquets" className="text-wine hover:underline font-medium">realistic crochet flower bouquet</a> arrives beautifully packaged — ready to delight anyone on any occasion.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-wine/10 to-pink-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-playfair text-4xl font-bold wine mb-4">
-            Ready to Brighten Your Space?
+            Ready to Brighten Your Space with Crochet Flower Decor?
           </h2>
           <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
-            Discover the perfect crochet flower arrangement for your home or as a thoughtful gift. 
-            Each piece is lovingly handcrafted just for you.
+            Discover the perfect <strong>handmade crochet flowers bouquet</strong> for your home or as a thoughtful gift.
+            Shop <a href="/shop" className="text-wine font-semibold hover:underline">crochet handmade rose flower</a>, <a href="/shop" className="text-wine font-semibold hover:underline">crochet handmade tulips flower</a>, and more — each piece lovingly handcrafted just for you.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -6,9 +6,9 @@ import { useSEO } from "@/hooks/use-seo";
 
 export default function Bouquets() {
   useSEO({
-    title: "Crochet Flower Bouquets",
-    description: "Shop our stunning handcrafted crochet flower bouquets. Beautiful, long-lasting arrangements perfect for weddings, anniversaries, birthdays, and home décor.",
-    keywords: "crochet bouquets, handcrafted bouquets, crochet flower bouquet, forever bouquet, wedding bouquet crochet",
+    title: "Realistic Crochet Flower Bouquet – Handmade Crochet Rose, Tulip & Sunflower Bouquets | GlintShades",
+    description: "Shop realistic crochet flower bouquets at GlintShades. Handmade crochet rose flower, crochet handmade tulips flower & sunflower bouquets — perfect crochet flower bouquet for gift and room decor.",
+    keywords: "realistic crochet flower bouquet, handmade crochet flowers bouquet, crochet flower bouquet for gift, crochet handmade rose flower, crochet handmade tulips flower, crochet handmade sunflower flower, handcrafted bouquets",
     canonical: "/bouquets",
     structuredData: {
       "@context": "https://schema.org",
@@ -31,11 +31,11 @@ export default function Bouquets() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="font-playfair text-5xl md:text-6xl font-bold wine mb-6">
-              Crochet Bouquets
+              Realistic Crochet Flower Bouquets
             </h1>
+            <h2 className="font-playfair text-2xl font-semibold dark-pink mb-4">Handmade Crochet Flowers Bouquet – Rose, Tulip &amp; Sunflower</h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-              Discover our stunning collection of handcrafted crochet flower bouquets. Each arrangement 
-              is carefully designed to bring lasting beauty and charm to any space.
+              Discover our stunning collection of <a href="/shop" className="text-wine font-semibold hover:underline">handmade crochet flower bouquets</a>. Each <a href="/shop?category=crochet-flower-bouquets" className="text-wine font-semibold hover:underline">realistic crochet flower bouquet</a> is carefully crafted to bring lasting beauty — perfect as a <strong>crochet flower bouquet for gift</strong> or as <strong>crochet flower for room decor</strong>.
             </p>
           </div>
         </div>
@@ -45,9 +45,9 @@ export default function Bouquets() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">Bouquet Styles</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Crochet Handmade Flower Bouquet Styles</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              From classic roses to vibrant sunflowers, find the perfect arrangement for every occasion
+              From <strong>crochet handmade rose flower</strong> to vibrant <strong>crochet handmade sunflower</strong> and delicate <strong>crochet handmade tulips flower</strong> — find the perfect arrangement for every occasion
             </p>
           </div>
           
@@ -100,9 +100,9 @@ export default function Bouquets() {
       <section className="py-16 bg-warm-gray">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">All Bouquet Collections</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Shop All Realistic Crochet Flower Bouquets</h2>
             <p className="text-lg text-gray-600">
-              Browse our complete selection of handcrafted crochet bouquets
+              Browse our complete selection of <strong>handmade crochet flowers bouquet</strong> — ideal <strong>crochet flower bouquet for gift</strong> giving
             </p>
           </div>
 
@@ -140,11 +140,32 @@ export default function Bouquets() {
         </div>
       </section>
 
+      {/* SEO Keyword Content Block */}
+      <section className="py-12 bg-pink-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-playfair text-3xl font-bold wine mb-6 text-center">Why Choose a Realistic Crochet Flower Bouquet?</h2>
+          <div className="grid md:grid-cols-3 gap-6 text-gray-700 leading-relaxed text-sm">
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Crochet Handmade Rose Flower</h3>
+              <p>Our <a href="/shop" className="text-wine hover:underline font-medium">crochet handmade rose flower</a> bouquets are the most romantic gift you can give. Each petal is individually crafted and shaped for a breathtaking, <strong>realistic crochet flower</strong> look that never wilts.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Crochet Handmade Tulips Flower</h3>
+              <p>Elegant and timeless, our <a href="/shop" className="text-wine hover:underline font-medium">crochet handmade tulips flower</a> arrangements capture the beauty of spring year-round. Perfect as a <strong>crochet flower bouquet for gift</strong> on any occasion.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-wine mb-2">Crochet Handmade Sunflower Flower</h3>
+              <p>Bright and cheerful, our <a href="/shop" className="text-wine hover:underline font-medium">crochet handmade sunflower flower</a> bouquets bring warmth and joy. Ideal as a <strong>crochet flower for room decor</strong> or a heartfelt handmade gift.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Care Instructions */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">Caring for Your Crochet Bouquet</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Caring for Your Handmade Crochet Flower Bouquet</h2>
             <p className="text-lg text-gray-600">
               Keep your handcrafted flowers looking beautiful for years to come
             </p>

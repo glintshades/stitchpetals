@@ -12,9 +12,9 @@ import { Search, Filter } from "lucide-react";
 
 export default function Shop() {
   useSEO({
-    title: "Shop All Crochet Flowers",
-    description: "Browse our full collection of handcrafted crochet flower arrangements. Shop crochet bouquets, potted flowers, and individual stems — gifts that last forever.",
-    keywords: "shop crochet flowers, buy handcrafted bouquets, crochet flower collection, artificial flower shop",
+    title: "Shop Handmade Crochet Flowers Bouquet – Crochet Rose, Tulip, Sunflower for Gift & Decor | GlintShades",
+    description: "Shop handmade crochet flowers bouquet, crochet handmade rose flower, crochet handmade tulips flower & crochet handmade sunflower flower. Perfect crochet flower for room decor and gifts.",
+    keywords: "handmade crochet flowers bouquet, crochet flower for room decor, crochet flower bouquet for gift, crochet handmade sunflower flower, crochet handmade rose flower, crochet handmade tulips flower, realistic crochet flower bouquet",
     canonical: "/shop",
     ogType: "website",
     structuredData: {
@@ -129,10 +129,11 @@ export default function Shop() {
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="font-playfair text-4xl lg:text-6xl font-bold text-white mb-6">
-            Shop Our Collection
+            Handmade Crochet Flowers Bouquet
           </h1>
+          <h2 className="font-playfair text-2xl font-semibold text-pink-100 mb-6">Crochet Flower for Room Decor &amp; Gifts</h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Discover handcrafted crochet flowers that bring lasting beauty to any space
+            Shop our <strong>realistic crochet flower bouquet</strong> collection — <strong>crochet handmade rose flower</strong>, <strong>crochet handmade tulips flower</strong>, <strong>crochet handmade sunflower flower</strong> and more. Perfect <strong>crochet flower bouquet for gift</strong> or home decor.
           </p>
           
           {/* Search Bar */}
@@ -262,7 +263,7 @@ export default function Shop() {
         <section className="py-16 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="font-playfair text-4xl font-bold wine mb-4">Shop by Category</h2>
+              <h2 className="font-playfair text-4xl font-bold wine mb-4">Shop Crochet Flower Bouquet for Gift &amp; Room Decor</h2>
               <p className="text-lg text-gray-600">
                 Find exactly what you're looking for in our organized collections
               </p>

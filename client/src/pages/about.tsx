@@ -6,9 +6,9 @@ import { useSEO } from "@/hooks/use-seo";
 
 export default function About() {
   useSEO({
-    title: "About Us - Our Story & Mission",
-    description: "Learn about GlintShades, creators of premium handcrafted crochet flower arrangements. Discover our story, our passion for handmade art, and our commitment to quality.",
-    keywords: "about GlintShades, handcrafted flowers, crochet art, handmade flower story",
+    title: "About GlintShades – Makers of Handmade Crochet Flowers Bouquet & Realistic Crochet Flower Arrangements",
+    description: "Learn about GlintShades, creators of handmade crochet flowers bouquet. Our artisans craft realistic crochet flower bouquets — crochet handmade rose, tulip & sunflower flowers for gifts and room decor.",
+    keywords: "about GlintShades, handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower for room decor, crochet handmade rose flower, crochet handmade tulips flower, crochet handmade sunflower flower",
     canonical: "/about",
     structuredData: {
       "@context": "https://schema.org",
@@ -23,9 +23,9 @@ export default function About() {
     <div className="bg-ivory">
       {/* Hero Banner */}
       <HeroBanner 
-        title="About GlintShades"
-        subtitle="Our Story"
-        description="We're passionate about bringing the timeless art of crochet to modern homes through beautiful, handcrafted flower arrangements that last forever."
+        title="Handmade Crochet Flowers Bouquet by GlintShades"
+        subtitle="Realistic Crochet Flower – Crafted with Love"
+        description="We're passionate about handmade crochet flowers bouquet — realistic crochet flower arrangements including crochet handmade rose, tulip &amp; sunflower flowers that last forever."
         backgroundImage="/images/pink1_1754049419831.webp"
         ctaText="Our Mission"
         ctaLink="#mission"
@@ -48,7 +48,8 @@ export default function About() {
               />
             </div>
             <div>
-              <h2 className="font-playfair text-4xl font-bold wine mb-6">Crafted with Love, Delivered with Care</h2>
+              <h2 className="font-playfair text-4xl font-bold wine mb-4">Handmade Crochet Flowers Bouquet – Our Story</h2>
+              <h3 className="font-playfair text-2xl font-semibold dark-pink mb-4">Realistic Crochet Flower Art, Delivered with Care</h3>
               <p className="text-gray-700 mb-6 leading-relaxed">
                 At GlintShades, we believe in the timeless beauty of handmade craftsmanship. Each crochet flower in our collection 
                 is meticulously created by skilled artisans who pour their passion into every stitch.
@@ -77,10 +78,9 @@ export default function About() {
       <section className="py-16 bg-warm-gray">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">Our Mission</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">Our Mission: Handmade Crochet Flower for Every Home</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              To preserve and promote the art of crochet while creating beautiful, sustainable floral arrangements 
-              that bring joy to homes worldwide.
+              To preserve and promote the art of crochet while creating beautiful <a href="/bouquets" className="text-wine font-medium hover:underline">handmade crochet flowers bouquet</a> and <a href="/shop" className="text-wine font-medium hover:underline">realistic crochet flower</a> arrangements that bring lasting joy to homes worldwide.
             </p>
           </div>
           
@@ -124,7 +124,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="font-playfair text-4xl font-bold wine mb-6">Our Business Model</h2>
+              <h2 className="font-playfair text-4xl font-bold wine mb-6">How We Bring You the Best Crochet Flower Bouquet for Gift</h2>
               <p className="text-gray-700 mb-6 leading-relaxed">
                 GlintShades operates as a dropshipping platform, connecting customers directly with skilled artisans 
                 who create these beautiful crochet flowers. This model allows us to offer you:
@@ -177,7 +177,7 @@ export default function About() {
       <section className="py-16 bg-blush">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-4xl font-bold wine mb-4">How It Works</h2>
+            <h2 className="font-playfair text-4xl font-bold wine mb-4">How We Craft Each Crochet Handmade Flower</h2>
             <p className="text-lg text-gray-600">From your order to your doorstep</p>
           </div>
           
@@ -219,7 +219,7 @@ export default function About() {
       {/* Commitment */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-playfair text-4xl font-bold wine mb-6">Our Commitment to You</h2>
+          <h2 className="font-playfair text-4xl font-bold wine mb-6">Our Commitment: Quality Crochet Flower for Room Decor &amp; Beyond</h2>
           <p className="text-lg text-gray-700 mb-8 leading-relaxed">
             We're committed to providing you with exceptional handcrafted crochet flowers while supporting 
             the artisan community. Every purchase contributes to preserving this beautiful traditional craft 
