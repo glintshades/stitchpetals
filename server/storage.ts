@@ -1129,7 +1129,7 @@ export class DatabaseStorage implements IStorage {
     cutoff.setDate(cutoff.getDate() - days);
     const cutoffStr = cutoff.toISOString();
 
-    const [totalResult] = await db.execute(sql`
+    const totalResult = await db.execute(sql`
       SELECT 
         COUNT(*) as total_views,
         COUNT(DISTINCT session_id) as unique_visitors,
@@ -1138,14 +1138,14 @@ export class DatabaseStorage implements IStorage {
       WHERE created_at >= ${cutoffStr}
     `);
 
-    const [prevResult] = await db.execute(sql`
+    const prevResult = await db.execute(sql`
       SELECT COUNT(*) as total_views, COUNT(DISTINCT session_id) as unique_visitors
       FROM page_views
       WHERE created_at >= ${new Date(cutoff.getTime() - days * 24 * 60 * 60 * 1000).toISOString()}
         AND created_at < ${cutoffStr}
     `);
 
-    return { current: totalResult, previous: prevResult };
+    return { current: totalResult.rows[0] || {}, previous: prevResult.rows[0] || {} };
   }
 
   async getTrafficSources(days: number = 30): Promise<any[]> {
@@ -1163,7 +1163,7 @@ export class DatabaseStorage implements IStorage {
       ORDER BY views DESC
     `);
 
-    return result as any[];
+    return result.rows;
   }
 
   async getTopPages(days: number = 30): Promise<any[]> {
@@ -1182,7 +1182,7 @@ export class DatabaseStorage implements IStorage {
       LIMIT 10
     `);
 
-    return result as any[];
+    return result.rows;
   }
 
   async getVisitorsByCountry(days: number = 30): Promise<any[]> {
@@ -1201,7 +1201,7 @@ export class DatabaseStorage implements IStorage {
       LIMIT 10
     `);
 
-    return result as any[];
+    return result.rows;
   }
 
   async getVisitorsByDay(days: number = 30): Promise<any[]> {
@@ -1219,7 +1219,7 @@ export class DatabaseStorage implements IStorage {
       ORDER BY date ASC
     `);
 
-    return result as any[];
+    return result.rows;
   }
 
   async getSetting(key: string): Promise<string | null> {

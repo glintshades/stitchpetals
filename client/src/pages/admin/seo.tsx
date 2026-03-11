@@ -121,13 +121,12 @@ export default function AdminSEO() {
       const res = await fetch("/api/admin/settings", {
         headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
       });
-      return res.json();
-    },
-    onSuccess: (data: Record<string, string>) => {
+      const data = await res.json();
       if (data.ga4_measurement_id) setGaId(data.ga4_measurement_id);
       if (data.gsc_verification) setGscCode(data.gsc_verification);
-    }
-  } as any);
+      return data;
+    },
+  });
 
   const saveSetting = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
