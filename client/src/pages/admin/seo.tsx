@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import {
   Globe, Users, Eye, TrendingUp, TrendingDown, MapPin,
-  Search, Settings, ExternalLink, CheckCircle2, Info, ArrowUp, ArrowDown
+  Search, Settings, ExternalLink, CheckCircle2, Info, ArrowUp, ArrowDown, Building2, Tag
 } from "lucide-react";
 
 const DAYS_OPTIONS = [7, 14, 30, 90];
@@ -102,6 +102,20 @@ export default function AdminSEO() {
     retry: false,
   });
   const byCountry = Array.isArray(byCountryRaw) ? byCountryRaw : [];
+
+  const { data: byCityRaw, isLoading: cityLoading } = useQuery({
+    queryKey: ["/api/admin/analytics/by-city", days],
+    queryFn: () => safeFetch(`/api/admin/analytics/by-city?days=${days}`),
+    retry: false,
+  });
+  const byCity = Array.isArray(byCityRaw) ? byCityRaw : [];
+
+  const { data: keywordsRaw, isLoading: keywordsLoading } = useQuery({
+    queryKey: ["/api/admin/analytics/search-keywords", days],
+    queryFn: () => safeFetch(`/api/admin/analytics/search-keywords?days=${days}`),
+    retry: false,
+  });
+  const keywords = Array.isArray(keywordsRaw) ? keywordsRaw : [];
 
   const { data: byDayRaw, isLoading: dayLoading } = useQuery({
     queryKey: ["/api/admin/analytics/by-day", days],
@@ -344,41 +358,140 @@ export default function AdminSEO() {
             </CardContent>
           </Card>
 
-          {/* Visitors by Country */}
+          {/* Country + City side by side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Visitors by Country */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Visitors by Country
+                </CardTitle>
+                <CardDescription>Which countries your visitors come from</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {countryLoading ? (
+                  <div className="h-32 flex items-center justify-center text-gray-400">Loading...</div>
+                ) : byCountry.length === 0 ? (
+                  <div className="h-32 flex flex-col items-center justify-center text-gray-400">
+                    <MapPin className="w-8 h-8 mb-2 opacity-30" />
+                    <p className="text-sm">No location data yet</p>
+                    <p className="text-xs mt-1">Detected from visitor IP addresses</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {byCountry.map((c: any, i: number) => {
+                      const totalVisitors = byCountry.reduce((sum: number, x: any) => sum + parseInt(x.visitors), 0);
+                      const pct = totalVisitors > 0 ? Math.round(parseInt(c.visitors) / totalVisitors * 100) : 0;
+                      return (
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-700 font-medium">{c.country}</span>
+                            <span className="text-gray-500">{parseInt(c.visitors)} visitors ({pct}%)</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div className="h-2 rounded-full bg-[#3e0d57]" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Visitors by City/Area */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Visitors by City / Area
+                </CardTitle>
+                <CardDescription>Which cities and areas your visitors come from</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {cityLoading ? (
+                  <div className="h-32 flex items-center justify-center text-gray-400">Loading...</div>
+                ) : byCity.length === 0 ? (
+                  <div className="h-32 flex flex-col items-center justify-center text-gray-400">
+                    <Building2 className="w-8 h-8 mb-2 opacity-30" />
+                    <p className="text-sm">No city data yet</p>
+                    <p className="text-xs mt-1">Detected from visitor IP addresses</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                    {byCity.map((c: any, i: number) => {
+                      const totalVisitors = byCity.reduce((sum: number, x: any) => sum + parseInt(x.visitors), 0);
+                      const pct = totalVisitors > 0 ? Math.round(parseInt(c.visitors) / totalVisitors * 100) : 0;
+                      return (
+                        <div key={i} className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <div>
+                              <span className="text-gray-700 font-medium">{c.city}</span>
+                              <span className="text-gray-400 text-xs ml-1">({c.country})</span>
+                            </div>
+                            <span className="text-gray-500">{parseInt(c.visitors)} visitors ({pct}%)</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div className="h-2 rounded-full bg-[#ea9999]" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Search Keywords */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Visitors by Country
+                <Tag className="w-4 h-4" />
+                Search Keywords
               </CardTitle>
-              <CardDescription>Geographic breakdown of your visitors</CardDescription>
+              <CardDescription>
+                Keywords visitors used on search engines to find your site. 
+                <span className="text-amber-600 ml-1">Note: Google hides most keywords for privacy — Bing and other engines still share them. For full Google keyword rankings, use Google Search Console.</span>
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {countryLoading ? (
+              {keywordsLoading ? (
                 <div className="h-32 flex items-center justify-center text-gray-400">Loading...</div>
-              ) : byCountry.length === 0 ? (
+              ) : keywords.length === 0 ? (
                 <div className="h-32 flex flex-col items-center justify-center text-gray-400">
-                  <MapPin className="w-8 h-8 mb-2 opacity-30" />
-                  <p className="text-sm">No location data yet</p>
-                  <p className="text-xs mt-1">Location is detected from visitor IP addresses</p>
+                  <Tag className="w-8 h-8 mb-2 opacity-30" />
+                  <p className="text-sm">No keyword data yet</p>
+                  <p className="text-xs mt-1 text-center max-w-xs">Keywords will appear when visitors arrive from Bing or other search engines that share this data</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {byCountry.map((c: any, i: number) => {
-                    const totalVisitors = byCountry.reduce((sum: number, x: any) => sum + parseInt(x.visitors), 0);
-                    const pct = totalVisitors > 0 ? Math.round(parseInt(c.visitors) / totalVisitors * 100) : 0;
-                    return (
-                      <div key={i} className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-700 font-medium">{c.country}</span>
-                          <span className="text-gray-500">{parseInt(c.visitors)} visitors ({pct}%)</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div className="h-2 rounded-full bg-[#3e0d57]" style={{ width: `${pct}%` }} />
-                        </div>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-3 text-xs text-gray-400 font-medium pb-1 border-b">
+                    <span>Keyword</span>
+                    <span className="text-center">Visitors</span>
+                    <span className="text-right">Page Views</span>
+                  </div>
+                  {keywords.map((k: any, i: number) => (
+                    <div key={i} className="grid grid-cols-3 text-sm items-center py-1 border-b border-gray-50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400 text-xs w-4">{i + 1}</span>
+                        <span className="text-gray-700 truncate max-w-[180px] capitalize">{k.keyword}</span>
                       </div>
-                    );
-                  })}
+                      <span className="text-center text-gray-600">{k.visitors}</span>
+                      <span className="text-right">
+                        <Badge className="bg-[#3e0d57]/10 text-[#3e0d57] text-xs hover:bg-[#3e0d57]/10">{k.views}</Badge>
+                      </span>
+                    </div>
+                  ))}
+                  <div className="pt-2">
+                    <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="gap-2 text-xs">
+                        <ExternalLink className="w-3 h-3" />
+                        View full keyword rankings in Google Search Console
+                      </Button>
+                    </a>
+                  </div>
                 </div>
               )}
             </CardContent>

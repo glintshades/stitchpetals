@@ -2535,6 +2535,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/analytics/by-city", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getVisitorsByCity(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get city data" });
+    }
+  });
+
+  app.get("/api/admin/analytics/search-keywords", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getSearchKeywords(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get keyword data" });
+    }
+  });
+
   // Site settings
   app.get("/api/admin/settings", requireAdmin, async (req, res) => {
     try {

@@ -156,6 +156,8 @@ export interface IStorage {
   getVisitorsByDay(days?: number): Promise<any[]>;
 
   // Site settings methods
+  getVisitorsByCity(days?: number): Promise<any[]>;
+  getSearchKeywords(days?: number): Promise<any[]>;
   getSetting(key: string): Promise<string | null>;
   setSetting(key: string, value: string): Promise<void>;
   getAllSettings(): Promise<Record<string, string>>;
@@ -1220,6 +1222,67 @@ export class DatabaseStorage implements IStorage {
     `);
 
     return result.rows;
+  }
+
+  async getVisitorsByCity(days: number = 30): Promise<any[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const result = await db.execute(sql`
+      SELECT 
+        COALESCE(city, 'Unknown') as city,
+        COALESCE(country, 'Unknown') as country,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as visitors
+      FROM page_views
+      WHERE created_at >= ${cutoff.toISOString()}
+        AND city IS NOT NULL
+      GROUP BY city, country
+      ORDER BY visitors DESC
+      LIMIT 15
+    `);
+
+    return result.rows;
+  }
+
+  async getSearchKeywords(days: number = 30): Promise<any[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const result = await db.execute(sql`
+      SELECT 
+        referrer,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as visitors
+      FROM page_views
+      WHERE created_at >= ${cutoff.toISOString()}
+        AND traffic_source = 'organic'
+        AND referrer IS NOT NULL
+        AND referrer != ''
+      GROUP BY referrer
+      ORDER BY visitors DESC
+      LIMIT 100
+    `);
+
+    const keywordMap: Record<string, { keyword: string; views: number; visitors: number }> = {};
+
+    for (const row of result.rows as any[]) {
+      try {
+        const url = new URL(row.referrer);
+        const keyword = url.searchParams.get("q") || url.searchParams.get("query") || url.searchParams.get("p") || url.searchParams.get("wd");
+        if (keyword) {
+          const key = keyword.toLowerCase().trim();
+          if (keywordMap[key]) {
+            keywordMap[key].views += parseInt(row.views);
+            keywordMap[key].visitors += parseInt(row.visitors);
+          } else {
+            keywordMap[key] = { keyword: key, views: parseInt(row.views), visitors: parseInt(row.visitors) };
+          }
+        }
+      } catch {}
+    }
+
+    return Object.values(keywordMap).sort((a, b) => b.visitors - a.visitors).slice(0, 20);
   }
 
   async getSetting(key: string): Promise<string | null> {
