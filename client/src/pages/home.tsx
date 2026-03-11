@@ -107,8 +107,8 @@ function CategoriesSection() {
 
 export default function Home() {
   useSEO({
-    title: "Handmade Crochet Flowers Bouquet – Realistic Crochet Rose, Tulip & Sunflower | GlintShades",
-    description: "Shop handmade crochet flowers bouquet at GlintShades. Realistic crochet flower bouquet for gift, room decor & weddings. Crochet handmade rose, tulip, sunflower flowers that last forever.",
+    title: "Handmade Crochet Flower and Bouquets – Unique Flower Gift USA | GlintShades",
+    description: "Shop handmade crochet bouquet that last forever. Perfect gift for birthday, wedding, special occasion. Beautiful everlasting crochet flowers crafted with love.",
     keywords: "handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet flower for room decor, crochet handmade tulips flower, crochet handmade rose flower, crochet handmade sunflower flower, crochet bouquet, handcrafted flowers",
     canonical: "/",
     ogType: "website",
