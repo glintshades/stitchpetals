@@ -264,6 +264,21 @@ export default function Shop() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="font-playfair text-4xl font-bold wine mb-4">Shop Crochet Flower Bouquet for Gift &amp; Room Decor</h2>
+              <div className="flex flex-wrap gap-x-3 gap-y-2 justify-center mt-3 text-sm">
+                <a href="/bouquets" className="text-wine font-medium hover:underline underline-offset-2">Handmade Crochet Flowers Bouquet</a>
+                <span className="text-gray-300">·</span>
+                <a href="/bouquets" className="text-wine font-medium hover:underline underline-offset-2">Realistic Crochet Flower Bouquet</a>
+                <span className="text-gray-300">·</span>
+                <a href="/bouquets" className="text-wine font-medium hover:underline underline-offset-2">Crochet Flower Bouquet for Gift</a>
+                <span className="text-gray-300">·</span>
+                <a href="/shop?category=crochet-flower-pots" className="text-wine font-medium hover:underline underline-offset-2">Crochet Flower for Room Decor</a>
+                <span className="text-gray-300">·</span>
+                <a href="/shop?q=tulip" className="text-wine font-medium hover:underline underline-offset-2">Crochet Handmade Tulips Flower</a>
+                <span className="text-gray-300">·</span>
+                <a href="/shop?q=rose" className="text-wine font-medium hover:underline underline-offset-2">Crochet Handmade Rose Flower</a>
+                <span className="text-gray-300">·</span>
+                <a href="/shop?q=sunflower" className="text-wine font-medium hover:underline underline-offset-2">Crochet Handmade Sunflower Flower</a>
+              </div>
               <p className="text-lg text-gray-600">
                 Find exactly what you're looking for in our organized collections
               </p>

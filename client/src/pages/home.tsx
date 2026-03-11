@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +21,7 @@ type ProductCategory = {
 };
 
 function CategoriesSection() {
+  const [, navigate] = useLocation();
   const { data: categories = [], isLoading } = useQuery<ProductCategory[]>({
     queryKey: ["/api/categories"],
   });
@@ -46,61 +47,98 @@ function CategoriesSection() {
   if (activeCategories.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <Link href="/shop?category=bouquets" className="group">
+        <div className="group cursor-pointer" onClick={() => navigate("/bouquets")}>
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
             <div className="h-72 bg-gradient-to-br from-soft-pink to-blush flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">💐</span>
             </div>
             <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-3">Bouquets</h3>
-              <p className="text-gray-600">Beautiful arrangements for any occasion</p>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-3">Handmade Crochet Flowers Bouquet</h3>
+              <p className="text-gray-600 mb-3">Realistic crochet flower bouquets — perfect as a crochet flower bouquet for gift</p>
+              <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+                <a href="/bouquets" className="text-xs text-wine underline-offset-2 hover:underline">Realistic Crochet Flower Bouquet</a>
+                <span className="text-gray-300">·</span>
+                <a href="/bouquets" className="text-xs text-wine underline-offset-2 hover:underline">Crochet Handmade Rose Flower</a>
+                <span className="text-gray-300">·</span>
+                <a href="/bouquets" className="text-xs text-wine underline-offset-2 hover:underline">Crochet Handmade Tulips Flower</a>
+              </div>
             </div>
           </div>
-        </Link>
+        </div>
         
-        <Link href="/shop?category=potted" className="group">
+        <div className="group cursor-pointer" onClick={() => navigate("/shop?category=crochet-flower-pots")}>
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
             <div className="h-72 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center flex-shrink-0">
               <span className="text-7xl">🪴</span>
             </div>
             <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-3">Potted Plants</h3>
-              <p className="text-gray-600">Charming potted crochet flowers</p>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-3">Crochet Flower for Room Decor</h3>
+              <p className="text-gray-600 mb-3">Charming potted handmade crochet flowers to brighten any space</p>
+              <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+                <a href="/shop?category=crochet-flower-pots" className="text-xs text-wine underline-offset-2 hover:underline">Crochet Flower for Room Decor</a>
+                <span className="text-gray-300">·</span>
+                <a href="/shop" className="text-xs text-wine underline-offset-2 hover:underline">Crochet Handmade Sunflower Flower</a>
+              </div>
             </div>
           </div>
-        </Link>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto pb-5">
-      {activeCategories.map((category) => (
-        <Link key={category.id} href={`/shop?category=${category.slug}`} className="group">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
-            <div className="h-72 relative overflow-hidden flex-shrink-0">
-              {category.imageUrl ? (
-                <img 
-                  src={category.imageUrl} 
-                  alt={category.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  loading="eager"
-                  fetchpriority="high"
-                  decoding="async"
-                />
-              ) : (
-                <div className="h-full bg-gradient-to-br from-soft-pink to-blush flex items-center justify-center">
-                  <Package className="w-20 h-20 text-wine" />
+      {activeCategories.map((category) => {
+        const slug = (category.slug || "").toLowerCase();
+        const catName = (category.name || "").toLowerCase();
+        const isPot = slug.includes("pot") || catName.includes("pot");
+        const isBouquet = slug.includes("bouquet") || catName.includes("bouquet");
+        return (
+          <div key={category.id} className="group cursor-pointer" onClick={() => navigate(`/shop?category=${category.slug}`)}>
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl h-[480px] flex flex-col">
+              <div className="h-72 relative overflow-hidden flex-shrink-0">
+                {category.imageUrl ? (
+                  <img 
+                    src={category.imageUrl} 
+                    alt={`${category.name} – handmade crochet flowers bouquet`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                  />
+                ) : (
+                  <div className="h-full bg-gradient-to-br from-soft-pink to-blush flex items-center justify-center">
+                    <Package className="w-20 h-20 text-wine" />
+                  </div>
+                )}
+              </div>
+              <div className="p-8 pb-8 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
+                <h3 className="text-2xl font-semibold text-gray-800 mb-2 text-center">{category.name}</h3>
+                <p className="text-gray-600 text-base text-center mb-3">{category.description || "Explore our collection"}</p>
+                <div className="flex flex-wrap justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  {isBouquet && (
+                    <>
+                      <a href="/bouquets" className="text-xs text-wine hover:underline">Realistic Crochet Flower Bouquet</a>
+                      <span className="text-gray-300 text-xs">·</span>
+                      <a href="/bouquets" className="text-xs text-wine hover:underline">Crochet Flower Bouquet for Gift</a>
+                    </>
+                  )}
+                  {isPot && (
+                    <>
+                      <a href="/shop?category=crochet-flower-pots" className="text-xs text-wine hover:underline">Crochet Flower for Room Decor</a>
+                      <span className="text-gray-300 text-xs">·</span>
+                      <a href="/shop" className="text-xs text-wine hover:underline">Crochet Handmade Sunflower Flower</a>
+                    </>
+                  )}
+                  {!isBouquet && !isPot && (
+                    <a href="/shop" className="text-xs text-wine hover:underline">Handmade Crochet Flowers Bouquet</a>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="p-8 pb-12 flex-1 flex flex-col justify-center bg-gradient-to-b from-white to-gray-50">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-3 text-center">{category.name}</h3>
-              <p className="text-gray-600 text-lg mt-[0px] mb-[0px] pb-[20px] text-center">{category.description || "Explore our collection"}</p>
+              </div>
             </div>
           </div>
-        </Link>
-      ))}
+        );
+      })}
     </div>
   );
 }

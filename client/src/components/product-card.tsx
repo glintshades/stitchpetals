@@ -3,11 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { type Product, type Offer } from "@shared/schema";
+
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
+
 import {
   Select,
   SelectContent,
@@ -15,6 +17,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+function getKeywordLinks(product: Product): { label: string; href: string }[] {
+  const name = (product.name || "").toLowerCase();
+  const category = (product.category || "").toLowerCase();
+  const links: { label: string; href: string }[] = [];
+
+  if (name.includes("rose")) {
+    links.push({ label: "Crochet Handmade Rose Flower", href: "/shop?q=rose" });
+  }
+  if (name.includes("tulip")) {
+    links.push({ label: "Crochet Handmade Tulips Flower", href: "/shop?q=tulip" });
+  }
+  if (name.includes("sunflower") || name.includes("sun flower")) {
+    links.push({ label: "Crochet Handmade Sunflower Flower", href: "/shop?q=sunflower" });
+  }
+  if (category.includes("bouquet") || category.includes("bouquets")) {
+    links.push({ label: "Realistic Crochet Flower Bouquet", href: "/bouquets" });
+    links.push({ label: "Crochet Flower Bouquet for Gift", href: "/bouquets" });
+  }
+  if (category.includes("pot") || name.includes("pot")) {
+    links.push({ label: "Crochet Flower for Room Decor", href: "/shop?category=crochet-flower-pots" });
+  }
+  if (links.length === 0) {
+    links.push({ label: "Handmade Crochet Flowers Bouquet", href: "/bouquets" });
+  }
+  return links.slice(0, 2);
+}
 
 interface ProductCardProps {
   product: Product;
@@ -167,7 +196,20 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
             <h4 className="font-playfair text-lg font-semibold wine mb-2 hover:text-dark-pink transition-colors line-clamp-2">
               {product.name}
             </h4>
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+            <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
+            <div className="flex flex-wrap gap-1 mb-3">
+              {getKeywordLinks(product).map((kw) => (
+                <Link
+                  key={kw.label}
+                  href={kw.href}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="text-xs text-wine underline-offset-2 hover:underline cursor-pointer leading-tight">
+                    {kw.label}
+                  </span>
+                </Link>
+              ))}
+            </div>
             
             <div className="flex flex-wrap gap-2 mb-3">
               {product.stemCount && (
