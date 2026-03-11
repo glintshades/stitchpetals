@@ -65,74 +65,67 @@ export default function AdminSEO() {
   const [gaId, setGaId] = useState("");
   const [gscCode, setGscCode] = useState("");
 
+  const adminHeaders = () => ({
+    "Authorization": "Bearer admin-token",
+  });
+
+  const safeFetch = async (url: string) => {
+    const res = await fetch(url, { headers: adminHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Request failed");
+    return data;
+  };
+
   const { data: overview, isLoading: overviewLoading } = useQuery({
     queryKey: ["/api/admin/analytics/overview", days],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/analytics/overview?days=${days}`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
-      });
-      return res.json();
-    },
+    queryFn: () => safeFetch(`/api/admin/analytics/overview?days=${days}`),
+    retry: false,
   });
 
-  const { data: trafficSources = [], isLoading: sourcesLoading } = useQuery({
+  const { data: trafficSourcesRaw, isLoading: sourcesLoading } = useQuery({
     queryKey: ["/api/admin/analytics/traffic-sources", days],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/analytics/traffic-sources?days=${days}`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
-      });
-      return res.json();
-    },
+    queryFn: () => safeFetch(`/api/admin/analytics/traffic-sources?days=${days}`),
+    retry: false,
   });
+  const trafficSources = Array.isArray(trafficSourcesRaw) ? trafficSourcesRaw : [];
 
-  const { data: topPages = [], isLoading: pagesLoading } = useQuery({
+  const { data: topPagesRaw, isLoading: pagesLoading } = useQuery({
     queryKey: ["/api/admin/analytics/top-pages", days],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/analytics/top-pages?days=${days}`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
-      });
-      return res.json();
-    },
+    queryFn: () => safeFetch(`/api/admin/analytics/top-pages?days=${days}`),
+    retry: false,
   });
+  const topPages = Array.isArray(topPagesRaw) ? topPagesRaw : [];
 
-  const { data: byCountry = [], isLoading: countryLoading } = useQuery({
+  const { data: byCountryRaw, isLoading: countryLoading } = useQuery({
     queryKey: ["/api/admin/analytics/by-country", days],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/analytics/by-country?days=${days}`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
-      });
-      return res.json();
-    },
+    queryFn: () => safeFetch(`/api/admin/analytics/by-country?days=${days}`),
+    retry: false,
   });
+  const byCountry = Array.isArray(byCountryRaw) ? byCountryRaw : [];
 
-  const { data: byDay = [], isLoading: dayLoading } = useQuery({
+  const { data: byDayRaw, isLoading: dayLoading } = useQuery({
     queryKey: ["/api/admin/analytics/by-day", days],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/analytics/by-day?days=${days}`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
-      });
-      return res.json();
-    },
+    queryFn: () => safeFetch(`/api/admin/analytics/by-day?days=${days}`),
+    retry: false,
   });
+  const byDay = Array.isArray(byDayRaw) ? byDayRaw : [];
 
   const { data: settings = {} } = useQuery<Record<string, string>>({
     queryKey: ["/api/admin/settings"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/settings", {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("admin-token")}` }
-      });
-      const data = await res.json();
+      const data = await safeFetch("/api/admin/settings");
       if (data.ga4_measurement_id) setGaId(data.ga4_measurement_id);
       if (data.gsc_verification) setGscCode(data.gsc_verification);
       return data;
     },
+    retry: false,
   });
 
   const saveSetting = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("admin-token")}` },
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer admin-token" },
         body: JSON.stringify({ key, value }),
       });
       return res.json();
