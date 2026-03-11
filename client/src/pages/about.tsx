@@ -41,7 +41,10 @@ export default function About() {
               <img 
                 src="/images/pink1_1754049419831.webp" 
                 alt="Beautiful handcrafted crochet flower bouquet with pink wrapping showcasing premium craftsmanship" 
-                className="rounded-xl shadow-lg" 
+                className="rounded-xl shadow-lg"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
               />
             </div>
             <div>
@@ -161,7 +164,9 @@ export default function About() {
               <img 
                 src="https://images.unsplash.com/photo-1606041008023-472dfb5e530f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" 
                 alt="Beautiful arrangement of various crochet flowers showcasing artisan quality" 
-                className="rounded-xl shadow-lg" 
+                className="rounded-xl shadow-lg"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>

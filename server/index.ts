@@ -1,8 +1,19 @@
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+app.use(compression({
+  level: 6,
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
+
 // Special handling for WhatsApp webhook to preserve raw body for signature verification
 app.use('/api/whatsapp/webhook', express.raw({ type: 'application/json' }));
 

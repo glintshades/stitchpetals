@@ -127,6 +127,8 @@ export default function WishlistPage() {
                         src={product.imageUrl}
                         alt={product.name}
                         className="w-full h-48 object-cover cursor-pointer hover:scale-105 transition-transform"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </Link>
                     <Button

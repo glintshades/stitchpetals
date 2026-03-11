@@ -84,6 +84,9 @@ function CategoriesSection() {
                   src={category.imageUrl} 
                   alt={category.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
                 />
               ) : (
                 <div className="h-full bg-gradient-to-br from-soft-pink to-blush flex items-center justify-center">

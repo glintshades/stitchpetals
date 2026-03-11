@@ -56,6 +56,8 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
               src={product.imageUrl}
               alt={product.name}
               className="w-full h-48 sm:h-52 md:h-56 object-cover"
+              loading="lazy"
+              decoding="async"
             />
             <Button
               variant="ghost"

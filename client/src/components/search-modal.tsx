@@ -204,6 +204,8 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
                               src={product.imageUrl}
                               alt={product.name}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
                             />
                           )}
                         </div>

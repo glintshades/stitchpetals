@@ -980,6 +980,8 @@ export default function Checkout() {
                       src={item.product.imageUrl}
                       alt={item.product.name}
                       className="w-16 h-16 object-cover rounded-lg"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div>
                       <h4 className="font-medium text-sm">{item.product.name}</h4>

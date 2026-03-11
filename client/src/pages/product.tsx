@@ -441,6 +441,9 @@ export default function ProductPage() {
                     src={productImages[selectedImageIndex]}
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 rounded-xl flex items-center justify-center">
                     <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-all duration-200" />
@@ -518,6 +521,8 @@ export default function ProductPage() {
                       src={image}
                       alt={`${product.name} view ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 ))}

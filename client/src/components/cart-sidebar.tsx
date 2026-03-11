@@ -45,6 +45,8 @@ export default function CartSidebar({ open, onClose }: CartSidebarProps) {
                       src={item.product.imageUrl}
                       alt={item.product.name}
                       className="w-16 h-16 object-cover rounded-lg"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="flex-1">
                       <h4 className="font-medium wine text-sm">

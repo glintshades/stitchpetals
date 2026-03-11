@@ -77,7 +77,9 @@ export default function Bouquets() {
                   <img 
                     src={category.image} 
                     alt={category.title}
-                    className="w-full h-48 object-cover" 
+                    className="w-full h-48 object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                   <div className="absolute bottom-4 left-4">

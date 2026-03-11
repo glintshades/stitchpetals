@@ -175,6 +175,8 @@ export default function CartPage() {
                           src={item.product.imageUrl}
                           alt={item.product.name}
                           className="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </Link>
 
