@@ -14,6 +14,8 @@ import {
   chatSessions,
   chatMessages,
   agentAssignments,
+  pageViews,
+  siteSettings,
   type User, 
   type InsertUser, 
   type Product, 
@@ -43,10 +45,12 @@ import {
   type ChatMessage,
   type InsertChatMessage,
   type AgentAssignment,
-  type InsertAgentAssignment
+  type InsertAgentAssignment,
+  type PageView,
+  type SiteSetting
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, ne, and, sql } from "drizzle-orm";
+import { eq, ne, and, sql, desc, gte } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -142,6 +146,19 @@ export interface IStorage {
   getAllAddresses(): Promise<SavedAddress[]>;
   getAllCategories(): Promise<ProductCategory[]>;
   getAllAdminUsers(): Promise<AdminUser[]>;
+
+  // Analytics methods
+  trackPageView(data: { path: string; referrer?: string; trafficSource: string; country?: string; city?: string; sessionId?: string; userAgent?: string }): Promise<void>;
+  getAnalyticsOverview(days?: number): Promise<any>;
+  getTrafficSources(days?: number): Promise<any[]>;
+  getTopPages(days?: number): Promise<any[]>;
+  getVisitorsByCountry(days?: number): Promise<any[]>;
+  getVisitorsByDay(days?: number): Promise<any[]>;
+
+  // Site settings methods
+  getSetting(key: string): Promise<string | null>;
+  setSetting(key: string, value: string): Promise<void>;
+  getAllSettings(): Promise<Record<string, string>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1093,6 +1110,135 @@ export class DatabaseStorage implements IStorage {
         eq(agentAssignments.status, "active")
       ));
     return assignment || undefined;
+  }
+
+  async trackPageView(data: { path: string; referrer?: string; trafficSource: string; country?: string; city?: string; sessionId?: string; userAgent?: string }): Promise<void> {
+    await db.insert(pageViews).values({
+      path: data.path,
+      referrer: data.referrer || null,
+      trafficSource: data.trafficSource,
+      country: data.country || null,
+      city: data.city || null,
+      sessionId: data.sessionId || null,
+      userAgent: data.userAgent || null,
+    });
+  }
+
+  async getAnalyticsOverview(days: number = 30): Promise<any> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString();
+
+    const [totalResult] = await db.execute(sql`
+      SELECT 
+        COUNT(*) as total_views,
+        COUNT(DISTINCT session_id) as unique_visitors,
+        COUNT(DISTINCT path) as unique_pages
+      FROM page_views
+      WHERE created_at >= ${cutoffStr}
+    `);
+
+    const [prevResult] = await db.execute(sql`
+      SELECT COUNT(*) as total_views, COUNT(DISTINCT session_id) as unique_visitors
+      FROM page_views
+      WHERE created_at >= ${new Date(cutoff.getTime() - days * 24 * 60 * 60 * 1000).toISOString()}
+        AND created_at < ${cutoffStr}
+    `);
+
+    return { current: totalResult, previous: prevResult };
+  }
+
+  async getTrafficSources(days: number = 30): Promise<any[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const result = await db.execute(sql`
+      SELECT 
+        traffic_source as source,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as visitors
+      FROM page_views
+      WHERE created_at >= ${cutoff.toISOString()}
+      GROUP BY traffic_source
+      ORDER BY views DESC
+    `);
+
+    return result as any[];
+  }
+
+  async getTopPages(days: number = 30): Promise<any[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const result = await db.execute(sql`
+      SELECT 
+        path,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as visitors
+      FROM page_views
+      WHERE created_at >= ${cutoff.toISOString()}
+      GROUP BY path
+      ORDER BY views DESC
+      LIMIT 10
+    `);
+
+    return result as any[];
+  }
+
+  async getVisitorsByCountry(days: number = 30): Promise<any[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const result = await db.execute(sql`
+      SELECT 
+        COALESCE(country, 'Unknown') as country,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as visitors
+      FROM page_views
+      WHERE created_at >= ${cutoff.toISOString()}
+      GROUP BY country
+      ORDER BY visitors DESC
+      LIMIT 10
+    `);
+
+    return result as any[];
+  }
+
+  async getVisitorsByDay(days: number = 30): Promise<any[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const result = await db.execute(sql`
+      SELECT 
+        DATE(created_at::timestamp) as date,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as visitors
+      FROM page_views
+      WHERE created_at >= ${cutoff.toISOString()}
+      GROUP BY DATE(created_at::timestamp)
+      ORDER BY date ASC
+    `);
+
+    return result as any[];
+  }
+
+  async getSetting(key: string): Promise<string | null> {
+    const [setting] = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return setting?.value || null;
+  }
+
+  async setSetting(key: string, value: string): Promise<void> {
+    await db.insert(siteSettings)
+      .values({ key, value, updatedAt: sql`now()` as any })
+      .onConflictDoUpdate({ target: siteSettings.key, set: { value, updatedAt: sql`now()` as any } });
+  }
+
+  async getAllSettings(): Promise<Record<string, string>> {
+    const settings = await db.select().from(siteSettings);
+    return settings.reduce((acc: Record<string, string>, s) => {
+      if (s.value) acc[s.key] = s.value;
+      return acc;
+    }, {});
   }
 }
 

@@ -387,6 +387,26 @@ export const agentAssignments = pgTable("agent_assignments", {
   agentIndex: index("ix_agent_assignments_agent").on(table.agentUserId),
 }));
 
+// Analytics tables
+export const pageViews = pgTable("page_views", {
+  id: serial("id").primaryKey(),
+  path: text("path").notNull(),
+  referrer: text("referrer"),
+  trafficSource: text("traffic_source").notNull().default("direct"), // direct | organic | social | referral
+  country: text("country"),
+  city: text("city"),
+  sessionId: text("session_id"),
+  userAgent: text("user_agent"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value"),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+});
+
 // Chat schemas
 export const insertChatSessionSchema = createInsertSchema(chatSessions).pick({
   channel: true,
@@ -442,3 +462,7 @@ export type InsertAgentAssignment = z.infer<typeof insertAgentAssignmentSchema>;
 export type LiveChatSessionResponse = z.infer<typeof liveChatSessionResponseSchema>;
 export type LiveChatSendMessage = z.infer<typeof liveChatSendMessageSchema>;
 export type LiveChatGetMessages = z.infer<typeof liveChatGetMessagesSchema>;
+
+// Analytics types
+export type PageView = typeof pageViews.$inferSelect;
+export type SiteSetting = typeof siteSettings.$inferSelect;

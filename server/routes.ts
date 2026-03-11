@@ -2435,6 +2435,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics tracking endpoint (called from frontend)
+  app.post("/api/track", async (req, res) => {
+    try {
+      const { path, referrer, sessionId } = req.body;
+      const userAgent = req.headers["user-agent"] || "";
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "";
+
+      // Classify traffic source from referrer
+      const classifySource = (ref: string): string => {
+        if (!ref) return "direct";
+        const url = ref.toLowerCase();
+        const searchEngines = ["google.", "bing.", "yahoo.", "duckduckgo.", "yandex.", "baidu.", "ecosia.", "ask.com", "aol.com"];
+        const socialNetworks = ["facebook.", "instagram.", "twitter.", "t.co", "tiktok.", "pinterest.", "linkedin.", "youtube.", "reddit.", "snapchat.", "whatsapp."];
+        if (searchEngines.some(s => url.includes(s))) return "organic";
+        if (socialNetworks.some(s => url.includes(s))) return "social";
+        return "referral";
+      };
+
+      const trafficSource = classifySource(referrer || "");
+
+      // Geolocate IP asynchronously (don't block response)
+      let country: string | undefined;
+      let city: string | undefined;
+
+      const isLocalIp = !ip || ip === "127.0.0.1" || ip === "::1" || ip.startsWith("192.168.") || ip.startsWith("10.");
+
+      if (!isLocalIp) {
+        try {
+          const geoRes = await fetch(`http://ip-api.com/json/${ip}?fields=country,city,status`, { signal: AbortSignal.timeout(2000) });
+          if (geoRes.ok) {
+            const geo = await geoRes.json() as any;
+            if (geo.status === "success") {
+              country = geo.country;
+              city = geo.city;
+            }
+          }
+        } catch {
+          // Geo lookup failed silently
+        }
+      }
+
+      await storage.trackPageView({ path, referrer, trafficSource, country, city, sessionId, userAgent });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("Analytics tracking error:", error);
+      res.json({ ok: false });
+    }
+  });
+
+  // Analytics admin endpoints
+  app.get("/api/admin/analytics/overview", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getAnalyticsOverview(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get analytics overview" });
+    }
+  });
+
+  app.get("/api/admin/analytics/traffic-sources", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getTrafficSources(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get traffic sources" });
+    }
+  });
+
+  app.get("/api/admin/analytics/top-pages", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getTopPages(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get top pages" });
+    }
+  });
+
+  app.get("/api/admin/analytics/by-country", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getVisitorsByCountry(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get country data" });
+    }
+  });
+
+  app.get("/api/admin/analytics/by-day", requireAdmin, async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const data = await storage.getVisitorsByDay(days);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get daily data" });
+    }
+  });
+
+  // Site settings
+  app.get("/api/admin/settings", requireAdmin, async (req, res) => {
+    try {
+      const settings = await storage.getAllSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get settings" });
+    }
+  });
+
+  app.post("/api/admin/settings", requireAdmin, async (req, res) => {
+    try {
+      const { key, value } = req.body;
+      if (!key) return res.status(400).json({ error: "Key is required" });
+      await storage.setSetting(key, value || "");
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to save setting" });
+    }
+  });
+
+  // Public endpoint to get site settings (for GA4 injection etc)
+  app.get("/api/settings/public", async (req, res) => {
+    try {
+      const ga4Id = await storage.getSetting("ga4_measurement_id");
+      const gscVerification = await storage.getSetting("gsc_verification");
+      res.json({ ga4Id, gscVerification });
+    } catch (error) {
+      res.json({ ga4Id: null, gscVerification: null });
+    }
+  });
+
   // Sitemap.xml - dynamically generated for better crawlability
   app.get("/sitemap.xml", async (req, res) => {
     try {
