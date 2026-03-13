@@ -143,9 +143,7 @@ export default function ProductCard({ product, offer, className = "" }: ProductC
       return;
     }
     
-    // Navigate to product page using proper routing
-    console.log(`Navigating to product ID: ${product.id}`);
-    setLocation(`/product/${product.id}`);
+    setLocation(`/product/${(product as any).slug || product.id}`);
   };
 
   return (

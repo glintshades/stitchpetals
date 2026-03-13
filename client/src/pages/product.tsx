@@ -55,7 +55,7 @@ import { useSEO } from "@/hooks/use-seo";
 
 export default function ProductPage() {
   const params = useParams();
-  const productId = parseInt(params.id || "0");
+  const productParam = params.id || "";
   const [, setLocation] = useLocation();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist, isAddingToWishlist, isRemovingFromWishlist } = useWishlist();
@@ -69,8 +69,13 @@ export default function ProductPage() {
   const [showShareMenu, setShowShareMenu] = useState(false);
 
   const { data: product, isLoading } = useQuery<Product>({
-    queryKey: ["/api/products", productId],
-    enabled: !!productId,
+    queryKey: ["/api/products", productParam],
+    queryFn: async () => {
+      const res = await fetch(`/api/products/${productParam}`);
+      if (!res.ok) throw new Error("Product not found");
+      return res.json();
+    },
+    enabled: !!productParam,
   });
 
   const seoImages = product
@@ -89,7 +94,7 @@ export default function ProductPage() {
     keywords: product
       ? `${product.name}, handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet flower for room decor, crochet handmade rose flower, crochet handmade tulips flower, crochet handmade sunflower flower, ${product.category || "crochet arrangement"}`
       : "handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet handmade rose flower, crochet handmade tulips flower, crochet handmade sunflower flower",
-    canonical: product ? `/product/${product.id}` : undefined,
+    canonical: product ? `/product/${product.slug || product.id}` : undefined,
     ogType: "product",
     ogImage: seoImages[0] || undefined,
     ogTitle: product ? `${product.name} - GlintShades` : undefined,
@@ -103,7 +108,7 @@ export default function ProductPage() {
           name: product.name,
           description: product.description || `Handcrafted crochet flower - ${product.name}`,
           image: seoImages,
-          url: `https://glintshades.com/product/${product.id}`,
+          url: `https://glintshades.com/product/${product.slug || product.id}`,
           brand: {
             "@type": "Brand",
             name: "GlintShades"
@@ -148,15 +153,15 @@ export default function ProductPage() {
     return Math.max(0, originalPrice - discountAmount);
   })() : null;
 
-  // Fetch product variations
+  // Fetch product variations (always use numeric ID for variations API)
   const { data: variations = [] } = useQuery<ProductVariation[]>({
-    queryKey: ["/api/products", productId, "variations"],
+    queryKey: ["/api/products", product?.id, "variations"],
     queryFn: async () => {
-      const response = await fetch(`/api/products/${productId}/variations`);
+      const response = await fetch(`/api/products/${product!.id}/variations`);
       if (!response.ok) return [];
       return response.json();
     },
-    enabled: !!productId,
+    enabled: !!product?.id,
   });
 
   // Set initial variation and color if not set
@@ -212,7 +217,7 @@ export default function ProductPage() {
   });
 
   const relatedProducts = allProducts
-    .filter(p => p.id !== productId && p.category === product?.category)
+    .filter(p => p.id !== product?.id && p.category === product?.category)
     .slice(0, 4);
 
   // Social sharing functions

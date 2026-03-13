@@ -64,6 +64,7 @@ export interface IStorage {
   getAllProducts(): Promise<Product[]>;
   getVisibleProducts(): Promise<Product[]>; // For public listings - only visible products
   getProduct(id: number): Promise<Product | undefined>;
+  getProductBySlug(slug: string): Promise<Product | undefined>;
   getProductsByCategory(category: string): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, updates: Partial<InsertProduct>): Promise<Product | undefined>;
@@ -489,6 +490,11 @@ export class DatabaseStorage implements IStorage {
 
   async getProduct(id: number): Promise<Product | undefined> {
     const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
+  }
+
+  async getProductBySlug(slug: string): Promise<Product | undefined> {
+    const [product] = await db.select().from(products).where(eq(products.slug, slug));
     return product || undefined;
   }
 

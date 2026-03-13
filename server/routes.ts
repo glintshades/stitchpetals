@@ -1,6 +1,23 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+
+function generateProductSlug(name: string): string {
+  const stopWords = new Set(['with','and','the','a','an','of','in','for','to','by','from','at','on','into','as','is','are','be','that','this','it','its','or','but','so','yet','nor','up','out','about','after','available','multiple','styles','sizes','size','medium','large','small','different','various','unique']);
+  return name
+    .toLowerCase()
+    .replace(/[–—]/g, '-')
+    .replace(/&/g, 'and')
+    .replace(/['"()[\]{}|]/g, ' ')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ').trim()
+    .split(' ')
+    .filter((w: string) => w.length > 1 && !stopWords.has(w))
+    .join('-')
+    .replace(/-+/g, '-')
+    .substring(0, 65)
+    .replace(/-$/, '');
+}
 import session from "express-session";
 import multer from "multer";
 import path from "path";
@@ -213,10 +230,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/products/:id", async (req, res) => {
+  app.get("/api/products/:idOrSlug", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      const product = await storage.getProduct(id);
+      const param = req.params.idOrSlug;
+      let product;
+      const numId = parseInt(param);
+      if (!isNaN(numId)) {
+        product = await storage.getProduct(numId);
+      } else {
+        product = await storage.getProductBySlug(param);
+      }
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
@@ -742,6 +765,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/products", requireAdmin, async (req, res) => {
     try {
       const productData = insertProductSchema.parse(req.body);
+      if (!productData.slug) {
+        const baseSlug = generateProductSlug(productData.name);
+        const existing = await storage.getProductBySlug(baseSlug);
+        (productData as any).slug = existing ? `${baseSlug}-${Date.now()}` : baseSlug;
+      }
       const product = await storage.createProduct(productData);
       res.status(201).json(product);
     } catch (error) {
@@ -753,6 +781,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
+      if (updates.name && !updates.slug) {
+        const baseSlug = generateProductSlug(updates.name);
+        const existing = await storage.getProductBySlug(baseSlug);
+        if (!existing || existing.id === id) {
+          updates.slug = baseSlug;
+        }
+      }
       const product = await storage.updateProduct(id, updates);
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
@@ -2653,9 +2688,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       <image:title>${(p.name || "Handmade Crochet Flower").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</image:title>
       <image:caption>${(p.description ? p.description.slice(0, 100) : "Handmade crochet flower bouquet crafted with love").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</image:caption>
     </image:image>` : "";
+          const productUrl = p.slug ? `${BASE_URL}/product/${p.slug}` : `${BASE_URL}/product/${p.id}`;
           return `
   <url>
-    <loc>${BASE_URL}/product/${p.id}</loc>
+    <loc>${productUrl}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>${imageTag}
