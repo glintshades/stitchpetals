@@ -49,7 +49,7 @@ export default function OfferProductCard({ product, offer, className = "" }: Off
 
   return (
     <div className="p-2.5">
-      <Link href={`/product/${product.id}`}>
+      <Link href={`/product/${(product as any).slug || product.id}`}>
         <Card className={`bg-white rounded-xl shadow-lg overflow-hidden product-hover cursor-pointer transition-transform hover:scale-105 h-full flex flex-col ${className}`}>
           <div className="relative">
             <img

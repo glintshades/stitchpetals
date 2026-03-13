@@ -122,7 +122,7 @@ export default function WishlistPage() {
               return (
                 <Card key={item.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                   <div className="relative">
-                    <Link href={`/product/${product.id}`}>
+                    <Link href={`/product/${(product as any).slug || product.id}`}>
                       <img
                         src={product.imageUrl}
                         alt={product.name}
@@ -144,7 +144,7 @@ export default function WishlistPage() {
 
                   <CardContent className="p-4 flex flex-col flex-grow">
                     <div className="flex-grow">
-                      <Link href={`/product/${product.id}`}>
+                      <Link href={`/product/${(product as any).slug || product.id}`}>
                         <h3 className="font-semibold text-gray-900 mb-2 hover:wine cursor-pointer line-clamp-2">
                           {product.name}
                         </h3>

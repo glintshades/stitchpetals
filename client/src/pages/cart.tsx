@@ -170,7 +170,7 @@ export default function CartPage() {
                   <CardContent className="p-6">
                     <div className="flex space-x-4">
                       {/* Product Image */}
-                      <Link href={`/product/${item.product.id}`}>
+                      <Link href={`/product/${(item.product as any).slug || item.product.id}`}>
                         <img
                           src={item.product.imageUrl}
                           alt={item.product.name}
@@ -184,7 +184,7 @@ export default function CartPage() {
                       <div className="flex-1">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <Link href={`/product/${item.product.id}`}>
+                            <Link href={`/product/${(item.product as any).slug || item.product.id}`}>
                               <h3 className="font-playfair text-lg font-semibold wine hover:text-dark-pink cursor-pointer transition-colors">
                                 {item.product.name}
                               </h3>

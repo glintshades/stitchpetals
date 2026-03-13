@@ -102,7 +102,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
         e.preventDefault();
         const product = filteredProducts[selectedIndex];
         if (product) {
-          window.location.href = `/product/${product.id}`;
+          window.location.href = `/product/${(product as any).slug || product.id}`;
           handleProductClick();
         }
       } else if (e.key === 'Escape') {
@@ -187,7 +187,7 @@ export function SearchModal({ open, onOpenChange }: SearchModalProps) {
                   {filteredProducts.map((product: any, index) => (
                     <Link
                       key={product.id}
-                      href={`/product/${product.id}`}
+                      href={`/product/${(product as any).slug || product.id}`}
                       onClick={handleProductClick}
                     >
                       <div 
