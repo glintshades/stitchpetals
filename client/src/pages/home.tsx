@@ -155,8 +155,8 @@ export default function Home() {
         "@context": "https://schema.org",
         "@type": "Organization",
         name: "GlintShades",
-        url: "https://glintshades.replit.app",
-        logo: "https://glintshades.replit.app/og-image.jpg",
+        url: "https://glintshades.com",
+        logo: "https://glintshades.com/og-image.jpg",
         description: "Handcrafted crochet flower arrangements including bouquets, potted flowers, and stems.",
         contactPoint: {
           "@type": "ContactPoint",
@@ -169,10 +169,10 @@ export default function Home() {
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "GlintShades",
-        url: "https://glintshades.replit.app",
+        url: "https://glintshades.com",
         potentialAction: {
           "@type": "SearchAction",
-          target: "https://glintshades.replit.app/shop?search={search_term_string}",
+          target: "https://glintshades.com/shop?search={search_term_string}",
           "query-input": "required name=search_term_string"
         }
       }

@@ -14,7 +14,7 @@ export default function Bouquets() {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       name: "Crochet Flower Bouquets",
-      url: "https://glintshades.replit.app/bouquets",
+      url: "https://glintshades.com/bouquets",
       description: "Handcrafted crochet flower bouquets that last forever."
     }
   });

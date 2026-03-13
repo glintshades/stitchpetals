@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: "Privacy Policy - GlintShades",
-      url: "https://glintshades.replit.app/privacy-policy"
+      url: "https://glintshades.com/privacy-policy"
     }
   });
 

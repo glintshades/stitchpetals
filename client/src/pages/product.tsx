@@ -103,7 +103,7 @@ export default function ProductPage() {
           name: product.name,
           description: product.description || `Handcrafted crochet flower - ${product.name}`,
           image: seoImages,
-          url: `https://glintshades.replit.app/product/${product.id}`,
+          url: `https://glintshades.com/product/${product.id}`,
           brand: {
             "@type": "Brand",
             name: "GlintShades"

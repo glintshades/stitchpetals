@@ -578,7 +578,7 @@ export default function AdminSEO() {
                   <p className="font-medium mb-1">How to verify with Search Console</p>
                   <ol className="list-decimal list-inside space-y-1 text-blue-700">
                     <li>Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="underline font-medium">Google Search Console</a></li>
-                    <li>Add your site URL: <code className="bg-blue-100 px-1 rounded">https://glintshades.replit.app</code></li>
+                    <li>Add your site URL: <code className="bg-blue-100 px-1 rounded">https://glintshades.com</code></li>
                     <li>Choose "HTML tag" verification method</li>
                     <li>Copy the content value from the meta tag</li>
                     <li>Paste it below and click Save — then click Verify in GSC</li>
@@ -616,7 +616,7 @@ export default function AdminSEO() {
                     Open Search Console
                   </Button>
                 </a>
-                <a href={`https://glintshades.replit.app/sitemap.xml`} target="_blank" rel="noopener noreferrer">
+                <a href={`https://glintshades.com/sitemap.xml`} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" size="sm" className="gap-2">
                     <ExternalLink className="w-3 h-3" />
                     View Sitemap

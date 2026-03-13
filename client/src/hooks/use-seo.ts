@@ -15,7 +15,7 @@ interface SEOProps {
 }
 
 const SITE_NAME = "GlintShades";
-const BASE_URL = "https://glintshades.replit.app";
+const BASE_URL = "https://glintshades.com";
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 
 function setMeta(name: string, content: string, isProperty = false) {

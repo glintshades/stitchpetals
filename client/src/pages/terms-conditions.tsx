@@ -14,7 +14,7 @@ export default function TermsConditions() {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: "Terms & Conditions - GlintShades",
-      url: "https://glintshades.replit.app/terms-conditions"
+      url: "https://glintshades.com/terms-conditions"
     }
   });
 

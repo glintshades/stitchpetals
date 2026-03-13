@@ -14,7 +14,7 @@ export default function About() {
       "@context": "https://schema.org",
       "@type": "AboutPage",
       name: "About GlintShades",
-      url: "https://glintshades.replit.app/about",
+      url: "https://glintshades.com/about",
       description: "Learn about GlintShades and our handcrafted crochet flower arrangements."
     }
   });

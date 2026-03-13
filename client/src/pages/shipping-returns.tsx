@@ -13,7 +13,7 @@ export default function ShippingReturns() {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: "Shipping & Returns Policy",
-      url: "https://glintshades.replit.app/shipping-returns"
+      url: "https://glintshades.com/shipping-returns"
     }
   });
 

@@ -151,7 +151,7 @@ export default function Offers() {
       "@context": "https://schema.org",
       "@type": "SpecialAnnouncement",
       name: "GlintShades Special Offers",
-      url: "https://glintshades.replit.app/offers",
+      url: "https://glintshades.com/offers",
       description: "Special deals and discounts on handcrafted crochet flower arrangements."
     }
   });

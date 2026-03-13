@@ -21,7 +21,7 @@ export default function Shop() {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       name: "GlintShades Shop",
-      url: "https://glintshades.replit.app/shop",
+      url: "https://glintshades.com/shop",
       description: "Browse our full collection of handcrafted crochet flower arrangements."
     }
   });

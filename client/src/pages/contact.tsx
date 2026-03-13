@@ -28,7 +28,7 @@ export default function Contact() {
       "@context": "https://schema.org",
       "@type": "ContactPage",
       name: "Contact GlintShades",
-      url: "https://glintshades.replit.app/contact"
+      url: "https://glintshades.com/contact"
     }
   });
 
