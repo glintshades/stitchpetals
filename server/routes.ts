@@ -25,6 +25,7 @@ import fs from "fs";
 import { storage } from "./storage";
 import { insertCartItemSchema, insertWishlistItemSchema, insertContactSubmissionSchema, insertOrderSchema, insertAdminUserSchema, insertProductSchema, insertOfferSchema, insertUserWithShippingSchema, insertNewsletterSubscriptionSchema, insertAgentAssignmentSchema, insertChatMessageSchema, liveChatSessionResponseSchema, liveChatSendMessageSchema, liveChatGetMessagesSchema } from "@shared/schema";
 import { z } from "zod";
+import { insertBlogPostSchema } from "@shared/schema";
 import { fedexService, type ShippingAddress } from './fedexService';
 import { Storage } from '@google-cloud/storage';
 import { Client } from '@replit/object-storage';
@@ -61,6 +62,23 @@ const upload = multer({
     }
   }
 });
+
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+    .replace(/<object[\s\S]*?<\/object>/gi, "")
+    .replace(/<embed[\s\S]*?\/?>/gi, "")
+    .replace(/<form[\s\S]*?<\/form>/gi, "")
+    .replace(/<input[\s\S]*?\/?>/gi, "")
+    .replace(/<textarea[\s\S]*?<\/textarea>/gi, "")
+    .replace(/<button[\s\S]*?<\/button>/gi, "")
+    .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, "")
+    .replace(/\son\w+\s*=\s*[^\s>]*/gi, "")
+    .replace(/javascript\s*:/gi, "")
+    .replace(/vbscript\s*:/gi, "")
+    .replace(/data\s*:\s*text\/html/gi, "");
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded images through API endpoint to avoid Vite conflicts
@@ -2786,7 +2804,7 @@ ${blogUrls}
       const postData = {
         title: req.body.title,
         slug: req.body.slug,
-        content: req.body.content,
+        content: sanitizeHtml(req.body.content || ""),
         excerpt: req.body.excerpt || null,
         coverImageUrl,
         keywords: req.body.keywords || null,
@@ -2797,10 +2815,14 @@ ${blogUrls}
         authorName: req.body.authorName || "GlintShades",
       };
 
-      const post = await storage.createBlogPost(postData);
+      const validated = insertBlogPostSchema.parse(postData);
+      const post = await storage.createBlogPost(validated);
       res.status(201).json(post);
     } catch (error) {
       console.error("Error creating blog post:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation failed", errors: error.errors });
+      }
       res.status(400).json({ message: "Failed to create blog post" });
     }
   });
@@ -2813,7 +2835,7 @@ ${blogUrls}
 
       if (req.body.title !== undefined) updates.title = req.body.title;
       if (req.body.slug !== undefined) updates.slug = req.body.slug;
-      if (req.body.content !== undefined) updates.content = req.body.content;
+      if (req.body.content !== undefined) updates.content = sanitizeHtml(req.body.content);
       if (req.body.excerpt !== undefined) updates.excerpt = req.body.excerpt;
       if (req.body.keywords !== undefined) updates.keywords = req.body.keywords;
       if (req.body.tags !== undefined) updates.tags = req.body.tags;
