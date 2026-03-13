@@ -44,21 +44,22 @@ const upload = multer({
       'image/jpg', 
       'image/png',
       'image/webp',
-      'image/gif'
+      'image/gif',
+      'application/octet-stream' // some browsers send this for all files
     ];
     
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
     const fileExtension = path.extname(file.originalname).toLowerCase();
     
-    // SECURITY: Require BOTH mimetype AND file extension to match (prevent spoofed uploads)
-    const isValidMimeType = allowedMimeTypes.includes(file.mimetype);
+    // Accept file if extension is valid (Sharp will reject non-image content server-side)
     const isValidExtension = allowedExtensions.includes(fileExtension);
+    const isValidMimeType = allowedMimeTypes.includes(file.mimetype);
     
-    if (isValidMimeType && isValidExtension) {
+    if (isValidExtension && isValidMimeType) {
       cb(null, true);
     } else {
       console.log('Rejected file - mimetype:', file.mimetype, 'extension:', fileExtension);
-      cb(new Error('Only image files are allowed! Both mimetype and extension must be valid. Supported formats: JPEG, PNG, WebP, GIF'));
+      cb(new Error('Only image files are allowed. Supported formats: JPEG, PNG, WebP, GIF'));
     }
   }
 });
@@ -882,7 +883,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image upload endpoint - uses persistent object storage with compression
-  app.post("/api/admin/upload-image", requireAdmin, upload.single('image'), async (req, res) => {
+  app.post("/api/admin/upload-image", requireAdmin, (req: any, res: any, next: any) => {
+    upload.single('image')(req, res, (err: any) => {
+      if (err) {
+        return res.status(400).json({ message: err.message || "File upload error" });
+      }
+      next();
+    });
+  }, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
@@ -919,8 +927,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               height: 2000, 
               fit: 'inside', 
               withoutEnlargement: true 
-            }) // Limit max dimensions
-            .removeMetadata(); // Strip EXIF data to reduce size
+            }); // Limit max dimensions (Sharp strips EXIF by default when converting)
           
           // Determine output format and compress accordingly
           const inputFormat = req.file.mimetype;
