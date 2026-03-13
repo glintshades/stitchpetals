@@ -2590,8 +2590,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sitemap.xml - dynamically generated for better crawlability
   app.get("/sitemap.xml", async (req, res) => {
     try {
-      const BASE_URL = "https://glintshades.replit.app";
+      const BASE_URL = "https://glintshades.com";
       const products = await storage.getAllProducts();
+      const categories = await storage.getAllCategories();
       const now = new Date().toISOString().split("T")[0];
 
       const staticPages = [
@@ -2606,28 +2607,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { url: "/terms-conditions", priority: "0.3", changefreq: "yearly" },
       ];
 
-      const productUrls = products
-        .filter((p: any) => p.isActive !== false)
-        .map((p: any) => `
-    <url>
-      <loc>${BASE_URL}/product/${p.id}</loc>
-      <lastmod>${now}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.8</priority>
-    </url>`).join("");
-
       const staticUrls = staticPages.map(page => `
-    <url>
-      <loc>${BASE_URL}${page.url}</loc>
-      <lastmod>${now}</lastmod>
-      <changefreq>${page.changefreq}</changefreq>
-      <priority>${page.priority}</priority>
-    </url>`).join("");
+  <url>
+    <loc>${BASE_URL}${page.url}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`).join("");
+
+      const categoryUrls = (categories as any[])
+        .filter((c: any) => c.isActive !== false && c.slug)
+        .map((c: any) => `
+  <url>
+    <loc>${BASE_URL}/shop?category=${encodeURIComponent(c.slug)}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join("");
+
+      const keywordPages = [
+        "handmade+crochet+flowers+bouquet",
+        "realistic+crochet+flower+bouquet",
+        "crochet+flower+bouquet+for+gift",
+        "crochet+handmade+rose+flower",
+        "crochet+handmade+tulips+flower",
+        "crochet+handmade+sunflower+flower",
+      ].map(q => `
+  <url>
+    <loc>${BASE_URL}/shop?q=${q}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join("");
+
+      const productUrls = (products as any[])
+        .filter((p: any) => p.isActive !== false)
+        .map((p: any) => {
+          const imageUrl = p.imageUrl && !p.imageUrl.includes('/system/')
+            ? p.imageUrl.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}`
+            : null;
+          const imageTag = imageUrl ? `
+    <image:image>
+      <image:loc>${imageUrl}</image:loc>
+      <image:title>${(p.name || "Handmade Crochet Flower").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</image:title>
+      <image:caption>${(p.description ? p.description.slice(0, 100) : "Handmade crochet flower bouquet crafted with love").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</image:caption>
+    </image:image>` : "";
+          return `
+  <url>
+    <loc>${BASE_URL}/product/${p.id}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>${imageTag}
+  </url>`;
+        }).join("");
 
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${staticUrls}${productUrls}
+${staticUrls}
+${categoryUrls}
+${keywordPages}
+${productUrls}
 </urlset>`;
 
       res.setHeader("Content-Type", "application/xml");

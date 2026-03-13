@@ -29,7 +29,7 @@ Allow: /terms-conditions
 Allow: /product/
 
 # Sitemap location
-Sitemap: https://glintshades.replit.app/sitemap.xml
+Sitemap: https://glintshades.com/sitemap.xml
 
 # Crawl-delay for polite bots
 Crawl-delay: 1
