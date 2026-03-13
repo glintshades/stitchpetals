@@ -145,8 +145,8 @@ function CategoriesSection() {
 
 export default function Home() {
   useSEO({
-    title: "Handmade Crochet Flower and Bouquets – Unique Flower Gift USA | GlintShades",
-    description: "Shop handmade crochet bouquet that last forever. Perfect gift for birthday, wedding, special occasion. Beautiful everlasting crochet flowers crafted with love.",
+    title: "Handmade Crochet Flower Bouquet - Forever Flower by GlintShades",
+    description: "Shop beautiful crochet flower bouquets that last forever. Perfect for birthday, anniversaries and home decor. Discover unique yarn flower bouquets at glintshades.",
     keywords: "handmade crochet flowers bouquet, realistic crochet flower bouquet, crochet flower bouquet for gift, crochet flower for room decor, crochet handmade tulips flower, crochet handmade rose flower, crochet handmade sunflower flower, crochet bouquet, handcrafted flowers",
     canonical: "/",
     ogType: "website",
@@ -218,7 +218,7 @@ export default function Home() {
   const heroSlides = [
     {
       id: 1,
-      title: "Handcrafted Crochet Bouquets That Last Forever",
+      title: "Handmade Crochet Flower Bouquet",
       subtitle: "Welcome to GlintShades",
       description: "Discover our collection of meticulously handmade crochet flower bouquets. Each piece is crafted with love, using premium soft cotton to create timeless floral arrangements that bring joy to any space.",
       backgroundImage: "/images/il_1588xN.4851706578_21g4_1753286611661.webp", // Main sunflower bouquet

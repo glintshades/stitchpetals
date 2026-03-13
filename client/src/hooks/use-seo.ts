@@ -67,7 +67,9 @@ export function useSEO({
   structuredData,
 }: SEOProps) {
   useEffect(() => {
-    const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} - Handcrafted Crochet Flowers`;
+    const fullTitle = title
+      ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`)
+      : `${SITE_NAME} - Handcrafted Crochet Flowers`;
     document.title = fullTitle;
 
     if (description) setMeta("description", description);
