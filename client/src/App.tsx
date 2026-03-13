@@ -27,6 +27,8 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsConditions from "@/pages/terms-conditions";
 import NotFound from "@/pages/not-found";
 import WishlistPage from "@/pages/wishlist";
+import Blog from "@/pages/blog";
+import BlogPostPage from "@/pages/blog-post";
 
 function Router() {
   useAnalytics();
@@ -49,6 +51,8 @@ function Router() {
       <Route path="/shipping-returns" component={ShippingReturns} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-conditions" component={TermsConditions} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/blog/:slug" component={BlogPostPage} />
       <Route path="/admin" component={AdminPanel} />
       <Route component={NotFound} />
     </Switch>

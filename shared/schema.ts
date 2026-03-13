@@ -464,6 +464,41 @@ export type LiveChatSessionResponse = z.infer<typeof liveChatSessionResponseSche
 export type LiveChatSendMessage = z.infer<typeof liveChatSendMessageSchema>;
 export type LiveChatGetMessages = z.infer<typeof liveChatGetMessagesSchema>;
 
+// Blog posts table
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  coverImageUrl: text("cover_image_url"),
+  keywords: text("keywords"),
+  tags: text("tags"),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  status: text("status").notNull().default("draft"),
+  authorName: text("author_name").notNull().default("GlintShades"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).pick({
+  title: true,
+  slug: true,
+  content: true,
+  excerpt: true,
+  coverImageUrl: true,
+  keywords: true,
+  tags: true,
+  metaTitle: true,
+  metaDescription: true,
+  status: true,
+  authorName: true,
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+
 // Analytics types
 export type PageView = typeof pageViews.$inferSelect;
 export type SiteSetting = typeof siteSettings.$inferSelect;

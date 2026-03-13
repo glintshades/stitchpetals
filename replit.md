@@ -24,7 +24,7 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful API with JSON responses
 - **Session Management**: Express sessions with PostgreSQL session store
 - **Error Handling**: Centralized error handling middleware
-- **Core Features**: Authentication system, comprehensive admin panel for managing orders, products (with CRUD, image upload, inventory), users, and categories. Includes a wishlist system and contact message handling.
+- **Core Features**: Authentication system, comprehensive admin panel for managing orders, products (with CRUD, image upload, inventory), users, categories, and blog posts. Includes a wishlist system, contact message handling, and a blog section for content marketing.
 - **Shipping Integration**: FedEx API integration for shipping rate calculation, tracking, and label generation
 
 ### Database Layer
@@ -34,7 +34,7 @@ Preferred communication style: Simple, everyday language.
 - **Schema Validation**: Drizzle-Zod integration
 
 ### Data Models
-- Products, Cart Items, Users, Orders, Contact Submissions, Admin Users, Categories.
+- Products, Cart Items, Users, Orders, Contact Submissions, Admin Users, Categories, Blog Posts.
 
 ## External Dependencies
 

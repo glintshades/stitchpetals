@@ -2637,6 +2637,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { url: "/offers", priority: "0.8", changefreq: "daily" },
         { url: "/about", priority: "0.7", changefreq: "monthly" },
         { url: "/contact", priority: "0.7", changefreq: "monthly" },
+        { url: "/blog", priority: "0.8", changefreq: "weekly" },
         { url: "/shipping-returns", priority: "0.5", changefreq: "monthly" },
         { url: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
         { url: "/terms-conditions", priority: "0.3", changefreq: "yearly" },
@@ -2698,6 +2699,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   </url>`;
         }).join("");
 
+      const publishedPosts = await storage.getPublishedBlogPosts();
+      const blogUrls = publishedPosts.map((post: any) => `
+  <url>
+    <loc>${BASE_URL}/blog/${post.slug}</loc>
+    <lastmod>${post.updatedAt ? post.updatedAt.split("T")[0] : now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join("");
+
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
@@ -2705,6 +2715,7 @@ ${staticUrls}
 ${categoryUrls}
 ${keywordPages}
 ${productUrls}
+${blogUrls}
 </urlset>`;
 
       res.setHeader("Content-Type", "application/xml");
@@ -2713,6 +2724,143 @@ ${productUrls}
     } catch (error) {
       console.error("Error generating sitemap:", error);
       res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  // ===== Blog API Routes =====
+
+  // Public: get published blog posts
+  app.get("/api/blog", async (req, res) => {
+    try {
+      const posts = await storage.getPublishedBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog posts" });
+    }
+  });
+
+  // Public: get single blog post by slug
+  app.get("/api/blog/:slug", async (req, res) => {
+    try {
+      const post = await storage.getBlogPostBySlug(req.params.slug);
+      if (!post || post.status !== "published") {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+
+  // Admin: get all blog posts (including drafts)
+  app.get("/api/admin/blog", requireAdmin, async (req, res) => {
+    try {
+      const posts = await storage.getAllBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog posts" });
+    }
+  });
+
+  // Admin: create blog post
+  app.post("/api/admin/blog", requireAdmin, upload.single("coverImage"), async (req, res) => {
+    try {
+      let coverImageUrl = req.body.coverImageUrl || null;
+
+      if (req.file) {
+        const uploadsDir = path.join(process.cwd(), "client/public/images/blog");
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        const filename = `blog-${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+        const filepath = path.join(uploadsDir, filename);
+
+        const buffer = await sharp(req.file.buffer)
+          .resize(1200, 630, { fit: "cover", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toBuffer();
+        fs.writeFileSync(filepath, buffer);
+        coverImageUrl = `/images/blog/${filename.replace(/\.[^.]+$/, ".webp")}`;
+      }
+
+      const postData = {
+        title: req.body.title,
+        slug: req.body.slug,
+        content: req.body.content,
+        excerpt: req.body.excerpt || null,
+        coverImageUrl,
+        keywords: req.body.keywords || null,
+        tags: req.body.tags || null,
+        metaTitle: req.body.metaTitle || null,
+        metaDescription: req.body.metaDescription || null,
+        status: req.body.status || "draft",
+        authorName: req.body.authorName || "GlintShades",
+      };
+
+      const post = await storage.createBlogPost(postData);
+      res.status(201).json(post);
+    } catch (error) {
+      console.error("Error creating blog post:", error);
+      res.status(400).json({ message: "Failed to create blog post" });
+    }
+  });
+
+  // Admin: update blog post
+  app.patch("/api/admin/blog/:id", requireAdmin, upload.single("coverImage"), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      let updates: any = {};
+
+      if (req.body.title !== undefined) updates.title = req.body.title;
+      if (req.body.slug !== undefined) updates.slug = req.body.slug;
+      if (req.body.content !== undefined) updates.content = req.body.content;
+      if (req.body.excerpt !== undefined) updates.excerpt = req.body.excerpt;
+      if (req.body.keywords !== undefined) updates.keywords = req.body.keywords;
+      if (req.body.tags !== undefined) updates.tags = req.body.tags;
+      if (req.body.metaTitle !== undefined) updates.metaTitle = req.body.metaTitle;
+      if (req.body.metaDescription !== undefined) updates.metaDescription = req.body.metaDescription;
+      if (req.body.status !== undefined) updates.status = req.body.status;
+      if (req.body.authorName !== undefined) updates.authorName = req.body.authorName;
+      if (req.body.coverImageUrl !== undefined) updates.coverImageUrl = req.body.coverImageUrl;
+
+      if (req.file) {
+        const uploadsDir = path.join(process.cwd(), "client/public/images/blog");
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        const filename = `blog-${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+        const filepath = path.join(uploadsDir, filename);
+
+        const buffer = await sharp(req.file.buffer)
+          .resize(1200, 630, { fit: "cover", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toBuffer();
+        fs.writeFileSync(filepath, buffer);
+        updates.coverImageUrl = `/images/blog/${filename.replace(/\.[^.]+$/, ".webp")}`;
+      }
+
+      const post = await storage.updateBlogPost(id, updates);
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json(post);
+    } catch (error) {
+      console.error("Error updating blog post:", error);
+      res.status(400).json({ message: "Failed to update blog post" });
+    }
+  });
+
+  // Admin: delete blog post
+  app.delete("/api/admin/blog/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteBlogPost(id);
+      if (!success) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      res.json({ message: "Blog post deleted" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete blog post" });
     }
   });
 

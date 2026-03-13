@@ -23,6 +23,7 @@ export default function Header({ onCartClick }: HeaderProps) {
     { href: "/about", label: "About" },
     { href: "/shop", label: "Shop" },
     { href: "/offers", label: "Offers" },
+    { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
   ];
 

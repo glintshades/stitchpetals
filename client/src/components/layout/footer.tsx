@@ -24,7 +24,7 @@ export default function Footer() {
   return (
     <footer className="bg-wine text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-5 gap-8">
           <div>
             <h4 className="font-playfair text-2xl font-bold mb-4">GlintShades</h4>
             <p className="text-white/80 mb-4">
@@ -95,6 +95,26 @@ export default function Footer() {
             </ul>
           </div>
           
+          <div>
+            <h5 className="font-semibold text-lg mb-4">Learn</h5>
+            <ul className="space-y-2 text-white/80">
+              <li>
+                <Link href="/blog">
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    Blog
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/about">
+                  <span className="hover:text-white transition-colors cursor-pointer">
+                    About Us
+                  </span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           <div>
             <h5 className="font-semibold text-lg mb-4">Support</h5>
             <ul className="space-y-2 text-white/80">
