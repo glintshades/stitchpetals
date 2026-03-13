@@ -2643,9 +2643,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const productUrls = (products as any[])
         .filter((p: any) => p.isActive !== false)
         .map((p: any) => {
-          const imageUrl = p.imageUrl && !p.imageUrl.includes('/system/')
+          const rawImageUrl = p.imageUrl && !p.imageUrl.includes('/system/')
             ? p.imageUrl.startsWith('http') ? p.imageUrl : `${BASE_URL}${p.imageUrl}`
             : null;
+          const imageUrl = rawImageUrl ? rawImageUrl.replace(/&/g, "&amp;") : null;
           const imageTag = imageUrl ? `
     <image:image>
       <image:loc>${imageUrl}</image:loc>
