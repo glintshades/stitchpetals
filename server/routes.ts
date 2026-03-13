@@ -2718,7 +2718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }).join("");
 
       const publishedPosts = await storage.getPublishedBlogPosts();
-      const blogUrls = publishedPosts.map((post: any) => `
+      const blogUrls = publishedPosts.map((post) => `
   <url>
     <loc>${BASE_URL}/blog/${post.slug}</loc>
     <lastmod>${post.updatedAt ? post.updatedAt.split("T")[0] : now}</lastmod>
@@ -2831,7 +2831,7 @@ ${blogUrls}
   app.patch("/api/admin/blog/:id", requireAdmin, upload.single("coverImage"), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      let updates: any = {};
+      const updates: Partial<import("@shared/schema").InsertBlogPost> = {};
 
       if (req.body.title !== undefined) updates.title = req.body.title;
       if (req.body.slug !== undefined) updates.slug = req.body.slug;
